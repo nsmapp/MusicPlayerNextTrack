@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel target="17">
+      <module name="Next_track.library" target="21" />
+      <module name="Next_track.mylibrary" target="21" />
+      <module name="Next_track.settings" target="21" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
