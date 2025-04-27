@@ -21,7 +21,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Next track"
 include(":app")
-include(":di")
 include(":navigation")
 include(":features:player")
 include(":features:settings")

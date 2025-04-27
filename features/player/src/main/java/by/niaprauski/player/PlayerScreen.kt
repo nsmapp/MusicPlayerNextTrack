@@ -9,16 +9,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import by.niaprauski.player.models.PlayerEvent
 
 @Composable
 fun PlayerScreen(
     router: PlayerRouter,
-    viewModel: PlayerViewModel = viewModel(),
+    viewModel: PlayerViewModel = hiltViewModel(),
 ) {
-
 
     LaunchedEffect(null) {
         viewModel.event.collect { event ->

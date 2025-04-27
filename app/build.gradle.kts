@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.android.hilt)
+    alias(libs.plugins.ksp.gradlePlugin)
 }
 
 android {
@@ -48,6 +50,7 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/gradle/incremental.annotation.processors"
         }
     }
 }
@@ -77,4 +80,7 @@ dependencies {
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.dash)
     implementation(libs.media3.ui)
+
+    implementation(libs.android.dagger.hilt)
+    ksp(libs.ksp.hilt.compiler)
 }
