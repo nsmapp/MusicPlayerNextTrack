@@ -58,6 +58,12 @@ android {
 dependencies {
 
     implementation(project(":navigation"))
+    implementation(project(":data"))
+    implementation(project(":domain"))
+
+    implementation(libs.android.room.runtime)
+    implementation(libs.android.room.ktx)
+    ksp(libs.android.ksp.room.compiler)
 
 
     implementation(platform(libs.androidx.compose.bom))
@@ -76,10 +82,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
-    implementation(libs.media3.exoplayer)
-    implementation(libs.media3.dash)
-    implementation(libs.media3.ui)
 
     implementation(libs.android.dagger.hilt)
     ksp(libs.ksp.hilt.compiler)

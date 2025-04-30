@@ -1,13 +1,12 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.android.hilt)
     alias(libs.plugins.ksp.gradlePlugin)
+    alias(libs.plugins.android.hilt)
 }
 
 android {
-    namespace = "by.niaprauski.player"
+    namespace = "by.niaprauski.data"
     compileSdk = 35
 
     defaultConfig {
@@ -33,40 +32,23 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    buildFeatures {
-        compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.androidxComposeCompiler.get()
-    }
 }
 
 dependencies {
 
-    implementation(project(":utils"))
     implementation(project(":domain"))
 
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.runtime.android)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.viewmodel)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.foundation.layout.android)
-    implementation(libs.androidx.material3.android)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.android.room.runtime)
+    implementation(libs.android.room.ktx)
+    ksp(libs.android.ksp.room.compiler)
 
     implementation(libs.android.dagger.hilt)
     ksp(libs.ksp.hilt.compiler)
-    implementation(libs.hilt.navigation)
 
-    implementation(libs.kotlinx.coroutines.android)
-
-    implementation(libs.media3.exoplayer)
-    implementation(libs.media3.dash)
-    implementation(libs.media3.ui)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }
