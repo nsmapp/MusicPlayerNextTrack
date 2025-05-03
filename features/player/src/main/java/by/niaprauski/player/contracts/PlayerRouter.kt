@@ -1,7 +1,4 @@
-package by.niaprauski.player
-
-import androidx.compose.runtime.Composable
-
+package by.niaprauski.player.contracts
 
 interface PlayerRouter {
 
