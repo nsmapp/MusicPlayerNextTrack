@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "by.niaprauski.nt"
-        minSdk = 25
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -85,4 +85,6 @@ dependencies {
 
     implementation(libs.android.dagger.hilt)
     ksp(libs.ksp.hilt.compiler)
+
+    implementation(libs.media3.mediasession)
 }

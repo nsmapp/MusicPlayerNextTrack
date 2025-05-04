@@ -2,6 +2,7 @@ package by.niaprauski.player.mapper
 
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import androidx.media3.common.MimeTypes
 import by.niaprauski.domain.models.Track
 import by.niaprauski.domain.utils.DispatcherProvider
 import by.niaprauski.player.models.TrackModel
@@ -48,6 +49,7 @@ class TrackModelMapper @Inject constructor(
         MediaItem.Builder()
             .setUri(track.path)
             .setMediaMetadata(metadata)
+            .setMimeType(MimeTypes.AUDIO_MPEG)
             .build()
     }
 }

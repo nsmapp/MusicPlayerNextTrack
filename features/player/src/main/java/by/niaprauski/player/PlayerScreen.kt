@@ -1,5 +1,7 @@
 package by.niaprauski.player
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,26 +14,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.media3.common.AudioAttributes
-import androidx.media3.common.C
-import androidx.media3.common.MediaItem
-import androidx.media3.common.PlaybackException
-import androidx.media3.common.PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND
-import androidx.media3.common.Player
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.session.MediaSession
 import by.niaprauski.player.contracts.PlayerRouter
 import by.niaprauski.player.models.PlayerEvent
+import by.niaprauski.player.models.PlayerServiceAction
+import by.niaprauski.player.models.PlayerServiceAction.NEXT_TRACK
+import by.niaprauski.player.models.PlayerServiceAction.PAUSE
+import by.niaprauski.player.models.PlayerServiceAction.PLAY
+import by.niaprauski.player.models.PlayerServiceAction.PREVIOUS_TRACK
+import by.niaprauski.player.models.PlayerServiceAction.STOP
+import by.niaprauski.player.service.PlayerService
+import by.niaprauski.player.service.PlayerServiceConnection
 import by.niaprauski.utils.constants.TEXT_EMPTY
-import by.niaprauski.utils.constants.TRACK_START_POSITION
 import by.niaprauski.utils.handlers.MediaHandler
 import by.niaprauski.utils.permission.MediaPermissions
 
@@ -42,57 +42,28 @@ fun PlayerScreen(
 ) {
 
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    val title = remember { mutableStateOf(TEXT_EMPTY) }
-    val artist = remember { mutableStateOf(TEXT_EMPTY) }
+    val serviceConnection = rememberPlayerServiceConnection(context)
+    val playerService by serviceConnection.service.collectAsStateWithLifecycle(null)
 
 
-    val player = remember {
-        ExoPlayer.Builder(context).build().apply {
-            val audioAttributes = AudioAttributes.Builder()
-                .setUsage(C.USAGE_MEDIA)
-                .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
-                .build()
+    val title = playerService?.currentTitle?.collectAsStateWithLifecycle(initialValue = TEXT_EMPTY)
+    val artist = playerService?.currentArtist
+        ?.collectAsStateWithLifecycle(initialValue = TEXT_EMPTY)
 
-            setAudioAttributes(audioAttributes, true)
-            addListener(object : Player.Listener {
-
-                override fun onPlayerErrorChanged(error: PlaybackException?) {
-                    super.onPlayerErrorChanged(error)
-                    when(error?.errorCode){
-                        ERROR_CODE_IO_FILE_NOT_FOUND -> {
-                            seekToNextMediaItem()
-                            play()
-                        }
-                        //TODO handle other errors
-                        else -> println("!!! player error: ${error?.message}  code ${error?.errorCode}")
-                    }
-                }
-                override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                    title.value = mediaMetadata.title?.toString() ?: TEXT_EMPTY
-                    artist.value = mediaMetadata.artist?.toString() ?: TEXT_EMPTY
-                }
-            })
-
-        }
-    }
-    val mediaSession = remember { MediaSession.Builder(context, player).build() }
 
     LaunchedEffect(null) {
         viewModel.event.collect { event ->
             when (event) {
                 PlayerEvent.OpenSettings -> router.openSettings()
-
                 PlayerEvent.OpenLibrary -> router.openLibrary()
-                PlayerEvent.Play -> player.play()
-                PlayerEvent.PlayNext -> player.seekToNextMediaItem()
-                PlayerEvent.Stop -> handlePlayerStop(player)
-                PlayerEvent.Pause -> player.pause()
-                is PlayerEvent.SetPlayList -> handlePlayList(player, event)
-
+                PlayerEvent.Play -> sendPlayerServiceAction(context, PLAY)
+                PlayerEvent.PlayNext -> sendPlayerServiceAction(context, NEXT_TRACK)
+                PlayerEvent.PlayPrevious -> sendPlayerServiceAction(context, PREVIOUS_TRACK)
+                PlayerEvent.Stop -> sendPlayerServiceAction(context, STOP)
+                PlayerEvent.Pause -> sendPlayerServiceAction(context, PAUSE)
+                is PlayerEvent.SetPlayList -> playerService?.setPlayList(event.mediaItems)
                 else -> {
                     //do nothing
                 }
@@ -102,11 +73,9 @@ fun PlayerScreen(
 
     LaunchedEffect(null) { viewModel.onCreate() }
 
-    DisposableEffect(null) {
-        mediaSession.setPlayer(player)
+    DisposableEffect(Unit) {
         onDispose {
-            player.release()
-            mediaSession.release()
+            context.unbindService(serviceConnection)
         }
     }
 
@@ -138,8 +107,8 @@ fun PlayerScreen(
     ) {
         Column {
 
-            Text(text = title.value)
-            Text(text = artist.value)
+            Text(text = title?.value ?: TEXT_EMPTY)
+            Text(text = artist?.value ?: TEXT_EMPTY)
             Text(text = "Track count: ${state.trackCount}")
 
             Text(text = "")
@@ -162,18 +131,22 @@ fun PlayerScreen(
 
 }
 
-private fun handlePlayerStop(player: ExoPlayer) {
-    player.seekTo(TRACK_START_POSITION)
-    player.stop()
+@Composable
+fun rememberPlayerServiceConnection(context: Context): PlayerServiceConnection {
+    val connection = remember { PlayerServiceConnection(context) }
+
+    DisposableEffect(context) {
+        connection.bind()
+        onDispose { connection.unbind() }
+    }
+
+    return connection
 }
 
-private fun handlePlayList(
-    player: ExoPlayer,
-    event: PlayerEvent.SetPlayList
-) {
-    player.apply {
-        clearMediaItems()
-        addMediaItems(0, event.mediaItems)
-        prepare()
+
+private fun sendPlayerServiceAction(context: Context, playerAction: PlayerServiceAction) {
+    val serviceIntent = Intent(context, PlayerService::class.java).apply {
+        action = playerAction.name
     }
+    ContextCompat.startForegroundService(context, serviceIntent)
 }

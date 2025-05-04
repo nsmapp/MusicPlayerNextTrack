@@ -9,6 +9,7 @@ sealed class PlayerEvent {
 
     object Play: PlayerEvent()
     object PlayNext: PlayerEvent()
+    object PlayPrevious: PlayerEvent()
     object Stop: PlayerEvent()
     object Pause: PlayerEvent()
 
