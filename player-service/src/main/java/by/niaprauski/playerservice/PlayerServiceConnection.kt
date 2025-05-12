@@ -1,4 +1,4 @@
-package by.niaprauski.player.service
+package by.niaprauski.playerservice
 
 import android.content.ComponentName
 import android.content.Context

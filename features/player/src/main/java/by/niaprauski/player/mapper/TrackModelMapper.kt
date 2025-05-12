@@ -20,6 +20,7 @@ class TrackModelMapper @Inject constructor(
             title = title,
             artist = artist,
             path = path,
+            isIgnore = false,
         )
     }
 

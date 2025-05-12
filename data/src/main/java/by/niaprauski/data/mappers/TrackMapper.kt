@@ -13,6 +13,7 @@ class TrackMapper @Inject constructor(){
                 title = title,
                 artist = artist,
                 path = path,
+                isIgnore = isIgnore
             )
         }
 
@@ -23,6 +24,7 @@ class TrackMapper @Inject constructor(){
                 title = title,
                 artist = artist,
                 path = path,
+                isIgnore = isIgnore
             )
         }
 

@@ -18,19 +18,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import by.niaprauski.player.contracts.PlayerRouter
 import by.niaprauski.player.models.PlayerEvent
-import by.niaprauski.player.models.PlayerServiceAction
-import by.niaprauski.player.models.PlayerServiceAction.NEXT_TRACK
-import by.niaprauski.player.models.PlayerServiceAction.PAUSE
-import by.niaprauski.player.models.PlayerServiceAction.PLAY
-import by.niaprauski.player.models.PlayerServiceAction.PREVIOUS_TRACK
-import by.niaprauski.player.models.PlayerServiceAction.STOP
-import by.niaprauski.player.service.PlayerService
-import by.niaprauski.player.service.PlayerServiceConnection
+import by.niaprauski.playerservice.PlayerService
+import by.niaprauski.playerservice.PlayerServiceConnection
 import by.niaprauski.utils.constants.TEXT_EMPTY
 import by.niaprauski.utils.handlers.MediaHandler
 import by.niaprauski.utils.permission.MediaPermissions
@@ -53,17 +46,21 @@ fun PlayerScreen(
         ?.collectAsStateWithLifecycle(initialValue = TEXT_EMPTY)
 
 
-    LaunchedEffect(null) {
+
+
+    LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
             when (event) {
                 PlayerEvent.OpenSettings -> router.openSettings()
                 PlayerEvent.OpenLibrary -> router.openLibrary()
-                PlayerEvent.Play -> sendPlayerServiceAction(context, PLAY)
-                PlayerEvent.PlayNext -> sendPlayerServiceAction(context, NEXT_TRACK)
-                PlayerEvent.PlayPrevious -> sendPlayerServiceAction(context, PREVIOUS_TRACK)
-                PlayerEvent.Stop -> sendPlayerServiceAction(context, STOP)
-                PlayerEvent.Pause -> sendPlayerServiceAction(context, PAUSE)
-                is PlayerEvent.SetPlayList -> playerService?.setPlayList(event.mediaItems)
+                PlayerEvent.Play -> playerService?.play()
+                PlayerEvent.PlayNext -> playerService?.seekToNext()
+                PlayerEvent.PlayPrevious -> playerService?.seekToPrevious()
+                PlayerEvent.Stop -> playerService?.stop()
+                PlayerEvent.Pause -> playerService?.pause()
+                is PlayerEvent.SetPlayList -> {
+                    if (playerService?.isPlaying() == false) playerService?.setPlayList(event.mediaItems)
+                }
                 else -> {
                     //do nothing
                 }
@@ -71,12 +68,14 @@ fun PlayerScreen(
         }
     }
 
-    LaunchedEffect(null) { viewModel.onCreate() }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            context.unbindService(serviceConnection)
-        }
+    LaunchedEffect(Unit) {
+        viewModel.onCreate()
+    }
+
+    LaunchedEffect(Unit) {
+        val intent = Intent(context, PlayerService::class.java)
+        context.startService(intent)
     }
 
 
@@ -131,22 +130,18 @@ fun PlayerScreen(
 
 }
 
+
 @Composable
 fun rememberPlayerServiceConnection(context: Context): PlayerServiceConnection {
     val connection = remember { PlayerServiceConnection(context) }
 
     DisposableEffect(context) {
         connection.bind()
-        onDispose { connection.unbind() }
+        onDispose {
+            connection.unbind()
+        }
     }
 
     return connection
 }
 
-
-private fun sendPlayerServiceAction(context: Context, playerAction: PlayerServiceAction) {
-    val serviceIntent = Intent(context, PlayerService::class.java).apply {
-        action = playerAction.name
-    }
-    ContextCompat.startForegroundService(context, serviceIntent)
-}

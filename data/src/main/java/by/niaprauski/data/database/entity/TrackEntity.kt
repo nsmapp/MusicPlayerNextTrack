@@ -16,4 +16,6 @@ data class TrackEntity(
     val artist: String,
     @ColumnInfo("path")
     val path: String,
+    @ColumnInfo("is_ignore")
+    val isIgnore: Boolean
 )

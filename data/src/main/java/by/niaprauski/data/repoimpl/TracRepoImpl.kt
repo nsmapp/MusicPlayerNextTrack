@@ -4,6 +4,8 @@ import by.niaprauski.data.database.dao.TrackDao
 import by.niaprauski.data.mappers.TrackMapper
 import by.niaprauski.domain.models.Track
 import by.niaprauski.domain.repository.TrackRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class TracRepoImpl @Inject constructor(
@@ -14,6 +16,9 @@ class TracRepoImpl @Inject constructor(
 
     //TODO remove inactive tracks
     override fun saveTrackInfo(tracks: List<Track>) {
+        val validPaths = tracks.map { it.path }
+        val brokenTracksIds = trackDao.getBrokenTracksIds(validPaths)
+        trackDao.deleteByIds(brokenTracksIds)
 
         val list = tracks.map { track -> trackMapper.toEntity(track) }
         trackDao.insertAll(list)
@@ -22,7 +27,13 @@ class TracRepoImpl @Inject constructor(
     override fun getAll(): List<Track> = trackDao.getAll()
         .map {track -> trackMapper.toModel(track) }
 
-    override fun ignoreTrack(trackId: Long) {
-        TODO("Not yet implemented")
+    override fun getAllAsFlow(): Flow<List<Track>> = trackDao
+        .getAllAsFlow()
+        .map { tracks ->
+            tracks.map { trackMapper.toModel(it) }
+        }
+
+    override fun markAsIgnoreTrack(trackId: Long) {
+        trackDao.markTrackAsIgnore(trackId)
     }
 }

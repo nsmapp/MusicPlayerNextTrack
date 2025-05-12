@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.android.hilt)
+    alias(libs.plugins.ksp.gradlePlugin)
 }
 
 android {
@@ -43,8 +45,14 @@ android {
 
 dependencies {
 
+    implementation(project(":player-service"))
+    implementation(project(":utils"))
+    implementation(project(":domain"))
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.runtime.android)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.viewmodel)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -53,4 +61,13 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+
+    implementation(libs.media3.mediasession)
+
+    implementation(libs.android.dagger.hilt)
+    ksp(libs.ksp.hilt.compiler)
+    implementation(libs.hilt.navigation)
+
+    implementation(libs.kotlinx.coroutines.android)
 }

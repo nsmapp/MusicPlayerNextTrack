@@ -1,4 +1,4 @@
-package by.niaprauski.player.service
+package by.niaprauski.playerservice
 
 import android.R
 import android.app.Notification
@@ -22,7 +22,7 @@ import androidx.media3.session.MediaButtonReceiver
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import androidx.media3.session.MediaStyleNotificationHelper
-import by.niaprauski.player.models.PlayerServiceAction
+import by.niaprauski.playerservice.models.PlayerServiceAction
 import by.niaprauski.utils.constants.TEXT_EMPTY
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,6 +32,7 @@ class PlayerService : MediaSessionService() {
     private var player: ExoPlayer? = null
     private var mediaSession: MediaSession? = null
     private val playerBinder = PlayerBinder()
+    private var mediaItems: List<MediaItem> = emptyList()
 
     private val chanelId = "by.niaprauski.nexttreck.chanel"
     private val notificationId = 5465
@@ -195,30 +196,31 @@ class PlayerService : MediaSessionService() {
     }
 
     fun setPlayList(mediaItems: List<MediaItem>, startIndex: Int = 0) {
+        this.mediaItems = mediaItems
         player?.apply {
             setMediaItems(mediaItems, startIndex, 0)
             prepare()
         }
     }
 
-    private fun play() {
+    fun play() {
+        player?.prepare()
         player?.play()
     }
 
-    private fun pause() {
+    fun pause() {
         player?.pause()
     }
 
-    private fun stop() {
+    fun stop() {
         player?.stop()
-        player?.seekTo(0)
     }
 
-    private fun seekToNext() {
+    fun seekToNext() {
         player?.seekToNextMediaItem()
     }
 
-    private fun seekToPrevious() {
+    fun seekToPrevious() {
         player?.seekToPreviousMediaItem()
     }
 
@@ -237,6 +239,28 @@ class PlayerService : MediaSessionService() {
     fun isPlaying(): Boolean? {
         return player?.isPlaying
     }
+
+    fun playWithPosition(item: MediaItem) {
+        val index = mediaItems.indexOf(item)
+
+        if (index == -1) return
+
+        player?.seekTo(
+            /* mediaItemIndex = */ index,
+            /* positionMs = */ 0
+        )
+    }
+
+    fun removeMediaItem(item: MediaItem) {
+        val index = mediaItems.indexOf(item)
+
+        if (index == -1) return
+        mediaItems = mediaItems.toMutableList()
+            .apply { remove(item) }
+        player?.removeMediaItem(index)
+
+    }
+
 
     private val playerListener = object : Player.Listener {
         override fun onPlayerErrorChanged(error: PlaybackException?) {

@@ -1,6 +1,7 @@
 package by.niaprauski.domain.repository
 
 import by.niaprauski.domain.models.Track
+import kotlinx.coroutines.flow.Flow
 
 interface TrackRepository {
 
@@ -8,7 +9,9 @@ interface TrackRepository {
 
     fun getAll(): List<Track>
 
-    fun ignoreTrack(trackId: Long)
+    fun getAllAsFlow(): Flow<List<Track>>
+
+    fun markAsIgnoreTrack(trackId: Long)
 
 
 }

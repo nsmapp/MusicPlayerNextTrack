@@ -57,6 +57,7 @@ android {
 
 dependencies {
 
+    implementation(project(":player-service"))
     implementation(project(":navigation"))
     implementation(project(":data"))
     implementation(project(":domain"))

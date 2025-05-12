@@ -4,5 +4,6 @@ data class Track(
     val id: Long,
     val title: String,
     val artist: String,
-    val path: String
+    val path: String,
+    val isIgnore: Boolean,
 )

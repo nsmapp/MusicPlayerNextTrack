@@ -28,7 +28,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name="by.niaprauski.player.service.PlayerService"
+        <service android:name="by.niaprauski.playerservice.PlayerService"
             android:foregroundServiceType="mediaPlayback"
             android:exported="false"/>
 
