@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -24,6 +25,7 @@ import by.niaprauski.player.contracts.PlayerRouter
 import by.niaprauski.player.models.PlayerEvent
 import by.niaprauski.playerservice.PlayerService
 import by.niaprauski.playerservice.PlayerServiceConnection
+import by.niaprauski.playerservice.models.TrackProgress
 import by.niaprauski.utils.constants.TEXT_EMPTY
 import by.niaprauski.utils.handlers.MediaHandler
 import by.niaprauski.utils.permission.MediaPermissions
@@ -45,6 +47,10 @@ fun PlayerScreen(
     val artist = playerService?.currentArtist
         ?.collectAsStateWithLifecycle(initialValue = TEXT_EMPTY)
 
+    val trackProgress = playerService?.trackProgress?.collectAsStateWithLifecycle(
+        initialValue = TrackProgress.DEFAULT
+    )
+
 
 
 
@@ -61,6 +67,7 @@ fun PlayerScreen(
                 is PlayerEvent.SetPlayList -> {
                     if (playerService?.isPlaying() == false) playerService?.setPlayList(event.mediaItems)
                 }
+
                 else -> {
                     //do nothing
                 }
@@ -124,6 +131,15 @@ fun PlayerScreen(
                 Text(text = "Stop", modifier = Modifier.clickable { viewModel.stop() })
                 Text(text = "Next track", modifier = Modifier.clickable { viewModel.playNext() })
             }
+
+            Slider(
+                value = trackProgress?.value?.progress ?: 0f,
+                onValueChange = { newPosition -> playerService?.seekTo(newPosition) },
+                modifier = Modifier.fillMaxWidth(),
+                valueRange = 0f..1f,
+                steps = 0,
+            )
+
         }
 
     }

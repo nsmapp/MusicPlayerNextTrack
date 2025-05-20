@@ -23,14 +23,27 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import androidx.media3.session.MediaStyleNotificationHelper
 import by.niaprauski.playerservice.models.PlayerServiceAction
+import by.niaprauski.playerservice.models.TrackProgress
 import by.niaprauski.utils.constants.TEXT_EMPTY
+import by.niaprauski.utils.extension.toTrackTime
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class PlayerService : MediaSessionService() {
 
     private var player: ExoPlayer? = null
     private var mediaSession: MediaSession? = null
+    private var progressTrackingJob: Job? = null
+
+    private val serviceScope by lazy { MainScope() }
+
     private val playerBinder = PlayerBinder()
     private var mediaItems: List<MediaItem> = emptyList()
 
@@ -42,6 +55,9 @@ class PlayerService : MediaSessionService() {
 
     private val _currentArtist = MutableStateFlow(TEXT_EMPTY)
     val currentArtist = _currentArtist.asStateFlow()
+
+    private val _trackProgress = MutableStateFlow(TrackProgress.DEFAULT)
+    val trackProgress = _trackProgress.asStateFlow()
 
     inner class PlayerBinder : Binder() {
         fun getService(): PlayerService = this@PlayerService
@@ -94,6 +110,7 @@ class PlayerService : MediaSessionService() {
         player?.removeListener(playerListener)
         player?.release()
         mediaSession?.release()
+        serviceScope.cancel()
         super.onDestroy()
     }
 
@@ -206,6 +223,7 @@ class PlayerService : MediaSessionService() {
     fun play() {
         player?.prepare()
         player?.play()
+        startProgressTracking()
     }
 
     fun pause() {
@@ -224,16 +242,18 @@ class PlayerService : MediaSessionService() {
         player?.seekToPreviousMediaItem()
     }
 
-    fun seekTo(positionMs: Long) {
-        player?.seekTo(positionMs)
+    fun seekTo(progress: Float) {
+        if (player == null) return
+        val position = (getDuration() * progress).toLong()
+        player?.seekTo(position)
     }
 
-    fun getCurrentPosition(): Long? {
-        return player?.currentPosition
+    fun getCurrentPosition(): Long {
+        return player?.currentPosition ?: 0
     }
 
-    fun getDuration(): Long? {
-        return player?.duration
+    fun getDuration(): Long {
+        return player?.duration ?: 0
     }
 
     fun isPlaying(): Boolean? {
@@ -259,6 +279,29 @@ class PlayerService : MediaSessionService() {
             .apply { remove(item) }
         player?.removeMediaItem(index)
 
+    }
+
+    private fun startProgressTracking() {
+        progressTrackingJob?.cancel()
+
+
+        progressTrackingJob = serviceScope.launch(Dispatchers.Main) {
+            while (true) {
+                if (player?.isPlaying == true) {
+                    val currentPosition = getCurrentPosition()
+                    val duration = getDuration().toFloat()
+
+                    val trackTime = (currentPosition / 1000).toTrackTime()
+                    val progress = currentPosition / duration
+
+                    _trackProgress.update { TrackProgress(progress, trackTime) }
+
+                    delay(500)
+                } else {
+                    delay(1000)
+                }
+            }
+        }
     }
 
 
