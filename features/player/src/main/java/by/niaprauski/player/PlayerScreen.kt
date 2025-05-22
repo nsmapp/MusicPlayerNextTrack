@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.Player
 import by.niaprauski.player.contracts.PlayerRouter
 import by.niaprauski.player.models.PlayerEvent
 import by.niaprauski.playerservice.PlayerService
@@ -50,6 +52,9 @@ fun PlayerScreen(
     val trackProgress = playerService?.trackProgress?.collectAsStateWithLifecycle(
         initialValue = TrackProgress.DEFAULT
     )
+
+    val shuffle = playerService?.shuffle?.collectAsStateWithLifecycle(false)
+    val repeatMode = playerService?.repeatMode?.collectAsStateWithLifecycle(Player.REPEAT_MODE_ALL)
 
 
 
@@ -130,6 +135,21 @@ fun PlayerScreen(
                 Text(text = "Pause", modifier = Modifier.clickable { viewModel.pause() })
                 Text(text = "Stop", modifier = Modifier.clickable { viewModel.stop() })
                 Text(text = "Next track", modifier = Modifier.clickable { viewModel.playNext() })
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            ) {
+                Text(
+                    text = "Shuffle: ${shuffle?.value}",
+                    modifier = Modifier.clickable { playerService?.changeShuffleMode() }
+                )
+                Text(
+                    text = "Repeat Mode: ${repeatMode?.value}",
+                    modifier = Modifier.clickable { playerService?.changeRepeatMode()}
+                )
             }
 
             Slider(

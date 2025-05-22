@@ -59,6 +59,13 @@ class PlayerService : MediaSessionService() {
     private val _trackProgress = MutableStateFlow(TrackProgress.DEFAULT)
     val trackProgress = _trackProgress.asStateFlow()
 
+    private val _shuffle = MutableStateFlow(false)
+    val shuffle = _shuffle.asStateFlow()
+
+    private val _repeatMode = MutableStateFlow(Player.REPEAT_MODE_ALL)
+    val repeatMode = _repeatMode.asStateFlow()
+
+
     inner class PlayerBinder : Binder() {
         fun getService(): PlayerService = this@PlayerService
     }
@@ -69,12 +76,11 @@ class PlayerService : MediaSessionService() {
             val audioAttributes = AudioAttributes.Builder().setUsage(C.USAGE_MEDIA)
                 .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).build()
             addListener(playerListener)
-
+            repeatMode = Player.REPEAT_MODE_ALL
             setAudioAttributes(audioAttributes, true)
         }
         player?.let { player ->
-            mediaSession = MediaSession.Builder(this, player)
-                .build()
+            mediaSession = MediaSession.Builder(this, player).build()
         }
     }
 
@@ -189,14 +195,12 @@ class PlayerService : MediaSessionService() {
 
 
         builder.setShowWhen(false)
-            .addAction(R.drawable.ic_media_previous, "Track back", prevPendingIntent)
-            .addAction(
+            .addAction(R.drawable.ic_media_previous, "Track back", prevPendingIntent).addAction(
                 if (player?.isPlaying == true) R.drawable.ic_media_pause
                 else R.drawable.ic_media_play,
                 if (player?.isPlaying == true) "Pause" else "Play",
                 if (player?.isPlaying == true) pausePendingIntent else playPendingIntent
-            )
-            .addAction(R.drawable.ic_media_next, "Next", nextPendingIntent)
+            ).addAction(R.drawable.ic_media_next, "Next", nextPendingIntent)
 
         return builder.build()
     }
@@ -256,8 +260,8 @@ class PlayerService : MediaSessionService() {
         return player?.duration ?: 0
     }
 
-    fun isPlaying(): Boolean? {
-        return player?.isPlaying
+    fun isPlaying(): Boolean {
+        return player?.isPlaying == true
     }
 
     fun playWithPosition(item: MediaItem) {
@@ -265,18 +269,38 @@ class PlayerService : MediaSessionService() {
 
         if (index == -1) return
 
-        player?.seekTo(
-            /* mediaItemIndex = */ index,
-            /* positionMs = */ 0
+        player?.seekTo(/* mediaItemIndex = */ index,/* positionMs = */ 0
         )
     }
+
+    fun changeShuffleMode() {
+
+        if (isPlaying().not()) return
+
+        val shuffleMode = player?.shuffleModeEnabled?.not() ?: return
+        player?.shuffleModeEnabled = shuffleMode
+        _shuffle.update { shuffleMode }
+    }
+
+    fun changeRepeatMode() {
+
+        if (isPlaying().not()) return
+
+        val newRepeatMode = if (player?.repeatMode == Player.REPEAT_MODE_ALL) Player.REPEAT_MODE_ONE
+        else Player.REPEAT_MODE_ALL
+
+        player?.let { player ->
+            player.repeatMode = newRepeatMode
+            _repeatMode.update { newRepeatMode }
+        }
+    }
+
 
     fun removeMediaItem(item: MediaItem) {
         val index = mediaItems.indexOf(item)
 
         if (index == -1) return
-        mediaItems = mediaItems.toMutableList()
-            .apply { remove(item) }
+        mediaItems = mediaItems.toMutableList().apply { remove(item) }
         player?.removeMediaItem(index)
 
     }
