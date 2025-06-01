@@ -1,5 +1,6 @@
 package by.niaprauski.domain.usecases.track
 
+import by.niaprauski.domain.models.SearchTrackFilter
 import by.niaprauski.domain.models.Track
 import by.niaprauski.domain.repository.TrackRepository
 import by.niaprauski.domain.utils.DispatcherProvider
@@ -12,10 +13,11 @@ class GetTracksFlowUseCase @Inject constructor(
     private val dispatcherProvider: DispatcherProvider
 ) {
 
-    suspend fun invoke(): Result<Flow<List<Track>>> =
+    suspend fun invoke(filter: SearchTrackFilter): Result<Flow<List<Track>>> =
         withContext(dispatcherProvider.io) {
             runCatching {
-                trackRepository.getAllAsFlow()
+                if (filter.text.isEmpty()) trackRepository.getAllAsFlow()
+                else trackRepository.getAllAsFlow(filter)
             }
         }
 }

@@ -4,9 +4,11 @@ import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -57,7 +59,11 @@ fun LibraryScreen(
             Text(text = "LibraryScreen")
 
             LazyColumn(
-                modifier = Modifier.fillMaxSize(), state = rememberLazyListState(), content = {
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                state = rememberLazyListState(),
+                content = {
                     itemsIndexed(
                         items = state.tracks, key = { _, item -> item.id }) { _, item ->
 
@@ -68,6 +74,13 @@ fun LibraryScreen(
                         )
                     }
                 }
+            )
+
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = state.searchText ,
+                onValueChange = { viewModel.searchTrack(it) },
+
             )
         }
     }

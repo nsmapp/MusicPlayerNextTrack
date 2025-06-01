@@ -2,6 +2,7 @@ package by.niaprauski.data.repoimpl
 
 import by.niaprauski.data.database.dao.TrackDao
 import by.niaprauski.data.mappers.TrackMapper
+import by.niaprauski.domain.models.SearchTrackFilter
 import by.niaprauski.domain.models.Track
 import by.niaprauski.domain.repository.TrackRepository
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +15,6 @@ class TracRepoImpl @Inject constructor(
 ): TrackRepository {
 
 
-    //TODO remove inactive tracks
     override fun saveTrackInfo(tracks: List<Track>) {
         val validPaths = tracks.map { it.path }
         val brokenTracksIds = trackDao.getBrokenTracksIds(validPaths)
@@ -32,6 +32,12 @@ class TracRepoImpl @Inject constructor(
         .map { tracks ->
             tracks.map { trackMapper.toModel(it) }
         }
+
+    override fun getAllAsFlow(filter: SearchTrackFilter): Flow<List<Track>> =
+        trackDao.getAllAsFlow(filter.text)
+            .map { tracks ->
+                tracks.map { trackMapper.toModel(it) }
+            }
 
     override fun markAsIgnoreTrack(trackId: Long) {
         trackDao.markTrackAsIgnore(trackId)
