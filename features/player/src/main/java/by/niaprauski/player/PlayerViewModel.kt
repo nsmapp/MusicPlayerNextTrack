@@ -102,13 +102,30 @@ class PlayerViewModel @Inject constructor(
         viewModelScope.launch {
             _event.send(PlayerEvent.PlayNext)
         }
+    }
 
+    override fun playPrevious() {
+        viewModelScope.launch {
+            _event.send(PlayerEvent.PlayPrevious)
+        }
     }
 
     override fun setPlayList(mediaItems: List<MediaItem> ) {
         viewModelScope.launch {
             _state.update { it.copy(trackCount = mediaItems.size) }
             _event.send(PlayerEvent.SetPlayList(mediaItems))
+        }
+    }
+
+    override fun changeShuffleMode() {
+        viewModelScope.launch {
+            _event.send(PlayerEvent.ChangeShuffleMode)
+        }
+    }
+
+    override fun changeRepeatMode() {
+        viewModelScope.launch {
+            _event.send(PlayerEvent.ChangeRepeatMode)
         }
     }
 

@@ -2,12 +2,10 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.android.hilt)
-    alias(libs.plugins.ksp.gradlePlugin)
 }
 
 android {
-    namespace = "by.niaprauski.player"
+    namespace = "by.niaprauski.designsystem"
     compileSdk = 35
 
     defaultConfig {
@@ -33,6 +31,7 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
     }
@@ -43,11 +42,7 @@ android {
 }
 
 dependencies {
-
-    implementation(project(":player-service"))
     implementation(project(":utils"))
-    implementation(project(":domain"))
-    implementation(project(":uikit:design-system"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.runtime.android)
@@ -58,17 +53,6 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.foundation.layout.android)
     implementation(libs.androidx.material3.android)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-
-    
-    implementation(libs.media3.mediasession)
-
-    implementation(libs.android.dagger.hilt)
-    ksp(libs.ksp.hilt.compiler)
-    implementation(libs.hilt.navigation)
-
-    implementation(libs.kotlinx.coroutines.android)
-
+    implementation(libs.androidx.ui.tooling.preview.android)
+    debugImplementation(libs.androidx.ui.tooling)
 }

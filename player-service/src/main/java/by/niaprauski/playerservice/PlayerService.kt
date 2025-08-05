@@ -65,6 +65,9 @@ class PlayerService : MediaSessionService() {
     private val _repeatMode = MutableStateFlow(Player.REPEAT_MODE_ALL)
     val repeatMode = _repeatMode.asStateFlow()
 
+    private val _isPlaying = MutableStateFlow(false)
+    val isPlaying = _isPlaying.asStateFlow()
+
 
     inner class PlayerBinder : Binder() {
         fun getService(): PlayerService = this@PlayerService
@@ -347,6 +350,7 @@ class PlayerService : MediaSessionService() {
         }
 
         override fun onIsPlayingChanged(isPlaying: Boolean) {
+            _isPlaying.update { isPlaying }
             updateNotification()
         }
     }

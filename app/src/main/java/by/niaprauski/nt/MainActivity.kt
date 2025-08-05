@@ -5,6 +5,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.remember
 import androidx.fragment.app.FragmentActivity
+import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.navigation.NavigatorImpl
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -17,8 +18,11 @@ class MainActivity : FragmentActivity() {
 
         setContent {
 
-            val navigator = remember { NavigatorImpl(this, supportFragmentManager) }
-            navigator.navHost()
+            AppTheme(isDarkThemeEnabled = false) {
+
+                val navigator = remember { NavigatorImpl(this, supportFragmentManager) }
+                navigator.navHost()
+            }
 
         }
     }

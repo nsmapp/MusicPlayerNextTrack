@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -25,6 +23,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.Player
 import by.niaprauski.player.contracts.PlayerRouter
 import by.niaprauski.player.models.PlayerEvent
+import by.niaprauski.player.views.PlayerControlView
+import by.niaprauski.player.views.TrackProgressSlider
 import by.niaprauski.playerservice.PlayerService
 import by.niaprauski.playerservice.PlayerServiceConnection
 import by.niaprauski.playerservice.models.TrackProgress
@@ -53,18 +53,22 @@ fun PlayerScreen(
         initialValue = TrackProgress.DEFAULT
     )
 
+    val isPlaying = playerService?.isPlaying?.collectAsStateWithLifecycle(
+        initialValue = false
+    )
+
     val shuffle = playerService?.shuffle?.collectAsStateWithLifecycle(false)
     val repeatMode = playerService?.repeatMode?.collectAsStateWithLifecycle(Player.REPEAT_MODE_ALL)
-
-
-
 
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
             when (event) {
                 PlayerEvent.OpenSettings -> router.openSettings()
                 PlayerEvent.OpenLibrary -> router.openLibrary()
-                PlayerEvent.Play -> playerService?.play()
+                PlayerEvent.Play -> {
+                    playerService?.play()
+                }
+
                 PlayerEvent.PlayNext -> playerService?.seekToNext()
                 PlayerEvent.PlayPrevious -> playerService?.seekToPrevious()
                 PlayerEvent.Stop -> playerService?.stop()
@@ -73,9 +77,13 @@ fun PlayerScreen(
                     if (playerService?.isPlaying() == false) playerService?.setPlayList(event.mediaItems)
                 }
 
-                else -> {
+                PlayerEvent.ChangeRepeatMode -> playerService?.changeRepeatMode()
+                PlayerEvent.ChangeShuffleMode -> playerService?.changeRepeatMode()
+
+                PlayerEvent.Nothing -> {
                     //do nothing
                 }
+
             }
         }
     }
@@ -116,49 +124,47 @@ fun PlayerScreen(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Column {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceAround
+        ) {
 
-            Text(text = title?.value ?: TEXT_EMPTY)
-            Text(text = artist?.value ?: TEXT_EMPTY)
-            Text(text = "Track count: ${state.trackCount}")
+            Column {
+                Text(text = title?.value ?: TEXT_EMPTY)
+                Text(text = artist?.value ?: TEXT_EMPTY)
+            }
 
-            Text(text = "")
-            Text(text = "PlayerScreen")
-            Text(modifier = Modifier.clickable { viewModel.openLibrary() }, text = "open Library")
-            Text(modifier = Modifier.clickable { viewModel.openSettings() }, text = "open Settings")
+
+            PlayerControlView(
+                onPlayClick = { viewModel.play() },
+                onPauseClick = { viewModel.pause() },
+                onStopClick = { viewModel.stop() },
+                onNextClick = { viewModel.playNext() },
+                onPreviousClick = { viewModel.playPrevious() },
+                onShuffleModeClick = { viewModel.changeShuffleMode() },
+                onRepeatModeClick = { viewModel.changeRepeatMode() },
+                isPlaying = isPlaying,
+                shuffle = shuffle,
+                repeatMode = repeatMode,
+            ) {
+                TrackProgressSlider(trackProgress, playerService)
+            }
+
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Text(text = "Play", modifier = Modifier.clickable { viewModel.play() })
-                Text(text = "Pause", modifier = Modifier.clickable { viewModel.pause() })
-                Text(text = "Stop", modifier = Modifier.clickable { viewModel.stop() })
-                Text(text = "Next track", modifier = Modifier.clickable { viewModel.playNext() })
-            }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
                 Text(
-                    text = "Shuffle: ${shuffle?.value}",
-                    modifier = Modifier.clickable { playerService?.changeShuffleMode() }
+                    modifier = Modifier.clickable { viewModel.openLibrary() },
+                    text = "open Library"
                 )
                 Text(
-                    text = "Repeat Mode: ${repeatMode?.value}",
-                    modifier = Modifier.clickable { playerService?.changeRepeatMode()}
+                    modifier = Modifier.clickable { viewModel.openSettings() },
+                    text = "open Settings"
                 )
             }
-
-            Slider(
-                value = trackProgress?.value?.progress ?: 0f,
-                onValueChange = { newPosition -> playerService?.seekTo(newPosition) },
-                modifier = Modifier.fillMaxWidth(),
-                valueRange = 0f..1f,
-                steps = 0,
-            )
 
         }
 

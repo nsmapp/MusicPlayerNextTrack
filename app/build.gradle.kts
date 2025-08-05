@@ -59,6 +59,7 @@ dependencies {
 
     implementation(project(":player-service"))
     implementation(project(":navigation"))
+    implementation(project(":uikit:design-system"))
     implementation(project(":data"))
     implementation(project(":domain"))
 

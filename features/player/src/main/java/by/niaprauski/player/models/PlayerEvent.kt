@@ -13,6 +13,9 @@ sealed class PlayerEvent {
     object Stop: PlayerEvent()
     object Pause: PlayerEvent()
 
+    object ChangeShuffleMode: PlayerEvent()
+    object ChangeRepeatMode: PlayerEvent()
+
 
     data class SetPlayList(val mediaItems: List<MediaItem>): PlayerEvent()
 

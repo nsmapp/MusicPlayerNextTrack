@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Valkyrie.Settings">
+    <option name="iconPackDestination" value="$PROJECT_DIR$/uikit/design-system/src/main/java/by/niaprauski/designsystem/icons" />
+    <option name="iconPackName" value="Icons" />
+    <option name="iconPackPackage" value="by.niaprauski.designsystem.icons" />
+    <option name="mode" value="IconPack" />
+    <option name="packageName" value="by.niaprauski.designsystem.icons" />
+  </component>
+</project>
