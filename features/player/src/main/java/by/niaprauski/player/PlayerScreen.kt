@@ -78,7 +78,7 @@ fun PlayerScreen(
                 }
 
                 PlayerEvent.ChangeRepeatMode -> playerService?.changeRepeatMode()
-                PlayerEvent.ChangeShuffleMode -> playerService?.changeRepeatMode()
+                PlayerEvent.ChangeShuffleMode -> playerService?.changeShuffleMode()
 
                 PlayerEvent.Nothing -> {
                     //do nothing

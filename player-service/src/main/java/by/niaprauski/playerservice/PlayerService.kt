@@ -289,8 +289,15 @@ class PlayerService : MediaSessionService() {
 
         if (isPlaying().not()) return
 
-        val newRepeatMode = if (player?.repeatMode == Player.REPEAT_MODE_ALL) Player.REPEAT_MODE_ONE
-        else Player.REPEAT_MODE_ALL
+        val newRepeatMode = when(player?.repeatMode){
+            Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ONE
+            Player.REPEAT_MODE_ONE -> Player.REPEAT_MODE_ALL
+            Player.REPEAT_MODE_ALL-> Player.REPEAT_MODE_OFF
+            else -> Player.REPEAT_MODE_OFF
+        }
+
+            if (player?.repeatMode == Player.REPEAT_MODE_ALL) Player.REPEAT_MODE_ONE
+            else Player.REPEAT_MODE_ALL
 
         player?.let { player ->
             player.repeatMode = newRepeatMode

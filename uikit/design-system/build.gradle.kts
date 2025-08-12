@@ -54,5 +54,6 @@ dependencies {
     implementation(libs.androidx.foundation.layout.android)
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.ui.tooling.preview.android)
+    api(libs.androidx.ui.icons)
     debugImplementation(libs.androidx.ui.tooling)
 }

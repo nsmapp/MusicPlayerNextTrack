@@ -18,6 +18,7 @@ data class ViewSize(
     val border_zero: Dp,
     val border_small: Dp,
     val border_normal: Dp,
+    val border_big: Dp,
 
     val view_extra_larger: Dp,
 
@@ -36,6 +37,7 @@ val defaultViewSizes = ViewSize(
     border_zero = 0.dp,
     border_small = 0.75.dp,
     border_normal = 2.dp,
+    border_big = 4.dp,
 
     view_extra_larger = 192.dp
 
