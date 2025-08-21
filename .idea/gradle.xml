@@ -19,6 +19,7 @@
             <option value="$PROJECT_DIR$/features/settings" />
             <option value="$PROJECT_DIR$/navigation" />
             <option value="$PROJECT_DIR$/player-service" />
+            <option value="$PROJECT_DIR$/translations" />
             <option value="$PROJECT_DIR$/uikit" />
             <option value="$PROJECT_DIR$/uikit/design-system" />
             <option value="$PROJECT_DIR$/utils" />

@@ -23,8 +23,10 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.designsystem.ui.button.PlayerLiteButton
+import by.niaprauski.translations.R
 import by.niaprauski.playerservice.models.RepeatMode
 
 @Composable
@@ -73,7 +75,7 @@ fun PlayerControlView(
                     .clip(RoundedCornerShape(AppTheme.viewSize.icon_big)),
                 imageVector = Icons.Outlined.SkipPrevious,
                 onClick = onPreviousClick,
-                description = "Play previous"
+                description = stringResource(R.string.feature_player_play_previous)
             )
 
 
@@ -83,7 +85,7 @@ fun PlayerControlView(
                     .clip(RoundedCornerShape(AppTheme.viewSize.icon_large)),
                 imageVector = Icons.Outlined.Stop,
                 onClick = onStopClick,
-                description = "Stop"
+                description = stringResource(R.string.feature_player_stop)
             )
 
             PlayerLiteButton(
@@ -92,7 +94,7 @@ fun PlayerControlView(
                     .clip(RoundedCornerShape(AppTheme.viewSize.icon_big)),
                 imageVector = Icons.Outlined.SkipNext,
                 onClick = onNextClick,
-                description = "Play next"
+                description = stringResource(R.string.feature_player_play_next)
             )
         }
 
@@ -119,7 +121,7 @@ private fun RepeatModeButton(
             .clip(RoundedCornerShape(AppTheme.viewSize.icon_small)),
         imageVector = repeatModeIcon,
         onClick = onRepeatModeClick,
-        description = "Repeat mode"
+        description = stringResource(R.string.feature_player_repeat_mode)
     )
 }
 
@@ -138,7 +140,7 @@ fun ShuffleButton(
             .clip(RoundedCornerShape(AppTheme.viewSize.icon_small)),
         imageVector = shuffleIcon,
         onClick = onShuffleModeClick,
-        description = "Shuffle"
+        description = stringResource(R.string.feature_player_shuffle)
     )
 }
 
@@ -158,6 +160,6 @@ private fun PlayPauseButton(
             .clip(RoundedCornerShape(AppTheme.viewSize.icon_extra_large)),
         imageVector = playIcon,
         onClick = playClickAction,
-        description = "Play"
+        description = stringResource(R.string.feature_player_play)
     )
 }

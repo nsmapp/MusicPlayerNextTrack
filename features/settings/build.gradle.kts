@@ -41,6 +41,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":translations"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.runtime.android)

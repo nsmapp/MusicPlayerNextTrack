@@ -48,6 +48,7 @@ dependencies {
     implementation(project(":player-service"))
     implementation(project(":utils"))
     implementation(project(":domain"))
+    implementation(project(":translations"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.runtime.android)

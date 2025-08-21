@@ -56,7 +56,6 @@ fun LibraryScreen(
         contentAlignment = Alignment.Center,
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Text(text = "LibraryScreen")
 
             LazyColumn(
                 modifier = Modifier

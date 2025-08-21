@@ -48,6 +48,8 @@ dependencies {
     implementation(project(":utils"))
     implementation(project(":domain"))
     implementation(project(":uikit:design-system"))
+    implementation(project(":translations"))
+
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.runtime.android)
