@@ -272,8 +272,11 @@ class PlayerService : MediaSessionService() {
 
         if (index == -1) return
 
-        player?.seekTo(/* mediaItemIndex = */ index,/* positionMs = */ 0
-        )
+        player?.seekTo(/* mediaItemIndex = */ index,/* positionMs = */ 0)
+
+        if (!isPlaying()){
+            play()
+        }
     }
 
     fun changeShuffleMode() {

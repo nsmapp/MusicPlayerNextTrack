@@ -3,7 +3,6 @@ package by.niaprauski.player.views
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -29,7 +28,6 @@ fun PlayerUpView(
 
         PlayerLiteButton(
             modifier = Modifier
-                .padding(AppTheme.padding.normal)
                 .size(AppTheme.viewSize.icon_normal)
                 .clip(RoundedCornerShape(AppTheme.viewSize.icon_normal)),
             imageVector = Icons.Outlined.PlaylistPlay,
@@ -39,7 +37,6 @@ fun PlayerUpView(
 
         PlayerLiteButton(
             modifier = Modifier
-                .padding(AppTheme.padding.normal)
                 .size(AppTheme.viewSize.icon_normal)
                 .clip(RoundedCornerShape(AppTheme.viewSize.icon_normal)),
             imageVector = Icons.Outlined.Settings,

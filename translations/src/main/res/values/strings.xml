@@ -11,5 +11,13 @@
     <string name="feature_player_repeat_mode">Repeat mode</string>
     <string name="feature_player_shuffle">Shuffle</string>
     <string name="feature_player_play">Play</string>
+    <string name="feature_player_no_artist">no_artist</string>
+    <string name="feature_player_no_track">no_track</string>
+
+
+<!--    feature library-->
+    <string name="feature_library_search">Search</string>
+    <string name="feature_library_ignore">Ignore</string>
+    <string name="feature_library_play">Play</string>
 
 </resources>

@@ -12,6 +12,7 @@ object MediaHandler {
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.DATA,
+            MediaStore.Audio.Media.DURATION
         )
 
         val ITracks = mutableListOf<ITrack>()
@@ -29,13 +30,18 @@ object MediaHandler {
                 val title = c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE))
                 val artist = c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST))
                 val path = c.getString(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
+                val duration = c.getInt(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
 
-                val ITrack = object : ITrack {
-                    override val title = title
-                    override val artist = artist
-                    override val path = path
+                if (duration >= 5000) {
+
+                    val iTrack = object : ITrack {
+                        override val title = title
+                        override val artist = artist
+                        override val path = path
+                    }
+                    ITracks.add(iTrack)
                 }
-                ITracks.add(ITrack)
+
             }
         }
         cursor?.close()

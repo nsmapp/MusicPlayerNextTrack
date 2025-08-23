@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-07-20T21:32:46.627765284Z">
+        <DropdownSelection timestamp="2025-08-23T16:09:29.779460465Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=/media/nsm/acache/adv/Pixel_8a_API_35_2.avd" />
@@ -23,6 +23,9 @@
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="PreviewNextTrackButton (1)">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="PreviewTextField">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

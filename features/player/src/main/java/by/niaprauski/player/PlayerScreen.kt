@@ -2,26 +2,29 @@ package by.niaprauski.player
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.Player
+import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.player.contracts.PlayerRouter
 import by.niaprauski.player.models.PlayerEvent
 import by.niaprauski.player.views.PlayerControlView
 import by.niaprauski.player.views.PlayerUpView
+import by.niaprauski.player.views.TrackInfoView
 import by.niaprauski.player.views.TrackProgressSlider
 import by.niaprauski.playerservice.PlayerService
 import by.niaprauski.playerservice.PlayerServiceConnection
@@ -118,47 +121,43 @@ fun PlayerScreen(
         }
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+    Column(
+        modifier = Modifier
+            .background(color = AppTheme.colors.background)
+            .navigationBarsPadding()
+            .statusBarsPadding()
+            .fillMaxSize()
+            .fillMaxSize()
+            .padding(horizontal = AppTheme.padding.default),
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceAround
+
+
+        PlayerUpView(
+            onOpenSettingsClick = { viewModel.openSettings() },
+            onOpenPlayListClick = { viewModel.openLibrary() },
+        )
+
+        TrackInfoView(artist, title)
+
+        PlayerControlView(
+            onPlayClick = { viewModel.play() },
+            onPauseClick = { viewModel.pause() },
+            onStopClick = { viewModel.stop() },
+            onNextClick = { viewModel.playNext() },
+            onPreviousClick = { viewModel.playPrevious() },
+            onShuffleModeClick = { viewModel.changeShuffleMode() },
+            onRepeatModeClick = { viewModel.changeRepeatMode() },
+            isPlaying = isPlaying,
+            shuffle = shuffle,
+            repeatMode = repeatMode,
         ) {
-
-
-            PlayerUpView(
-                onOpenSettingsClick = { viewModel.openSettings() },
-                onOpenPlayListClick = { viewModel.openLibrary() },
-            )
-
-            Column {
-                Text(text = title?.value ?: TEXT_EMPTY)
-                Text(text = artist?.value ?: TEXT_EMPTY)
-            }
-
-
-            PlayerControlView(
-                onPlayClick = { viewModel.play() },
-                onPauseClick = { viewModel.pause() },
-                onStopClick = { viewModel.stop() },
-                onNextClick = { viewModel.playNext() },
-                onPreviousClick = { viewModel.playPrevious() },
-                onShuffleModeClick = { viewModel.changeShuffleMode() },
-                onRepeatModeClick = { viewModel.changeRepeatMode() },
-                isPlaying = isPlaying,
-                shuffle = shuffle,
-                repeatMode = repeatMode,
-            ) {
-                TrackProgressSlider(trackProgress, playerService)
-            }
-
+            TrackProgressSlider(trackProgress, playerService)
         }
-
     }
 
 }
+
 
 @Composable
 fun rememberPlayerServiceConnection(context: Context): PlayerServiceConnection {

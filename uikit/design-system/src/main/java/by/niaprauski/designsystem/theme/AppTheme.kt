@@ -35,7 +35,7 @@ fun AppTheme(
     accentColor: Color = Colors().accent,
     snackBarHost: @Composable BoxScope.() -> Unit = {},
     content: @Composable () -> Unit,
-){
+) {
 
     val typography = opensansTypography
     val padding = defaultPaddings
@@ -49,14 +49,14 @@ fun AppTheme(
     val coroutineScope = rememberCoroutineScope()
 
 
-    SystemAppearance(isDarkThemeEnabled = isDarkThemeEnabled)
+    SystemAppearance(isDarkTheme = isDarkThemeEnabled)
 
     CompositionLocalProvider(
         LocalAccentColor provides accentColor,
         LocalTypography provides typography,
-        LocalPadding provides  padding,
+        LocalPadding provides padding,
         LocalRadius provides radius,
-        LocalViewSize provides  viewSize,
+        LocalViewSize provides viewSize,
         LocalColors provides colors,
         LocalColorScheme provides colorScheme,
         LocalSnackBarHostState provides snackBarHostState,
@@ -71,7 +71,7 @@ fun AppTheme(
 }
 
 val LocalAccentColor = staticCompositionLocalOf<Color> { error(TEXT_EMPTY) }
-val LocalTypography = staticCompositionLocalOf<OpenSansTypography> { error(TEXT_EMPTY)  }
+val LocalTypography = staticCompositionLocalOf<OpenSansTypography> { error(TEXT_EMPTY) }
 val LocalPadding = staticCompositionLocalOf<Padding> { error(TEXT_EMPTY) }
 val LocalRadius = staticCompositionLocalOf<Radius> { error(TEXT_EMPTY) }
 val LocalViewSize = staticCompositionLocalOf<ViewSize> { error(TEXT_EMPTY) }
@@ -82,7 +82,7 @@ val LocalCoroutineScope = staticCompositionLocalOf<CoroutineScope> { error(TEXT_
 
 
 @Stable
-object AppTheme{
+object AppTheme {
     val accentColor: Color
         @Composable get() = LocalAccentColor.current
 
@@ -104,15 +104,15 @@ object AppTheme{
 }
 
 @Composable
-private fun SystemAppearance(isDarkThemeEnabled: Boolean) {
+private fun SystemAppearance(isDarkTheme: Boolean) {
     val view = LocalView.current
-    val statusBarColor = Colors().foreground.toArgb()
-    LaunchedEffect(isDarkThemeEnabled) {
+
+    LaunchedEffect(isDarkTheme) {
         val window = (view.context as Activity).window
-        window.statusBarColor = statusBarColor
+
         WindowCompat.getInsetsController(window, window.decorView).apply {
-            isAppearanceLightStatusBars = isDarkThemeEnabled.not()
-            isAppearanceLightNavigationBars = isDarkThemeEnabled.not()
+            isAppearanceLightStatusBars = isDarkTheme
+            isAppearanceLightNavigationBars = isDarkTheme
         }
     }
 }

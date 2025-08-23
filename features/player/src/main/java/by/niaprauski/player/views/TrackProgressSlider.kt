@@ -50,7 +50,7 @@ fun TrackProgressSlider(
                     .fillMaxWidth()
                     .height(AppTheme.viewSize.border_big)
                     .background(
-                        AppTheme.colors.accent_light,
+                        AppTheme.colors.accent,
                         shape = RoundedCornerShape(AppTheme.radius.micro)
                     )
 

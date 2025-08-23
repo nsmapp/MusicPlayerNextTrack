@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,7 +47,8 @@ fun PlayerControlView(
 
 
     Column(
-        modifier = Modifier.wrapContentHeight(),
+        modifier = Modifier.wrapContentHeight()
+            .padding(vertical = AppTheme.padding.large),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
