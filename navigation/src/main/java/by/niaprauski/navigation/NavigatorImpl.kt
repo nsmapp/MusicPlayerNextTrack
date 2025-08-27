@@ -2,6 +2,7 @@ package by.niaprauski.navigation
 
 
 import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.fragment.app.FragmentManager
@@ -23,16 +24,19 @@ import by.niaprauski.settings.SettingsScreen
 
 class NavigatorImpl(
     context: Context,
+    startUriTrack: Uri? = null,
     fragmentManager: FragmentManager
 ) : Navigator {
 
     override val navController: NavHostController by lazy {
         NavHostController(context).apply {
             navigatorProvider.addNavigator(ComposeNavigator())
-            navigatorProvider.addNavigator(DialogFragmentNavigator(
-                context,
-                fragmentManager = fragmentManager
-            ))
+            navigatorProvider.addNavigator(
+                DialogFragmentNavigator(
+                    context,
+                    fragmentManager = fragmentManager
+                )
+            )
         }
     }
 
@@ -46,7 +50,12 @@ class NavigatorImpl(
 
     private val navGraph: NavGraph by lazy {
         navController.createGraph(startDestination = PlayerDest) {
-            composable<PlayerDest> { PlayerScreen(router = PlayerRouterImpl(this@NavigatorImpl)) }
+            composable<PlayerDest> {
+                PlayerScreen(
+                    startUriTrack = startUriTrack,
+                    router = PlayerRouterImpl(this@NavigatorImpl)
+                )
+            }
             composable<LibraryDest> { LibraryScreen() }
             composable<SettingsDest> { SettingsScreen() }
         }

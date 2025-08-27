@@ -1,5 +1,6 @@
 package by.niaprauski.player.contracts
 
+import android.net.Uri
 import androidx.media3.common.MediaItem
 
 interface PlayerContract {
@@ -19,4 +20,6 @@ interface PlayerContract {
     fun changeShuffleMode()
 
     fun changeRepeatMode()
+
+    fun playSingleTrack(uri: Uri)
 }

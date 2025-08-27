@@ -18,6 +18,7 @@ class TrackModelMapper @Inject constructor() {
 
         MediaItem.Builder()
             .setUri(track.path)
+            .setMediaId(track.id.toString())
             .setMediaMetadata(metadata)
             .setMimeType(MimeTypes.AUDIO_MPEG)
             .build()

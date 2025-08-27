@@ -8,18 +8,18 @@ object MediaHandler {
 
     fun getTrackData(cr: ContentResolver): List<ITrack> {
 
-        val projection: Array<String> = arrayOf(
+        val trackProjection: Array<String> = arrayOf(
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.DATA,
             MediaStore.Audio.Media.DURATION
         )
 
-        val ITracks = mutableListOf<ITrack>()
+        val iTracks = mutableListOf<ITrack>()
 
         val cursor = cr.query(
             /* uri = */ MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            /* projection = */ projection,
+            /* projection = */ trackProjection,
             /* selection = */ null,
             /* selectionArgs = */ null,
             /* sortOrder = */ null
@@ -39,15 +39,13 @@ object MediaHandler {
                         override val artist = artist
                         override val path = path
                     }
-                    ITracks.add(iTrack)
+                    iTracks.add(iTrack)
                 }
 
             }
         }
         cursor?.close()
 
-        return ITracks
+        return iTracks
     }
-
-
 }

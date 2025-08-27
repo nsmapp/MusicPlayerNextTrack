@@ -1,5 +1,6 @@
 package by.niaprauski.player
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -12,6 +13,7 @@ import by.niaprauski.player.models.PlayerState
 import by.niaprauski.utils.models.ITrack
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,13 +33,8 @@ class PlayerViewModel @Inject constructor(
     private val _state = MutableStateFlow<PlayerState>(PlayerState.INITIAL)
     val state = _state.asStateFlow()
 
-
     private val _event by lazy { Channel<PlayerEvent>() }
     val event: Flow<PlayerEvent> by lazy { _event.receiveAsFlow() }
-
-    fun onCreate() {
-        getTracks()
-    }
 
     fun openLibrary() {
         viewModelScope.launch {
@@ -126,6 +123,13 @@ class PlayerViewModel @Inject constructor(
     override fun changeRepeatMode() {
         viewModelScope.launch {
             _event.send(PlayerEvent.ChangeRepeatMode)
+        }
+    }
+
+    override fun playSingleTrack(uri: Uri) {
+        viewModelScope.launch {
+            delay(1000) //TODO need fix, delay for service start
+            _event.send(PlayerEvent.PlaySingleTrack(uri))
         }
     }
 

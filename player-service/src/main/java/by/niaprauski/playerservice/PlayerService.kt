@@ -6,11 +6,13 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.net.Uri
 import android.os.Binder
 import android.os.IBinder
 import android.view.KeyEvent
 import androidx.annotation.OptIn
 import androidx.core.app.NotificationCompat
+import androidx.documentfile.provider.DocumentFile
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -219,12 +221,35 @@ class PlayerService : MediaSessionService() {
         _currentArtist.value = mediaMetadata?.artist?.toString() ?: TEXT_EMPTY
     }
 
-    fun setPlayList(mediaItems: List<MediaItem>, startIndex: Int = 0) {
-        this.mediaItems = mediaItems
+    fun setPlayList(mediaItems: List<MediaItem>) {
+        val playList = mediaItems
+        this.mediaItems = playList
         player?.apply {
-            setMediaItems(mediaItems, startIndex, 0)
+            setMediaItems(playList, 0, 0)
             prepare()
         }
+    }
+
+    fun setPlayList(uri: Uri) {
+        val mediaItem = MediaItem.fromUri(uri)
+
+        if (this.mediaItems.size == 1
+            && this.mediaItems.firstOrNull()?.mediaId == mediaItem.mediaId
+        ) return
+
+
+        val playList = listOf(mediaItem)
+        this.mediaItems = playList
+        player?.clearMediaItems()
+        player?.apply {
+            setMediaItems(playList, 0, 0)
+            prepare()
+            play()
+            startProgressTracking()
+        }
+
+        val documentFile = DocumentFile.fromSingleUri(this, uri)
+        _currentArtist.value = documentFile?.name ?: TEXT_EMPTY
     }
 
     fun play() {
@@ -268,15 +293,12 @@ class PlayerService : MediaSessionService() {
     }
 
     fun playWithPosition(item: MediaItem) {
-        val index = mediaItems.indexOf(item)
 
-        if (index == -1) return
+        val index = mediaItems.indexOfFirst { item.mediaId == it.mediaId }
+        if (index == -1) player?.setMediaItem(item)
+        else player?.seekTo(index, 0)
 
-        player?.seekTo(/* mediaItemIndex = */ index,/* positionMs = */ 0)
-
-        if (!isPlaying()){
-            play()
-        }
+        if (!isPlaying()) play()
     }
 
     fun changeShuffleMode() {
@@ -292,15 +314,15 @@ class PlayerService : MediaSessionService() {
 
         if (isPlaying().not()) return
 
-        val newRepeatMode = when(player?.repeatMode){
+        val newRepeatMode = when (player?.repeatMode) {
             Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ONE
             Player.REPEAT_MODE_ONE -> Player.REPEAT_MODE_ALL
-            Player.REPEAT_MODE_ALL-> Player.REPEAT_MODE_OFF
+            Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_OFF
             else -> Player.REPEAT_MODE_OFF
         }
 
-            if (player?.repeatMode == Player.REPEAT_MODE_ALL) Player.REPEAT_MODE_ONE
-            else Player.REPEAT_MODE_ALL
+        if (player?.repeatMode == Player.REPEAT_MODE_ALL) Player.REPEAT_MODE_ONE
+        else Player.REPEAT_MODE_ALL
 
         player?.let { player ->
             player.repeatMode = newRepeatMode
@@ -310,9 +332,9 @@ class PlayerService : MediaSessionService() {
 
 
     fun removeMediaItem(item: MediaItem) {
-        val index = mediaItems.indexOf(item)
-
+        val index = mediaItems.indexOfFirst { item.mediaId == item.mediaId }
         if (index == -1) return
+
         mediaItems = mediaItems.toMutableList().apply { remove(item) }
         player?.removeMediaItem(index)
 
@@ -324,7 +346,7 @@ class PlayerService : MediaSessionService() {
 
         progressTrackingJob = serviceScope.launch(Dispatchers.Main) {
             while (true) {
-                if (player?.isPlaying == true) {
+                if (_isPlaying.value == true) {
                     val currentPosition = getCurrentPosition()
                     val duration = getDuration().toFloat()
 

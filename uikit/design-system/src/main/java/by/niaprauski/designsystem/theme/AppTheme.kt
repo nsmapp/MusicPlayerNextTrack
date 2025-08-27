@@ -13,7 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import by.niaprauski.designsystem.theme.colors.Colors
@@ -52,7 +51,6 @@ fun AppTheme(
     SystemAppearance(isDarkTheme = isDarkThemeEnabled)
 
     CompositionLocalProvider(
-        LocalAccentColor provides accentColor,
         LocalTypography provides typography,
         LocalPadding provides padding,
         LocalRadius provides radius,
@@ -70,7 +68,6 @@ fun AppTheme(
 
 }
 
-val LocalAccentColor = staticCompositionLocalOf<Color> { error(TEXT_EMPTY) }
 val LocalTypography = staticCompositionLocalOf<OpenSansTypography> { error(TEXT_EMPTY) }
 val LocalPadding = staticCompositionLocalOf<Padding> { error(TEXT_EMPTY) }
 val LocalRadius = staticCompositionLocalOf<Radius> { error(TEXT_EMPTY) }
@@ -83,8 +80,6 @@ val LocalCoroutineScope = staticCompositionLocalOf<CoroutineScope> { error(TEXT_
 
 @Stable
 object AppTheme {
-    val accentColor: Color
-        @Composable get() = LocalAccentColor.current
 
     val typography: OpenSansTypography
         @Composable get() = LocalTypography.current
