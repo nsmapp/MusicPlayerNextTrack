@@ -5,7 +5,8 @@ import androidx.lifecycle.viewModelScope
 import by.niaprauski.domain.models.SearchTrackFilter
 import by.niaprauski.domain.models.Track
 import by.niaprauski.domain.usecases.track.GetTracksFlowUseCase
-import by.niaprauski.domain.usecases.track.MarkAsIgnoreTrackUseCase
+import by.niaprauski.domain.usecases.track.MarkTrackAsIgnoredUseCase
+import by.niaprauski.domain.usecases.track.UnmarkTrackAsIgnoredUseCase
 import by.niaprauski.library.mapper.TrackModelMapper
 import by.niaprauski.library.models.LibraryEvent
 import by.niaprauski.library.models.LibraryState
@@ -25,7 +26,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
     private val getTracksFlowUseCase: GetTracksFlowUseCase,
-    private val markAsIgnoreTrackUseCase: MarkAsIgnoreTrackUseCase,
+    private val markTrackAsIgnoredUseCase: MarkTrackAsIgnoredUseCase,
+    private val unmarkTrackAsIgnoredUseCase: UnmarkTrackAsIgnoredUseCase,
     private val trackModelMapper: TrackModelMapper,
 ) : ViewModel(), LibraryContract {
 
@@ -68,11 +70,22 @@ class LibraryViewModel @Inject constructor(
     override fun ignoreTrack(track: Track) {
 
         viewModelScope.launch {
-            markAsIgnoreTrackUseCase.invoke(track)
+            markTrackAsIgnoredUseCase.invoke(track)
                 .onSuccess {
                     val mediaItem = trackModelMapper.toMediaItem(track)
                     sendEvent(LibraryEvent.IgnoreMediaItem(mediaItem))
 
+                }
+        }
+    }
+
+
+    override fun onRestoreTrackClick(track: Track) {
+        viewModelScope.launch {
+            unmarkTrackAsIgnoredUseCase.invoke(track)
+                .onSuccess {
+                    val mediaItem = trackModelMapper.toMediaItem(track)
+                    sendEvent(LibraryEvent.AddMediaItem(mediaItem))
                 }
         }
     }

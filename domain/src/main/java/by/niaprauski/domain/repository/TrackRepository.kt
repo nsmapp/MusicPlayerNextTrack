@@ -14,7 +14,9 @@ interface TrackRepository {
 
     fun getAllAsFlow(filter: SearchTrackFilter): Flow<List<Track>>
 
-    fun markAsIgnoreTrack(trackId: Long)
+    fun markTrackAsIgnored(trackId: Long)
+
+    fun unmarkTrackAsIgnored(trackId: Long)
 
 
 }

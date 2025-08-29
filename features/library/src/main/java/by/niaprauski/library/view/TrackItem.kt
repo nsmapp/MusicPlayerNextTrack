@@ -1,4 +1,4 @@
-package by.niaprauski.library.ui
+package by.niaprauski.library.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +12,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Reply
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,8 +31,8 @@ fun TrackItem(
     track: Track,
     onPlayClick: (Track) -> Unit,
     onIgnoreClick: (Track) -> Unit,
+    onRestoreTrackClick: (Track) -> Unit,
 ) {
-
     val contentColor = if (track.isIgnore) AppTheme.colors.text_ligth else AppTheme.colors.text
 
     Row(
@@ -59,30 +61,56 @@ fun TrackItem(
             )
         }
 
+        TrackControlView(
+            onIgnoreClick,
+            track,
+            onPlayClick,
+            onRestoreTrackClick
+        )
+    }
+}
+
+@Composable
+private fun TrackControlView(
+    onIgnoreClick: (Track) -> Unit,
+    track: Track,
+    onPlayClick: (Track) -> Unit,
+    onRestoreTrackClick: (Track) -> Unit,
+) {
+    Row(
+        modifier = Modifier.wrapContentSize(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         if (track.isIgnore.not()) {
-            Row(
-                modifier = Modifier.wrapContentSize(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                PlayerLiteButton(
-                    modifier = Modifier
-                        .size(AppTheme.viewSize.icon_small)
-                        .clip(RoundedCornerShape(AppTheme.viewSize.icon_small)),
-                    imageVector = Icons.Rounded.Cancel,
-                    onClick = { onIgnoreClick(track) },
-                    description = stringResource(R.string.feature_library_ignore),
+            PlayerLiteButton(
+                modifier = Modifier
+                    .size(AppTheme.viewSize.icon_small)
+                    .clip(RoundedCornerShape(AppTheme.viewSize.icon_small)),
+                imageVector = remember { Icons.Rounded.Cancel },
+                onClick = remember { { onIgnoreClick(track) } },
+                description = stringResource(R.string.feature_library_ignore),
+            )
 
-                    )
+            PlayerLiteButton(
+                modifier = Modifier
+                    .size(AppTheme.viewSize.icon_normal)
+                    .clip(RoundedCornerShape(AppTheme.viewSize.icon_normal)),
+                imageVector = remember { Icons.Rounded.PlayArrow },
+                onClick = remember { { onPlayClick(track) } },
+                description = stringResource(R.string.feature_library_play),
+            )
 
-                PlayerLiteButton(
-                    modifier = Modifier
-                        .size(AppTheme.viewSize.icon_normal)
-                        .clip(RoundedCornerShape(AppTheme.viewSize.icon_normal)),
-                    imageVector = Icons.Rounded.PlayArrow,
-                    onClick = { onPlayClick(track) },
-                    description = stringResource(R.string.feature_library_play),
-                )
-            }
+        } else {
+
+            PlayerLiteButton(
+                modifier = Modifier
+                    .size(AppTheme.viewSize.icon_normal)
+                    .clip(RoundedCornerShape(AppTheme.viewSize.icon_normal)),
+                imageVector = remember { Icons.Rounded.Reply },
+                onClick = remember { { onRestoreTrackClick(track) } },
+                description = stringResource(R.string.feature_library_restore_track),
+            )
+
         }
     }
 }

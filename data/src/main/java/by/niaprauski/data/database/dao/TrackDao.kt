@@ -31,4 +31,7 @@ interface TrackDao {
 
     @Query("UPDATE tracks SET is_ignore = 1 WHERE id = :trackId")
     fun markTrackAsIgnore(trackId: Long)
+
+    @Query("UPDATE tracks SET is_ignore = 0 WHERE id = :trackId")
+    fun unmarkTrackAsIgnore(trackId: Long)
 }

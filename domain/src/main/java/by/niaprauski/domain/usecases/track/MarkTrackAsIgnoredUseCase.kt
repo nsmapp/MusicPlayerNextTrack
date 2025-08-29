@@ -6,14 +6,14 @@ import by.niaprauski.domain.utils.DispatcherProvider
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class MarkAsIgnoreTrackUseCase @Inject constructor(
+class MarkTrackAsIgnoredUseCase @Inject constructor(
     private val trackRepository: TrackRepository,
     private val dispatcherProvider: DispatcherProvider
 )  {
 
     suspend fun invoke(track: Track): Result<Unit> = withContext(dispatcherProvider.io){
         runCatching {
-            trackRepository.markAsIgnoreTrack(track.id)
+            trackRepository.markTrackAsIgnored(track.id)
         }
     }
 }

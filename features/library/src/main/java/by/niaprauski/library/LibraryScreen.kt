@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,7 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.designsystem.ui.texxtfield.CTextField
 import by.niaprauski.library.models.LibraryEvent
-import by.niaprauski.library.ui.TrackItem
+import by.niaprauski.library.view.TrackItem
 import by.niaprauski.playerservice.PlayerServiceConnection
 import by.niaprauski.translations.R
 
@@ -54,6 +55,7 @@ fun LibraryScreen(
             when (event) {
                 is LibraryEvent.PlayMediaItem -> playerService?.playWithPosition(event.mediaItem)
                 is LibraryEvent.IgnoreMediaItem -> playerService?.removeMediaItem(event.mediaItem)
+                is LibraryEvent.AddMediaItem -> playerService?.addItemToPlayList(event.mediaItem)
             }
         }
     }
@@ -69,7 +71,6 @@ fun LibraryScreen(
         contentAlignment = Alignment.Center,
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
@@ -79,10 +80,13 @@ fun LibraryScreen(
                     itemsIndexed(
                         items = state.tracks, key = { _, item -> item.id }) { _, item ->
 
+                        val track by remember(item.id, item.isIgnore) { mutableStateOf(item) }
+
                         TrackItem(
-                            track = item,
+                            track = track,
                             onPlayClick = { track -> viewModel.playTrack(track) },
                             onIgnoreClick = { track -> viewModel.ignoreTrack(track) },
+                            onRestoreTrackClick = { track -> viewModel.onRestoreTrackClick(track) }
                         )
 
                         HorizontalDivider(

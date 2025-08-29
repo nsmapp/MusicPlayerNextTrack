@@ -39,7 +39,11 @@ class TracRepoImpl @Inject constructor(
                 tracks.map { trackMapper.toModel(it) }
             }
 
-    override fun markAsIgnoreTrack(trackId: Long) {
+    override fun markTrackAsIgnored(trackId: Long) {
         trackDao.markTrackAsIgnore(trackId)
+    }
+
+    override fun unmarkTrackAsIgnored(trackId: Long) {
+        trackDao.unmarkTrackAsIgnore(trackId)
     }
 }

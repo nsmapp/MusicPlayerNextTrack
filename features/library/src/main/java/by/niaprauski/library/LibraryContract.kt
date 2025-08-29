@@ -9,6 +9,8 @@ interface LibraryContract {
 
     fun ignoreTrack(track: Track)
 
+    fun onRestoreTrackClick(track: Track)
+
     fun playTrack(track: Track)
 
     fun searchTrack(text: String)

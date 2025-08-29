@@ -332,12 +332,19 @@ class PlayerService : MediaSessionService() {
 
 
     fun removeMediaItem(item: MediaItem) {
-        val index = mediaItems.indexOfFirst { item.mediaId == item.mediaId }
+        val index = mediaItems.indexOfFirst { item.mediaId == it.mediaId }
         if (index == -1) return
 
         mediaItems = mediaItems.toMutableList().apply { remove(item) }
         player?.removeMediaItem(index)
+    }
 
+
+    fun addItemToPlayList(item: MediaItem){
+        if (mediaItems.indexOfFirst { item.mediaId == it.mediaId } != -1)  return
+
+        this.mediaItems = this.mediaItems + listOf(item)
+        player?.addMediaItem(item)
     }
 
     private fun startProgressTracking() {
@@ -362,7 +369,6 @@ class PlayerService : MediaSessionService() {
             }
         }
     }
-
 
     private val playerListener = object : Player.Listener {
         override fun onPlayerErrorChanged(error: PlaybackException?) {

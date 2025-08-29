@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PlaylistPlay
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,6 +20,7 @@ import by.niaprauski.translations.R
 @Composable
 fun PlayerUpView(
     onOpenPlayListClick: () -> Unit,
+    onSyncPlayListClick: () -> Unit,
     onOpenSettingsClick: () -> Unit,
 ) {
     Row(
@@ -33,6 +35,15 @@ fun PlayerUpView(
             imageVector = Icons.Outlined.PlaylistPlay,
             onClick = onOpenPlayListClick,
             description = stringResource(R.string.feature_player_library)
+        )
+
+        PlayerLiteButton(
+            modifier = Modifier
+                .size(AppTheme.viewSize.icon_normal)
+                .clip(RoundedCornerShape(AppTheme.viewSize.icon_normal)),
+            imageVector = Icons.Outlined.Sync,
+            onClick = onSyncPlayListClick,
+            description = stringResource(R.string.feature_player_sync_playlist)
         )
 
         PlayerLiteButton(

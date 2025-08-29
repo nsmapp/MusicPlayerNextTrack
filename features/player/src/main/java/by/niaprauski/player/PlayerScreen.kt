@@ -94,7 +94,7 @@ fun PlayerScreen(
     val hasMediaPermission by MediaPermissions.rememberMediaPermissions()
 
     val mediaPermissionLauncher = MediaPermissions.rememberMediaPermissionsLauncher(
-        onGranted = {syncPlaylist(context, viewModel) },
+        onGranted = { syncPlaylist(context, viewModel) },
         onDisablePermissions = {
             //TODO handle information add notice
             println("!!! media permission don't granted")
@@ -104,8 +104,6 @@ fun PlayerScreen(
     LaunchedEffect(Unit) {
         when {
             startUriTrack != null -> viewModel.playSingleTrack(startUriTrack)
-            !hasMediaPermission -> mediaPermissionLauncher.launch(MediaPermissions.permission)
-            else -> syncPlaylist(context, viewModel)
         }
     }
 
@@ -122,6 +120,10 @@ fun PlayerScreen(
 
         PlayerUpView(
             onOpenSettingsClick = { viewModel.openSettings() },
+            onSyncPlayListClick = {
+                if (!hasMediaPermission) mediaPermissionLauncher.launch(MediaPermissions.permission)
+                else syncPlaylist(context, viewModel)
+            },
             onOpenPlayListClick = { viewModel.openLibrary() },
         )
 
@@ -150,7 +152,6 @@ private fun startPlayerService(context: Context) {
     context.startService(intent)
 }
 
-//TODO need fix relaunch after return to screen
 private fun syncPlaylist(
     context: Context,
     viewModel: PlayerViewModel
