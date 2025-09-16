@@ -2,7 +2,8 @@
 <resources>
 
 <!--    feature player-->
-
+    <string name="feature_player_welcome_message">To sync the playlist, you need to grant access to your media files.\n\nIf you do not want to grant the app access to your media files, you can play your track by selecting it in the file manager.</string>
+    <string name="feature_player_close">Close</string>
     <string name="feature_player_library">Library</string>
     <string name="feature_player_sync_playlist">Sync playlist</string>
     <string name="feature_player_library_settings">Settings</string>
@@ -14,6 +15,8 @@
     <string name="feature_player_play">Play</string>
     <string name="feature_player_no_artist">no_artist</string>
     <string name="feature_player_no_track">no_track</string>
+    <string name="feature_player_open_settings">Open settings</string>
+    <string name="feature_player_need_media_permission_message">Media file access permission is missing; you need to grant it in the app settings.</string>
 
 
 <!--    feature library-->

@@ -4,6 +4,8 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
+import by.niaprauski.domain.usecases.settings.GetWelcomeMessageStatusUseCase
+import by.niaprauski.domain.usecases.settings.SetWelcomeMessageStatusUseCase
 import by.niaprauski.domain.usecases.track.GetTracksUseCase
 import by.niaprauski.domain.usecases.track.SaveTrackUseCase
 import by.niaprauski.player.contracts.PlayerContract
@@ -27,6 +29,8 @@ import javax.inject.Inject
 class PlayerViewModel @Inject constructor(
     private val saveTrackUseCase: SaveTrackUseCase,
     private val getTracksUseCase: GetTracksUseCase,
+    private val getWelcomeMessageStatusUseCase: GetWelcomeMessageStatusUseCase,
+    private val setWelcomeMessageStatusUseCase: SetWelcomeMessageStatusUseCase,
     private val trackModelMapper: TrackModelMapper,
 ) : ViewModel(), PlayerContract {
 
@@ -35,6 +39,10 @@ class PlayerViewModel @Inject constructor(
 
     private val _event by lazy { Channel<PlayerEvent>() }
     val event: Flow<PlayerEvent> by lazy { _event.receiveAsFlow() }
+
+    fun onCreate() {
+        checkWelcomeDialogStatus()
+    }
 
     fun openLibrary() {
         viewModelScope.launch {
@@ -47,7 +55,6 @@ class PlayerViewModel @Inject constructor(
             _event.send(PlayerEvent.OpenSettings)
         }
     }
-
 
     private fun getTracks() {
         viewModelScope.launch {
@@ -107,7 +114,7 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
-    override fun setPlayList(mediaItems: List<MediaItem> ) {
+    override fun setPlayList(mediaItems: List<MediaItem>) {
         viewModelScope.launch {
             _state.update { it.copy(trackCount = mediaItems.size) }
             _event.send(PlayerEvent.SetPlayList(mediaItems))
@@ -133,4 +140,32 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
+    override fun showPermissionInformationDialog() {
+        viewModelScope.launch {
+            _state.update { it.copy(isShowPermissionInformationDialog = true) }
+        }
+    }
+
+    override fun hideWelcomeDialogs() {
+        viewModelScope.launch {
+            setWelcomeMessageStatusUseCase.setFirstLaunchStatus(false)
+            _state.update { it.copy(isShowWelcomeDialog = false) }
+        }
+    }
+
+    override fun hideMediaPermissionInfoDialog() {
+        viewModelScope.launch {
+            _state.update { it.copy(isShowPermissionInformationDialog = false) }
+        }
+    }
+
+    private fun checkWelcomeDialogStatus() {
+        viewModelScope.launch {
+            getWelcomeMessageStatusUseCase.invoke()
+                .onSuccess { isShowWelcomeDialog ->
+                    setWelcomeMessageStatusUseCase.setFirstLaunchStatus(false)
+                    _state.update { it.copy(isShowWelcomeDialog = isShowWelcomeDialog ) }
+                }
+        }
+    }
 }

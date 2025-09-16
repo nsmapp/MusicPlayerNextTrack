@@ -22,4 +22,10 @@ interface PlayerContract {
     fun changeRepeatMode()
 
     fun playSingleTrack(uri: Uri)
+
+    fun showPermissionInformationDialog()
+
+    fun hideWelcomeDialogs()
+
+    fun hideMediaPermissionInfoDialog()
 }

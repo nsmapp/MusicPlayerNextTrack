@@ -44,7 +44,7 @@ fun CTextField(
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     singleLine: Boolean = true,
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
-    shape: Shape = RoundedCornerShape(AppTheme.radius.normal),
+    shape: Shape = RoundedCornerShape(AppTheme.radius.default),
     colors: TextFieldColors = TextFieldDefaults.colors()
         .copy(
             focusedTextColor = AppTheme.colors.text,

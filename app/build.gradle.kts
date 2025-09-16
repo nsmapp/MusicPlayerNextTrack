@@ -67,6 +67,8 @@ dependencies {
     implementation(libs.android.room.ktx)
     ksp(libs.android.ksp.room.compiler)
 
+    implementation(libs.androidx.datastore)
+
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3.android)

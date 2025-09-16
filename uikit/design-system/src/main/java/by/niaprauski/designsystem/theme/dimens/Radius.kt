@@ -9,7 +9,7 @@ data class Radius(
     val zero: Dp,
     val micro: Dp,
     val mini: Dp,
-    val normal: Dp,
+    val default: Dp,
     val medium: Dp,
 )
 
@@ -17,6 +17,6 @@ val defaultRadius = Radius(
     zero = 0.dp,
     micro = 2.dp,
     mini = 4.dp,
-    normal = 8.dp,
+    default = 8.dp,
     medium = 16.dp,
 )

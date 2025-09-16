@@ -3,6 +3,7 @@ package by.niaprauski.player
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,9 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -29,11 +28,14 @@ import by.niaprauski.player.views.PlayerControlView
 import by.niaprauski.player.views.PlayerUpView
 import by.niaprauski.player.views.TrackInfoView
 import by.niaprauski.player.views.TrackProgressSlider
+import by.niaprauski.player.views.dialogs.FirstLaunchDialog
+import by.niaprauski.player.views.dialogs.NeedMediaPermissionDialog
 import by.niaprauski.playerservice.PlayerService
 import by.niaprauski.playerservice.PlayerServiceConnection
 import by.niaprauski.playerservice.models.TrackProgress
 import by.niaprauski.utils.constants.TEXT_EMPTY
 import by.niaprauski.utils.handlers.MediaHandler
+import by.niaprauski.utils.models.ITrack
 import by.niaprauski.utils.permission.MediaPermissions
 
 @Composable
@@ -45,7 +47,6 @@ fun PlayerScreen(
 
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
-    var singleTrack by remember { mutableStateOf(startUriTrack) }
 
     val serviceConnection = rememberPlayerServiceConnection(context)
     val playerService by serviceConnection.service.collectAsStateWithLifecycle(null)
@@ -65,6 +66,8 @@ fun PlayerScreen(
 
     val shuffle = playerService?.shuffle?.collectAsStateWithLifecycle(false)
     val repeatMode = playerService?.repeatMode?.collectAsStateWithLifecycle(Player.REPEAT_MODE_ALL)
+
+    LaunchedEffect(Unit) { viewModel.onCreate() }
 
     LaunchedEffect(Unit) { startPlayerService(context) }
 
@@ -94,11 +97,8 @@ fun PlayerScreen(
     val hasMediaPermission by MediaPermissions.rememberMediaPermissions()
 
     val mediaPermissionLauncher = MediaPermissions.rememberMediaPermissionsLauncher(
-        onGranted = { syncPlaylist(context, viewModel) },
-        onDisablePermissions = {
-            //TODO handle information add notice
-            println("!!! media permission don't granted")
-        }
+        onGranted = { syncPlaylist(context) { tracks -> viewModel.syncTracks(tracks) } },
+        onDisablePermissions = { viewModel.showPermissionInformationDialog() }
     )
 
     LaunchedEffect(Unit) {
@@ -106,6 +106,23 @@ fun PlayerScreen(
             startUriTrack != null -> viewModel.playSingleTrack(startUriTrack)
         }
     }
+
+    if (state.isShowWelcomeDialog) FirstLaunchDialog(
+        onSyncClick = {
+            requestMediaPermissionWithSyncPlaylist(
+                hasMediaPermission = hasMediaPermission,
+                mediaPermissionLauncher = mediaPermissionLauncher,
+                context = context,
+                onSyncTrack = { tracks -> viewModel.syncTracks(tracks) },
+            )
+        },
+        onDismissClick = { viewModel.hideWelcomeDialogs() },
+    )
+
+    if (state.isShowPermissionInformationDialog) NeedMediaPermissionDialog(
+        onOpenSettingsClick = { router.openAppSettings(context) },
+        onDismissClick = { viewModel.hideMediaPermissionInfoDialog() }
+    )
 
     Column(
         modifier = Modifier
@@ -121,8 +138,12 @@ fun PlayerScreen(
         PlayerUpView(
             onOpenSettingsClick = { viewModel.openSettings() },
             onSyncPlayListClick = {
-                if (!hasMediaPermission) mediaPermissionLauncher.launch(MediaPermissions.permission)
-                else syncPlaylist(context, viewModel)
+                requestMediaPermissionWithSyncPlaylist(
+                    hasMediaPermission = hasMediaPermission,
+                    mediaPermissionLauncher = mediaPermissionLauncher,
+                    context = context,
+                    onSyncTrack = { tracks -> viewModel.syncTracks(tracks) },
+                )
             },
             onOpenPlayListClick = { viewModel.openLibrary() },
         )
@@ -152,12 +173,22 @@ private fun startPlayerService(context: Context) {
     context.startService(intent)
 }
 
+private fun requestMediaPermissionWithSyncPlaylist(
+    hasMediaPermission: Boolean,
+    mediaPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
+    context: Context,
+    onSyncTrack: (List<ITrack>) -> Unit,
+) {
+    if (!hasMediaPermission) mediaPermissionLauncher.launch(MediaPermissions.permission)
+    else syncPlaylist(context) { tracks -> onSyncTrack(tracks) }
+}
+
 private fun syncPlaylist(
     context: Context,
-    viewModel: PlayerViewModel
+    onSyncTrack: (List<ITrack>) -> Unit,
 ) {
     val tracks = MediaHandler.getTrackData(context.contentResolver)
-    viewModel.syncTracks(tracks)
+    onSyncTrack(tracks)
 }
 
 

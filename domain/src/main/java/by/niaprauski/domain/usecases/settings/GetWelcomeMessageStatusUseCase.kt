@@ -1,0 +1,19 @@
+package by.niaprauski.domain.usecases.settings
+
+import by.niaprauski.domain.repository.SettingsRepository
+import by.niaprauski.domain.utils.DispatcherProvider
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
+
+class GetWelcomeMessageStatusUseCase @Inject constructor(
+    private val settingsRepository: SettingsRepository,
+    private val dispatcherProvider: DispatcherProvider
+) {
+
+    suspend fun invoke(): Result<Boolean> =
+        withContext(dispatcherProvider.io) {
+            runCatching {
+                settingsRepository.isShowWelcomeMessage()
+            }
+        }
+}
