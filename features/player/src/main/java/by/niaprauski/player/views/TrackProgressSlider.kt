@@ -38,9 +38,9 @@ fun TrackProgressSlider(
                     .padding(AppTheme.padding.mini)
                     .size(AppTheme.viewSize.icon_micro)
                     .clip(RoundedCornerShape(AppTheme.viewSize.icon_micro))
-                    .background(AppTheme.colors.text)
+                    .background(AppTheme.appColors.text)
                     .padding(AppTheme.viewSize.border_small)
-                    .background(AppTheme.colors.accent)
+                    .background(AppTheme.appColors.accent)
             )
         },
         track = {
@@ -50,7 +50,7 @@ fun TrackProgressSlider(
                     .fillMaxWidth()
                     .height(AppTheme.viewSize.border_big)
                     .background(
-                        AppTheme.colors.accent,
+                        AppTheme.appColors.accent,
                         shape = RoundedCornerShape(AppTheme.radius.micro)
                     )
 

@@ -47,20 +47,20 @@ fun CTextField(
     shape: Shape = RoundedCornerShape(AppTheme.radius.default),
     colors: TextFieldColors = TextFieldDefaults.colors()
         .copy(
-            focusedTextColor = AppTheme.colors.text,
-            unfocusedTextColor = AppTheme.colors.text,
-            disabledTextColor = AppTheme.colors.text_ligth,
-            focusedContainerColor = AppTheme.colors.background_hard,
-            unfocusedContainerColor = AppTheme.colors.background,
-            disabledContainerColor = AppTheme.colors.background,
-            cursorColor = AppTheme.colors.accent,
+            focusedTextColor = AppTheme.appColors.text,
+            unfocusedTextColor = AppTheme.appColors.text,
+            disabledTextColor = AppTheme.appColors.text_ligth,
+            focusedContainerColor = AppTheme.appColors.background_hard,
+            unfocusedContainerColor = AppTheme.appColors.background,
+            disabledContainerColor = AppTheme.appColors.background,
+            cursorColor = AppTheme.appColors.accent,
             textSelectionColors = TextSelectionColors(
-                handleColor = AppTheme.colors.accent,
-                backgroundColor = AppTheme.colors.foreground
+                handleColor = AppTheme.appColors.accent,
+                backgroundColor = AppTheme.appColors.foreground
             ),
-            focusedPlaceholderColor = AppTheme.colors.text_ligth,
-            focusedIndicatorColor = AppTheme.colors.transparent,
-            unfocusedIndicatorColor = AppTheme.colors.transparent
+            focusedPlaceholderColor = AppTheme.appColors.text_ligth,
+            focusedIndicatorColor = AppTheme.appColors.transparent,
+            unfocusedIndicatorColor = AppTheme.appColors.transparent
 
         )
 ) {
@@ -69,7 +69,7 @@ fun CTextField(
         modifier = modifier.border(
             border = BorderStroke(
                 width = AppTheme.viewSize.border_normal,
-                color = AppTheme.colors.accent
+                color = AppTheme.appColors.accent
             ),
             shape = shape
         ),
@@ -94,7 +94,7 @@ fun CTextField(
                         indication = null,
                         onClick = { onLeadingClick() }),
                     imageVector = icon,
-                    colorFilter = ColorFilter.tint(AppTheme.colors.text_ligth)
+                    colorFilter = ColorFilter.tint(AppTheme.appColors.text_ligth)
                 )
             }
         },
@@ -106,7 +106,7 @@ fun CTextField(
                         indication = null,
                         onClick = { onTrailingClick() }),
                     imageVector = icon,
-                    colorFilter = ColorFilter.tint(AppTheme.colors.text)
+                    colorFilter = ColorFilter.tint(AppTheme.appColors.text)
                 )
             }
         },

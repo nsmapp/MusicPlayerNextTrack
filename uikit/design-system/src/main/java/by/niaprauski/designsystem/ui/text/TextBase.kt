@@ -15,7 +15,7 @@ import by.niaprauski.designsystem.theme.AppTheme
 fun TextBase(
     modifier: Modifier = Modifier,
     text: String,
-    color: Color = AppTheme.colors.text,
+    color: Color = AppTheme.appColors.text,
     fontSize: TextUnit = TextUnit.Unspecified,
     overflow: TextOverflow = TextOverflow.Ellipsis,
     softWrap: Boolean = true,
@@ -42,7 +42,7 @@ fun TextBase(
 fun TextBase(
     modifier: Modifier = Modifier,
     text: AnnotatedString,
-    color: Color = AppTheme.colors.text,
+    color: Color = AppTheme.appColors.text,
     fontSize: TextUnit = TextUnit.Unspecified,
     overflow: TextOverflow = TextOverflow.Ellipsis,
     softWrap: Boolean = true,

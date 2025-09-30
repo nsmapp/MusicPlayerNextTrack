@@ -32,7 +32,7 @@ fun NeedMediaPermissionDialog(
         Column(
             modifier = Modifier
                 .clip(RoundedCornerShape(AppTheme.radius.default))
-                .background(AppTheme.colors.background)
+                .background(AppTheme.appColors.background)
                 .padding(AppTheme.padding.normal),
             horizontalAlignment = Alignment.End
         ) {

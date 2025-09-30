@@ -1,5 +1,7 @@
 package by.niaprauski.domain.repository
 
+import kotlinx.coroutines.flow.Flow
+
 
 interface SettingsRepository {
 
@@ -8,7 +10,7 @@ interface SettingsRepository {
 
     suspend fun setShowWelcomeMessage(isFirstLaunch: Boolean)
 
-    suspend fun isDarkModeFlow(): Boolean
+    suspend fun getDarkModeFlow(): Flow<Boolean>
 
-    suspend fun setDarkMode(isDarkMode: Boolean)
+    suspend fun setNightMode(isDarkMode: Boolean)
 }

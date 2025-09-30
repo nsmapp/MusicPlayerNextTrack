@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import by.niaprauski.domain.repository.SettingsRepository
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -19,10 +20,10 @@ class SettingsRepoImpl @Inject constructor(val store: DataStore<Preferences>): S
     }
 
 
-    override suspend fun isDarkModeFlow(): Boolean = store.data
-        .map { preferences -> preferences[KEY_IS_DARK_MODE] ?: false }.first()
+    override suspend fun getDarkModeFlow(): Flow<Boolean> = store.data
+        .map { preferences -> preferences[KEY_IS_DARK_MODE] ?: false }
 
-    override suspend fun setDarkMode(isDarkMode: Boolean) {
+    override suspend fun setNightMode(isDarkMode: Boolean) {
         store.edit { preferences -> preferences[KEY_IS_DARK_MODE] = isDarkMode }
     }
 

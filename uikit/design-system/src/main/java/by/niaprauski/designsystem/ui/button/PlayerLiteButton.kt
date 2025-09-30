@@ -16,7 +16,7 @@ fun PlayerLiteButton(
     onClick: () -> Unit,
     imageVector: ImageVector,
     description: String,
-    colorFilter: ColorFilter? = ColorFilter.tint(AppTheme.colors.accent),
+    colorFilter: ColorFilter? = ColorFilter.tint(AppTheme.appColors.accent),
 ){
     Image(
         modifier = modifier.clickable{ onClick() },

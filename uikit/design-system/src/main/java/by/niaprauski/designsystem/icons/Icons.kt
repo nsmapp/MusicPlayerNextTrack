@@ -10,7 +10,7 @@ import by.niaprauski.designsystem.theme.AppTheme
 fun MicroIcon(
     modifier: Modifier = Modifier,
     imageVector: ImageVector,
-    colorFilter: ColorFilter? = ColorFilter.tint(AppTheme.colors.accent),
+    colorFilter: ColorFilter? = ColorFilter.tint(AppTheme.appColors.accent),
 ){
     BaseIcon(
         modifier = modifier,
@@ -25,7 +25,7 @@ fun MicroIcon(
 fun SmallIcon(
     modifier: Modifier = Modifier,
     imageVector: ImageVector,
-    colorFilter: ColorFilter? = ColorFilter.tint(AppTheme.colors.accent),
+    colorFilter: ColorFilter? = ColorFilter.tint(AppTheme.appColors.accent),
 ){
     BaseIcon(
         modifier = modifier,
@@ -40,7 +40,7 @@ fun SmallIcon(
 fun NormalIcon(
     modifier: Modifier = Modifier,
     imageVector: ImageVector,
-    colorFilter: ColorFilter? = ColorFilter.tint(AppTheme.colors.accent),
+    colorFilter: ColorFilter? = ColorFilter.tint(AppTheme.appColors.accent),
 ){
     BaseIcon(
         modifier = modifier,

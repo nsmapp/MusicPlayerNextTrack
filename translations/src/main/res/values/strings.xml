@@ -25,4 +25,7 @@
     <string name="feature_library_play">Play</string>
     <string name="feature_library_restore_track">Restore track</string>
 
+<!--    feature settings-->
+
+    <string name="feature_settings_night_mode">Night mode</string>
 </resources>

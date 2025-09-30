@@ -63,7 +63,7 @@ fun LibraryScreen(
 
     Box(
         modifier = Modifier
-            .background(color = AppTheme.colors.background)
+            .background(color = AppTheme.appColors.background)
             .navigationBarsPadding()
             .statusBarsPadding()
             .padding(AppTheme.padding.mini)
@@ -92,7 +92,7 @@ fun LibraryScreen(
                         HorizontalDivider(
                             modifier = Modifier.padding(horizontal = AppTheme.padding.medium),
                             thickness = AppTheme.viewSize.border_small,
-                            color = AppTheme.colors.background_hard
+                            color = AppTheme.appColors.background_hard
                         )
                     }
                 }

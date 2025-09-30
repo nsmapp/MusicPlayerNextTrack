@@ -33,7 +33,7 @@ fun TrackItem(
     onIgnoreClick: (Track) -> Unit,
     onRestoreTrackClick: (Track) -> Unit,
 ) {
-    val contentColor = if (track.isIgnore) AppTheme.colors.text_ligth else AppTheme.colors.text
+    val contentColor = if (track.isIgnore) AppTheme.appColors.text_ligth else AppTheme.appColors.text
 
     Row(
         modifier = Modifier

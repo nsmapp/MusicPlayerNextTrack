@@ -12,10 +12,11 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import by.niaprauski.designsystem.theme.colors.Colors
+import by.niaprauski.designsystem.theme.colors.AppColors
+import by.niaprauski.designsystem.theme.colors.DayColors
+import by.niaprauski.designsystem.theme.colors.NightColors
 import by.niaprauski.designsystem.theme.colors.dayColorScheme
 import by.niaprauski.designsystem.theme.dimens.Padding
 import by.niaprauski.designsystem.theme.dimens.Radius
@@ -30,8 +31,7 @@ import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun AppTheme(
-    isDarkThemeEnabled: Boolean = false,
-    accentColor: Color = Colors().accent,
+    isDarkThemeEnabled: Boolean = true,
     snackBarHost: @Composable BoxScope.() -> Unit = {},
     content: @Composable () -> Unit,
 ) {
@@ -41,7 +41,7 @@ fun AppTheme(
     val radius = defaultRadius
     val viewSize = defaultViewSizes
 
-    val colors = if (isDarkThemeEnabled) Colors() else Colors()
+    val dayColors = if (isDarkThemeEnabled) NightColors() else DayColors()
     val colorScheme = if (isDarkThemeEnabled) dayColorScheme else dayColorScheme
 
     val snackBarHostState = remember { SnackbarHostState() }
@@ -55,7 +55,7 @@ fun AppTheme(
         LocalPadding provides padding,
         LocalRadius provides radius,
         LocalViewSize provides viewSize,
-        LocalColors provides colors,
+        LocalAppColors provides dayColors,
         LocalColorScheme provides colorScheme,
         LocalSnackBarHostState provides snackBarHostState,
         LocalCoroutineScope provides coroutineScope
@@ -72,7 +72,7 @@ val LocalTypography = staticCompositionLocalOf<OpenSansTypography> { error(TEXT_
 val LocalPadding = staticCompositionLocalOf<Padding> { error(TEXT_EMPTY) }
 val LocalRadius = staticCompositionLocalOf<Radius> { error(TEXT_EMPTY) }
 val LocalViewSize = staticCompositionLocalOf<ViewSize> { error(TEXT_EMPTY) }
-val LocalColors = staticCompositionLocalOf<Colors> { error(TEXT_EMPTY) }
+val LocalAppColors = staticCompositionLocalOf<AppColors> { error(TEXT_EMPTY) }
 val LocalColorScheme = staticCompositionLocalOf<ColorScheme> { error(TEXT_EMPTY) }
 val LocalSnackBarHostState = staticCompositionLocalOf<SnackbarHostState> { error(TEXT_EMPTY) }
 val LocalCoroutineScope = staticCompositionLocalOf<CoroutineScope> { error(TEXT_EMPTY) }
@@ -93,8 +93,8 @@ object AppTheme {
     val viewSize: ViewSize
         @Composable get() = LocalViewSize.current
 
-    val colors: Colors
-        @Composable get() = LocalColors.current
+    val appColors: AppColors
+        @Composable get() = LocalAppColors.current
 
 }
 
@@ -106,8 +106,8 @@ private fun SystemAppearance(isDarkTheme: Boolean) {
         val window = (view.context as Activity).window
 
         WindowCompat.getInsetsController(window, window.decorView).apply {
-            isAppearanceLightStatusBars = isDarkTheme
-            isAppearanceLightNavigationBars = isDarkTheme
+            isAppearanceLightStatusBars = false
+            isAppearanceLightNavigationBars = false
         }
     }
 }

@@ -126,7 +126,7 @@ fun PlayerScreen(
 
     Column(
         modifier = Modifier
-            .background(color = AppTheme.colors.background)
+            .background(color = AppTheme.appColors.background)
             .navigationBarsPadding()
             .statusBarsPadding()
             .fillMaxSize()
