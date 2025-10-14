@@ -20,6 +20,9 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Next track"
+
+includeBuild("build-plugin")
+
 include(":app")
 include(":navigation")
 include(":features:player")

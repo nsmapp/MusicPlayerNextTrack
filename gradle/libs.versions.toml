@@ -1,4 +1,9 @@
 [versions]
+
+compileSDk = "35"
+minSDK = "26"
+
+java = "11"
 agp = "8.13.0"
 kotlin = "2.0.21"
 coreKtx = "1.16.0"
@@ -35,7 +40,12 @@ coroutines = "1.8.1"
 
 room = "2.7.1"
 
+
 [libraries]
+android-lib-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
+kotlin-lib-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+ksp-lib-gradle-plugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -92,5 +102,5 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerializationPlugin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 android-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
-ksp-gradlePlugin = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+ksp-gradle-plugin = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
