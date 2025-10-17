@@ -36,6 +36,7 @@ class AppModulePlugin : Plugin<Project> {
                     versionCode = 1
                     versionName = "1.0"
                     minSdk = getLibs().versions.minSDK.get().toInt()
+                    targetSdk = getLibs().versions.compileSDk.get().toInt()
                 }
 
                 buildTypes {

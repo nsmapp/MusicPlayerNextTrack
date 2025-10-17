@@ -1,31 +1,22 @@
 package by.niaprauski.playerservice
 
-import android.R
-import android.app.Notification
-import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
 import android.os.Binder
 import android.os.IBinder
-import android.view.KeyEvent
-import androidx.annotation.OptIn
-import androidx.core.app.NotificationCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
-import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.session.MediaButtonReceiver
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
-import androidx.media3.session.MediaStyleNotificationHelper
 import by.niaprauski.playerservice.models.PlayerServiceAction
 import by.niaprauski.playerservice.models.TrackProgress
+import by.niaprauski.playerservice.utils.NotificationCreator
 import by.niaprauski.utils.constants.TEXT_EMPTY
 import by.niaprauski.utils.extension.toTrackTime
 import kotlinx.coroutines.Dispatchers
@@ -49,7 +40,6 @@ class PlayerService : MediaSessionService() {
     private val playerBinder = PlayerBinder()
     private var mediaItems: List<MediaItem> = emptyList()
 
-    private val chanelId = "by.niaprauski.nexttreck.chanel"
     private val notificationId = 5465
 
     private val _currentTitle = MutableStateFlow(TEXT_EMPTY)
@@ -110,7 +100,11 @@ class PlayerService : MediaSessionService() {
 
         }
 
-        val notification = buildNotification()
+        val notification = NotificationCreator().buildNotification(
+            context = this,
+            player = player,
+            mediaSession = mediaSession,
+        )
         startForeground(notificationId, notification)
 
 
@@ -125,94 +119,15 @@ class PlayerService : MediaSessionService() {
         super.onDestroy()
     }
 
-
-    //TODO move to string resources
-    private fun createNotificationChannel() {
-        val name = "Next Track Channel"
-        val descriptionText = "Next track music chanel"
-        val importance = NotificationManager.IMPORTANCE_LOW
-        val channel = NotificationChannel(chanelId, name, importance)
-        channel.description = descriptionText
-
-        val notificationManager: NotificationManager =
-            getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
-    }
-
-    @OptIn(UnstableApi::class)
-    private fun buildNotification(): Notification {
-        createNotificationChannel()
-
-        val mediaMetadata = player?.currentMediaItem?.mediaMetadata
-
-        val playIntent = Intent(this, MediaButtonReceiver::class.java).apply {
-            setAction(Intent.ACTION_MEDIA_BUTTON)
-            putExtra(
-                Intent.EXTRA_KEY_EVENT, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY)
-            )
-        }
-        val playPendingIntent: PendingIntent =
-            PendingIntent.getBroadcast(this, 0, playIntent, PendingIntent.FLAG_IMMUTABLE)
-
-        val pauseIntent = Intent(this, MediaButtonReceiver::class.java).apply {
-            setAction(Intent.ACTION_MEDIA_BUTTON)
-            putExtra(
-                Intent.EXTRA_KEY_EVENT, KeyEvent(
-                    KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PAUSE
-                )
-            )
-        }
-        val pausePendingIntent: PendingIntent =
-            PendingIntent.getBroadcast(this, 1, pauseIntent, PendingIntent.FLAG_IMMUTABLE)
-
-        val nextIntent = Intent(this, MediaButtonReceiver::class.java).apply {
-            setAction(Intent.ACTION_MEDIA_BUTTON)
-            putExtra(
-                Intent.EXTRA_KEY_EVENT, KeyEvent(
-                    KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_NEXT
-                )
-            )
-        }
-        val nextPendingIntent: PendingIntent =
-            PendingIntent.getBroadcast(this, 2, nextIntent, PendingIntent.FLAG_IMMUTABLE)
-
-        val prevIntent = Intent(this, MediaButtonReceiver::class.java).apply {
-            setAction(Intent.ACTION_MEDIA_BUTTON)
-            putExtra(
-                Intent.EXTRA_KEY_EVENT, KeyEvent(
-                    KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PREVIOUS
-                )
-            )
-        }
-        val prevPendingIntent: PendingIntent =
-            PendingIntent.getBroadcast(this, 3, prevIntent, PendingIntent.FLAG_IMMUTABLE)
-
-
-        val builder =
-            NotificationCompat.Builder(this, chanelId).setSmallIcon(R.drawable.ic_media_play)
-                .setContentTitle(mediaMetadata?.title ?: "No track") //TODO move to string resources
-                .setContentText(mediaMetadata?.artist ?: "No artist")//TODO move to string resources
-
-        mediaSession?.let { builder.setStyle(MediaStyleNotificationHelper.MediaStyle(it)) }
-        player?.let {
-            builder.setPriority(NotificationCompat.PRIORITY_LOW).setOngoing(it.isPlaying)
-        }
-
-
-        builder.setShowWhen(false)
-            .addAction(R.drawable.ic_media_previous, "Track back", prevPendingIntent).addAction(
-                if (player?.isPlaying == true) R.drawable.ic_media_pause
-                else R.drawable.ic_media_play,
-                if (player?.isPlaying == true) "Pause" else "Play",
-                if (player?.isPlaying == true) pausePendingIntent else playPendingIntent
-            ).addAction(R.drawable.ic_media_next, "Next", nextPendingIntent)
-
-        return builder.build()
-    }
-
     private fun updateNotification() {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(notificationId, buildNotification())
+        val notification = NotificationCreator().buildNotification(
+            context = this,
+            player = player,
+            mediaSession = mediaSession,
+        )
+
+        notificationManager.notify(notificationId, notification)
     }
 
     fun updateTrackInfo() {
@@ -353,7 +268,7 @@ class PlayerService : MediaSessionService() {
 
         progressTrackingJob = serviceScope.launch(Dispatchers.Main) {
             while (true) {
-                if (_isPlaying.value == true) {
+                if (_isPlaying.value) {
                     val currentPosition = getCurrentPosition()
                     val duration = getDuration().toFloat()
 

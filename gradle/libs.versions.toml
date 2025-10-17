@@ -1,6 +1,6 @@
 [versions]
 
-compileSDk = "35"
+compileSDk = "36"
 minSDK = "26"
 
 java = "11"

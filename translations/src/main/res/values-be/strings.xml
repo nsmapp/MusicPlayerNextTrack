@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+<!--    feature player-->
+    <string name="feature_player_welcome_message">Каб сінхранізаваць спіс прайгравання, вам трэба даць доступ да вашых медыяфайлаў.\n\nКалі вы не хочаце даваць праграме доступ да вашых медыяфайлаў, вы можаце прайграць трэк, выбраўшы яго ў файлавым мэнэджары.</string>
+    <string name="feature_player_close">Адхіліць</string>
+    <string name="feature_player_library">Спіс трэкаў</string>
+    <string name="feature_player_sync_playlist">Cінхранізаваць медыя</string>
+    <string name="feature_player_library_settings">Налвды</string>
+    <string name="feature_player_play_previous">Папярэдні</string>
+    <string name="feature_player_stop">Стоп</string>
+    <string name="feature_player_play_next">Наступны</string>
+    <string name="feature_player_repeat_mode">Рэжым паўтарэння</string>
+    <string name="feature_player_shuffle">Выпадковы парадак</string>
+    <string name="feature_player_play">Прайграць</string>
+    <string name="feature_player_no_artist">no_artist</string>
+    <string name="feature_player_no_track">no_track</string>
+    <string name="feature_player_open_settings">Перайці ў налады</string>
+    <string name="feature_player_need_media_permission_message">Няма дазволу на доступ да медыяфайлаў; вам трэба даць яго ў наладах праграмы.</string>
+
+
+<!--    feature library-->
+    <string name="feature_library_search">Шукаць</string>
+    <string name="feature_library_ignore">Ігнараваць</string>
+    <string name="feature_library_play">Прайграць</string>
+    <string name="feature_library_restore_track">Аднавіць трэк</string>
+
+<!--    feature settings-->
+
+    <string name="feature_settings_night_mode">Начная тэма</string>
+</resources>
