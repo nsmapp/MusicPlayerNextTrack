@@ -4,21 +4,22 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import by.niaprauski.navigation.Navigator
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import by.niaprauski.navigation.routs.library.LibraryDest
 import by.niaprauski.navigation.routs.settings.SettingsDest
 import by.niaprauski.player.contracts.PlayerRouter
 
 
-class PlayerRouterImpl(private val navigator: Navigator) : PlayerRouter {
+class PlayerRouterImpl(private val backStack: NavBackStack<NavKey>) : PlayerRouter {
 
 
     override fun openSettings() {
-        navigator.navController.navigate(SettingsDest)
+        backStack.add(SettingsDest)
     }
 
     override fun openLibrary() {
-        navigator.navController.navigate(LibraryDest)
+        backStack.add(LibraryDest)
     }
 
     override fun openAppSettings(context: Context) {

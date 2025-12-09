@@ -103,7 +103,6 @@ class AppModulePlugin : Plugin<Project> {
                 implementation(getLibs().kotlinx.coroutines.android)
                 implementation(getLibs().androidx.lifecycle.runtime.ktx)
                 implementation(getLibs().androidx.ui.graphics)
-                implementation(getLibs().androidx.fragment.ktx)
             }
         }
     }

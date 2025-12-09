@@ -1,7 +1,7 @@
 package by.niaprauski.navigation.routs.settings
 
-import by.niaprauski.navigation.Dest
+import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-object SettingsDest: Dest
+object SettingsDest: NavKey

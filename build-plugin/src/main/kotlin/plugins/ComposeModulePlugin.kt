@@ -14,7 +14,6 @@ class ComposeModulePlugin: Plugin<Project> {
                 apply(getLibs().plugins.compose.compiler.get().pluginId)
                 apply("plugin.android.module")
             }
-
         }
     }
 }
