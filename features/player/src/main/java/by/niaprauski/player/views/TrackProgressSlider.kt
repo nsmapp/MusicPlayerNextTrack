@@ -14,21 +14,20 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import by.niaprauski.designsystem.theme.AppTheme
-import by.niaprauski.playerservice.PlayerService
 import by.niaprauski.playerservice.models.TrackProgress
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrackProgressSlider(
     trackProgress: State<TrackProgress>?,
-    playerService: PlayerService?
+    onSeek: (Float) -> Unit
 ) {
 
     val progressValue = trackProgress?.value?.progress ?: 0f
 
     Slider(
         value = progressValue,
-        onValueChange = { newPosition -> playerService?.seekTo(newPosition) },
+        onValueChange = { newPosition -> onSeek(newPosition) },
         modifier = Modifier.fillMaxWidth(),
         valueRange = 0f..1f,
         steps = 0,

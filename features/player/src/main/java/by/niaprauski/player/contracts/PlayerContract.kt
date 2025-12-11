@@ -15,6 +15,8 @@ interface PlayerContract {
 
     fun playPrevious()
 
+    fun seekTo(position: Float)
+
     fun setPlayList(mediaItems: List<MediaItem> )
 
     fun changeShuffleMode()
@@ -22,6 +24,8 @@ interface PlayerContract {
     fun changeRepeatMode()
 
     fun playSingleTrack(uri: Uri)
+
+    fun requestSync()
 
     fun showPermissionInformationDialog()
 

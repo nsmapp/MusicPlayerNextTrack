@@ -14,12 +14,17 @@ sealed class PlayerEvent {
     object Stop: PlayerEvent()
     object Pause: PlayerEvent()
 
+    data class SeekTo(val position: Float): PlayerEvent()
+
     object ChangeShuffleMode: PlayerEvent()
     object ChangeRepeatMode: PlayerEvent()
 
 
     data class SetPlayList(val mediaItems: List<MediaItem>): PlayerEvent()
     data class PlaySingleTrack(val uri: Uri): PlayerEvent()
+
+    object SyncPlayList: PlayerEvent()
+
 
     object Nothing: PlayerEvent()
 }

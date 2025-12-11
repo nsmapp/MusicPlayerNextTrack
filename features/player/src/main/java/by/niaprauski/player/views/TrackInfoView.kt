@@ -1,5 +1,6 @@
 package by.niaprauski.player.views
 
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -18,13 +19,16 @@ fun TrackInfoView(
 ) {
     Column {
         TextBoldLarge(
+            modifier = Modifier.basicMarquee(),
             text = artist?.value ?: stringResource(R.string.feature_player_no_artist),
             maxLines = 1,
         )
         TextMediumLarge(
-            modifier = Modifier.padding(top = AppTheme.padding.default),
+            modifier = Modifier
+                .basicMarquee()
+                .padding(top = AppTheme.padding.default),
             text = title?.value ?: stringResource(R.string.feature_player_no_track),
-            maxLines = 2,
+            maxLines = 1,
         )
     }
 }

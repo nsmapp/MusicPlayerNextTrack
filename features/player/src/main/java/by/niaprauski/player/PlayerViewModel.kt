@@ -1,5 +1,8 @@
 package by.niaprauski.player
 
+import android.app.Application
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,14 +15,20 @@ import by.niaprauski.player.contracts.PlayerContract
 import by.niaprauski.player.mapper.TrackModelMapper
 import by.niaprauski.player.models.PlayerEvent
 import by.niaprauski.player.models.PlayerState
+import by.niaprauski.playerservice.PlayerService
+import by.niaprauski.playerservice.PlayerServiceConnection
 import by.niaprauski.utils.models.ITrack
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,6 +36,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
+    private val application: Application,
     private val saveTrackUseCase: SaveTrackUseCase,
     private val getTracksUseCase: GetTracksUseCase,
     private val getWelcomeMessageStatusUseCase: GetWelcomeMessageStatusUseCase,
@@ -39,6 +49,25 @@ class PlayerViewModel @Inject constructor(
 
     private val _event by lazy { Channel<PlayerEvent>() }
     val event: Flow<PlayerEvent> by lazy { _event.receiveAsFlow() }
+
+    private val serviceConnection = PlayerServiceConnection(application)
+    val playerService: StateFlow<PlayerService?> = serviceConnection.service
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null
+        )
+
+    init {
+        serviceConnection.bind()
+        startPlayerService(application)
+
+        viewModelScope.launch {
+            val service = playerService.filterNotNull().first()
+            loadTracks()
+
+        }
+    }
 
     fun onCreate() {
         checkWelcomeDialogStatus()
@@ -56,7 +85,7 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
-    private fun getTracks() {
+    fun loadTracks() {
         viewModelScope.launch {
             getTracksUseCase.invoke()
                 .map { tracks -> trackModelMapper.toMediaItems(tracks) }
@@ -81,7 +110,7 @@ class PlayerViewModel @Inject constructor(
     }
 
     private fun handleSyncedTracks() {
-        if (_state.value.trackCount == 0) getTracks()
+        if (_state.value.trackCount == 0) loadTracks()
     }
 
     override fun play() {
@@ -135,8 +164,18 @@ class PlayerViewModel @Inject constructor(
 
     override fun playSingleTrack(uri: Uri) {
         viewModelScope.launch {
-            delay(1000) //TODO need fix, delay for service start
             _event.send(PlayerEvent.PlaySingleTrack(uri))
+        }
+    }
+    override fun requestSync() {
+        viewModelScope.launch {
+            _event.send(PlayerEvent.SyncPlayList)
+        }
+    }
+
+    override fun seekTo(position: Float) {
+        viewModelScope.launch {
+            _event.send(PlayerEvent.SeekTo(position))
         }
     }
 
@@ -168,4 +207,16 @@ class PlayerViewModel @Inject constructor(
                 }
         }
     }
+
+    override fun onCleared() {
+        serviceConnection.unbind()
+        super.onCleared()
+    }
+
+    private fun startPlayerService(context: Context) {
+        val intent = Intent(context, PlayerService::class.java)
+        context.startService(intent)
+    }
+
+
 }
