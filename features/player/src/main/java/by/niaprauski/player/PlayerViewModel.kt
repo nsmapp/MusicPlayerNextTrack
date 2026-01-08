@@ -17,7 +17,10 @@ import by.niaprauski.player.models.PlayerEvent
 import by.niaprauski.player.models.PlayerState
 import by.niaprauski.playerservice.PlayerService
 import by.niaprauski.playerservice.PlayerServiceConnection
+import by.niaprauski.utils.handlers.MediaHandler
 import by.niaprauski.utils.models.ITrack
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -31,11 +34,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 
-@HiltViewModel
-class PlayerViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = PlayerViewModel.Factory::class)
+class PlayerViewModel @AssistedInject constructor(
+    @Assisted("radioTrack") val radioTrack: Uri? = null,
+    @Assisted("singleAudioTrack") val singleAudioTrack: Uri? = null,
     private val application: Application,
     private val saveTrackUseCase: SaveTrackUseCase,
     private val getTracksUseCase: GetTracksUseCase,
@@ -43,6 +47,14 @@ class PlayerViewModel @Inject constructor(
     private val setWelcomeMessageStatusUseCase: SetWelcomeMessageStatusUseCase,
     private val trackModelMapper: TrackModelMapper,
 ) : ViewModel(), PlayerContract {
+
+    @dagger.assisted.AssistedFactory
+    interface Factory {
+        fun create(
+            @Assisted("radioTrack") radioTrack: Uri?,
+            @Assisted("singleAudioTrack") singleAudioTrack: Uri?,
+        ): PlayerViewModel
+    }
 
     private val _state = MutableStateFlow<PlayerState>(PlayerState.INITIAL)
     val state = _state.asStateFlow()
@@ -61,11 +73,17 @@ class PlayerViewModel @Inject constructor(
     init {
         serviceConnection.bind()
         startPlayerService(application)
+        playInitialTrack()
+    }
 
+    private fun playInitialTrack() {
         viewModelScope.launch {
-            val service = playerService.filterNotNull().first()
-            loadTracks()
-
+            playerService.filterNotNull().first()
+            when {
+                radioTrack == null && singleAudioTrack == null -> loadTracks()
+                radioTrack != null -> playRadioTrack(radioTrack)
+                singleAudioTrack != null -> playSingleAudioTrack(singleAudioTrack)
+            }
         }
     }
 
@@ -88,8 +106,7 @@ class PlayerViewModel @Inject constructor(
     fun loadTracks() {
         viewModelScope.launch {
             getTracksUseCase.invoke()
-                .map { tracks -> trackModelMapper.toMediaItems(tracks) }
-                .onSuccess { items -> setPlayList(items) }
+                .onSuccess { items -> setPlayList(trackModelMapper.toMediaItems(items)) }
                 .onFailure {
                     //TODO add get track failure information
                 }
@@ -100,7 +117,7 @@ class PlayerViewModel @Inject constructor(
 
         viewModelScope.launch {
 
-            val syncTracks = tracks.map { track -> trackModelMapper.toDomainModel(track) }
+            val syncTracks = trackModelMapper.toDomainModels(tracks)
             saveTrackUseCase.invoke(syncTracks)
                 .onSuccess { handleSyncedTracks() }
                 .onFailure {
@@ -143,10 +160,10 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
-    override fun setPlayList(mediaItems: List<MediaItem>) {
+    override fun setPlayList(tracks: List<MediaItem>) {
         viewModelScope.launch {
-            _state.update { it.copy(trackCount = mediaItems.size) }
-            _event.send(PlayerEvent.SetPlayList(mediaItems))
+            _state.update { it.copy(trackCount = tracks.size) }
+            _event.send(PlayerEvent.SetPlayList(tracks))
         }
     }
 
@@ -162,11 +179,22 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
-    override fun playSingleTrack(uri: Uri) {
+    override fun playSingleAudioTrack(uri: Uri) {
         viewModelScope.launch {
-            _event.send(PlayerEvent.PlaySingleTrack(uri))
+            val mediaItem = MediaHandler.uriToMediaItem(uri)
+            _event.send(PlayerEvent.PlaySingleTrack(mediaItem))
         }
     }
+
+    override fun playRadioTrack(uri: Uri) {
+        viewModelScope.launch {
+            MediaHandler.radioUriToMediaItem(uri, application.contentResolver)
+                ?.let { mediaItem ->
+                    _event.send(PlayerEvent.PlaySingleTrack(mediaItem))
+                }
+        }
+    }
+
     override fun requestSync() {
         viewModelScope.launch {
             _event.send(PlayerEvent.SyncPlayList)
@@ -203,7 +231,7 @@ class PlayerViewModel @Inject constructor(
             getWelcomeMessageStatusUseCase.invoke()
                 .onSuccess { isShowWelcomeDialog ->
                     setWelcomeMessageStatusUseCase.setFirstLaunchStatus(false)
-                    _state.update { it.copy(isShowWelcomeDialog = isShowWelcomeDialog ) }
+                    _state.update { it.copy(isShowWelcomeDialog = isShowWelcomeDialog) }
                 }
         }
     }
@@ -217,6 +245,5 @@ class PlayerViewModel @Inject constructor(
         val intent = Intent(context, PlayerService::class.java)
         context.startService(intent)
     }
-
 
 }

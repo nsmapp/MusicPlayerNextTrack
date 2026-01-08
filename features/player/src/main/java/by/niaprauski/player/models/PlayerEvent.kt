@@ -1,6 +1,5 @@
 package by.niaprauski.player.models
 
-import android.net.Uri
 import androidx.media3.common.MediaItem
 
 sealed class PlayerEvent {
@@ -20,9 +19,8 @@ sealed class PlayerEvent {
     object ChangeRepeatMode: PlayerEvent()
 
 
-    data class SetPlayList(val mediaItems: List<MediaItem>): PlayerEvent()
-    data class PlaySingleTrack(val uri: Uri): PlayerEvent()
-
+    data class SetPlayList(val tracks: List<MediaItem>): PlayerEvent()
+    data class PlaySingleTrack(val track: MediaItem): PlayerEvent()
     object SyncPlayList: PlayerEvent()
 
 

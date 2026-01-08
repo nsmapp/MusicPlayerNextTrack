@@ -17,13 +17,15 @@ interface PlayerContract {
 
     fun seekTo(position: Float)
 
-    fun setPlayList(mediaItems: List<MediaItem> )
+    fun setPlayList(tracks: List<MediaItem>)
 
     fun changeShuffleMode()
 
     fun changeRepeatMode()
 
-    fun playSingleTrack(uri: Uri)
+    fun playSingleAudioTrack(uri: Uri)
+
+    fun playRadioTrack(uri: Uri)
 
     fun requestSync()
 

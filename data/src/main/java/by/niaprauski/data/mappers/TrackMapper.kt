@@ -10,10 +10,10 @@ class TrackMapper @Inject constructor(){
         with(track) {
             TrackEntity(
                 id = id,
-                title = title,
-                artist = artist,
-                path = path,
-                isIgnore = isIgnore
+                name = fileName,
+                path = pathOrUrl,
+                isIgnore = isIgnore,
+                isRadio,
             )
         }
 
@@ -21,10 +21,10 @@ class TrackMapper @Inject constructor(){
         with(track) {
             Track(
                 id = id,
-                title = title,
-                artist = artist,
-                path = path,
-                isIgnore = isIgnore
+                fileName = name,
+                pathOrUrl = path,
+                isIgnore = isIgnore,
+                isRadio = isRadio,
             )
         }
 

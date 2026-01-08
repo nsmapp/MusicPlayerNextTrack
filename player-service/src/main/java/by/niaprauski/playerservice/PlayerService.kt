@@ -2,13 +2,12 @@ package by.niaprauski.playerservice
 
 import android.app.NotificationManager
 import android.content.Intent
-import android.net.Uri
 import android.os.Binder
 import android.os.IBinder
-import androidx.documentfile.provider.DocumentFile
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -17,6 +16,7 @@ import androidx.media3.session.MediaSessionService
 import by.niaprauski.playerservice.models.PlayerServiceAction
 import by.niaprauski.playerservice.models.TrackProgress
 import by.niaprauski.playerservice.utils.NotificationCreator
+import by.niaprauski.playerservice.utils.getMediaItemIndex
 import by.niaprauski.utils.constants.TEXT_EMPTY
 import by.niaprauski.utils.extension.toTrackTime
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +28,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import by.niaprauski.translations.R
+import by.niaprauski.utils.extension.ifNullOrEmpty
+import by.niaprauski.utils.extension.orDefault
 
 class PlayerService : MediaSessionService() {
 
@@ -38,7 +41,7 @@ class PlayerService : MediaSessionService() {
     private val serviceScope by lazy { MainScope() }
 
     private val playerBinder = PlayerBinder()
-    private var mediaItems: List<MediaItem> = emptyList()
+//    private var mediaItems: List<MediaItem> = emptyList()
 
     private val notificationId = 5465
 
@@ -130,41 +133,33 @@ class PlayerService : MediaSessionService() {
         notificationManager.notify(notificationId, notification)
     }
 
-    fun updateTrackInfo() {
-        val mediaMetadata = player?.currentMediaItem?.mediaMetadata
-        _currentTitle.value = mediaMetadata?.title?.toString() ?: TEXT_EMPTY
-        _currentArtist.value = mediaMetadata?.artist?.toString() ?: TEXT_EMPTY
-    }
+    fun setTracks(tracks: List<MediaItem>) {
 
-    fun setPlayList(mediaItems: List<MediaItem>) {
-        val playList = mediaItems
-        this.mediaItems = playList
         player?.apply {
-            setMediaItems(playList, 0, 0)
+            setMediaItems(tracks, 0, 0)
             prepare()
         }
     }
 
-    fun setPlayList(uri: Uri) {
-        val mediaItem = MediaItem.fromUri(uri)
+    fun setTrack(track: MediaItem) {
+        stopWithClearMediaItems()
+        updateTrackInfo(track.mediaMetadata)
+        playSingleMediaItem(track)
+    }
 
-        if (this.mediaItems.size == 1
-            && this.mediaItems.firstOrNull()?.mediaId == mediaItem.mediaId
-        ) return
-
-
-        val playList = listOf(mediaItem)
-        this.mediaItems = playList
+    private fun stopWithClearMediaItems() {
+        player?.stop()
         player?.clearMediaItems()
+    }
+
+    private fun playSingleMediaItem(mediaItem: MediaItem) {
+        val playList = listOf(mediaItem)
         player?.apply {
             setMediaItems(playList, 0, 0)
             prepare()
             play()
             startProgressTracking()
         }
-
-        val documentFile = DocumentFile.fromSingleUri(this, uri)
-        _currentArtist.value = documentFile?.name ?: TEXT_EMPTY
     }
 
     fun play() {
@@ -209,7 +204,7 @@ class PlayerService : MediaSessionService() {
 
     fun playWithPosition(item: MediaItem) {
 
-        val index = mediaItems.indexOfFirst { item.mediaId == it.mediaId }
+        val index  = player?.getMediaItemIndex(item) ?: -1
         if (index == -1) player?.setMediaItem(item)
         else player?.seekTo(index, 0)
 
@@ -247,18 +242,15 @@ class PlayerService : MediaSessionService() {
 
 
     fun removeMediaItem(item: MediaItem) {
-        val index = mediaItems.indexOfFirst { item.mediaId == it.mediaId }
+        val index = player?.getMediaItemIndex(item) ?: -1
         if (index == -1) return
-
-        mediaItems = mediaItems.toMutableList().apply { remove(item) }
         player?.removeMediaItem(index)
     }
 
 
-    fun addItemToPlayList(item: MediaItem){
-        if (mediaItems.indexOfFirst { item.mediaId == it.mediaId } != -1)  return
-
-        this.mediaItems = this.mediaItems + listOf(item)
+    fun addItemToPlayList(item: MediaItem) {
+        val index = player?.getMediaItemIndex(item) ?: -1
+        if (index != -1) return
         player?.addMediaItem(item)
     }
 
@@ -288,7 +280,12 @@ class PlayerService : MediaSessionService() {
     private val playerListener = object : Player.Listener {
         override fun onPlayerErrorChanged(error: PlaybackException?) {
             when (error?.errorCode) {
-                PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND -> {
+                PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
+                PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT,
+                PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS,
+                PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW,
+                PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND,
+                PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT -> {
                     player?.seekToNextMediaItem()
                     player?.play()
                 }
@@ -297,14 +294,39 @@ class PlayerService : MediaSessionService() {
             }
         }
 
+        override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
+            updateTrackInfo(mediaMetadata)
+        }
+
+        override fun onPlaybackStateChanged(playbackState: Int) {
+            when (playbackState) {
+//                Player.STATE_IDLE -> println("!!! player state: STATE_IDLE")
+//                Player.STATE_BUFFERING -> println("!!! player state: STATE_BUFFERING")
+//                Player.STATE_READY -> println("!!! player state: STATE_READY")
+//                Player.STATE_ENDED -> println("!!! player state: STATE_ENDED")
+            }
+        }
+
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
             updateNotification()
-            updateTrackInfo()
         }
 
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             _isPlaying.update { isPlaying }
             updateNotification()
+        }
+    }
+
+    private fun updateTrackInfo(mediaMetadata: MediaMetadata) {
+        with(mediaMetadata) {
+            val trackArtist = artist.ifNullOrEmpty {
+                player?.currentMediaItem?.mediaMetadata?.displayTitle
+            }
+            val trackTitle = title.ifNullOrEmpty {
+                player?.currentMediaItem?.mediaMetadata?.displayTitle
+            }
+            _currentArtist.update { trackArtist.orDefault(getString(R.string.feature_player_no_artist)) }
+            _currentTitle.update { trackTitle.orDefault(getString(R.string.feature_player_no_track)) }
         }
     }
 }

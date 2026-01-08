@@ -1,7 +1,9 @@
 package by.niaprauski.utils.models
 
 interface ITrack {
-    val title: String
+    val fileName: String
+
     val artist: String
-    val path: String
+    val pathOrUrl: String
+    val isRadio: Boolean
 }

@@ -17,4 +17,5 @@ dependencies{
     implementation(libs.hilt.java.inject)
 
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.immutable.collections.list)
 }

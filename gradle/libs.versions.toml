@@ -24,6 +24,7 @@ runtimeAndroid = "1.7.8"
 foundationLayoutAndroid = "1.7.8"
 material3 = "1.7.8"
 datastore = "1.1.7"
+immutable-list = "0.4.0"
 
 kotlinSerializationPlugin = "1.9.0"
 serializationJson = "1.8.0"
@@ -66,6 +67,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 androidx-material = { group = "androidx.compose.material", name = "material" }
 androidx-ui-icons = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "material3" }
 androidx-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "viewModel" }
+immutable-collections-list = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "immutable-list"}
 
 media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
 media3-dash = { group = "androidx.media3", name = "media3-exoplayer-dash", version.ref = "media3" }

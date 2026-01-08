@@ -10,12 +10,12 @@ data class TrackEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     val id: Long,
-    @ColumnInfo(name = "title")
-    val title: String,
-    @ColumnInfo(name = "artist")
-    val artist: String,
+    @ColumnInfo(name = "name")
+    val name: String,
     @ColumnInfo("path")
     val path: String,
     @ColumnInfo("is_ignore")
-    val isIgnore: Boolean
+    val isIgnore: Boolean,
+    @ColumnInfo("is_radio")
+    val isRadio: Boolean
 )

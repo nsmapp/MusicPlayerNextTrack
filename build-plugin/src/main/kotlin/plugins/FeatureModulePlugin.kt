@@ -31,6 +31,7 @@ class FeatureModulePlugin: Plugin<Project> {
                 ksp(getLibs().ksp.hilt.compiler)
                 implementation(getLibs().hilt.navigation)
                 implementation(getLibs().kotlinx.coroutines.android)
+                implementation(getLibs().immutable.collections.list)
 
             }
         }

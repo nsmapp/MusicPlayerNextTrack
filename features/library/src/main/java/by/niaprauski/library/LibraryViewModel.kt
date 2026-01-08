@@ -11,6 +11,7 @@ import by.niaprauski.library.mapper.TrackModelMapper
 import by.niaprauski.library.models.LibraryEvent
 import by.niaprauski.library.models.LibraryState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -61,7 +62,7 @@ class LibraryViewModel @Inject constructor(
             getTracksFlowUseCase.invoke(filter)
                 .onSuccess { tracks ->
                     tracks.collect { trackList ->
-                        _state.update { it.copy(tracks = trackList) }
+                        _state.update { it.copy(tracks = trackList.toPersistentList()) }
                     }
                 }
         }
@@ -96,7 +97,7 @@ class LibraryViewModel @Inject constructor(
     }
 
     override fun searchTrack(text: String) {
-        _state.update { it.copy(searchText =  text) }
+        _state.update { it.copy(searchText = text) }
 
         viewModelScope.launch {
             searchFlow.emit(text)

@@ -36,10 +36,13 @@ import by.niaprauski.utils.permission.MediaPermissions
 
 @Composable
 fun PlayerScreen(
-    startUriTrack: Uri? = null,
+    radioTrack: Uri? = null,
+    singleAudioTrack: Uri? = null,
     router: PlayerRouter,
-    viewModel: PlayerViewModel = hiltViewModel(),
 ) {
+    val viewModel: PlayerViewModel = hiltViewModel { factory: PlayerViewModel.Factory ->
+        factory.create(radioTrack, singleAudioTrack)
+    }
 
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -79,9 +82,12 @@ fun PlayerScreen(
                 PlayerEvent.PlayPrevious -> playerService?.seekToPrevious()
                 PlayerEvent.Stop -> playerService?.stop()
                 PlayerEvent.Pause -> playerService?.pause()
-                is PlayerEvent.SeekTo -> { playerService?.seekTo(event.position) }
-                is PlayerEvent.SetPlayList -> playerService?.setPlayList(event.mediaItems)
-                is PlayerEvent.PlaySingleTrack -> playerService?.setPlayList(event.uri)
+                is PlayerEvent.SeekTo -> {
+                    playerService?.seekTo(event.position)
+                }
+
+                is PlayerEvent.SetPlayList -> playerService?.setTracks(event.tracks)
+                is PlayerEvent.PlaySingleTrack -> playerService?.setTrack(event.track)
                 PlayerEvent.ChangeRepeatMode -> playerService?.changeRepeatMode()
                 PlayerEvent.ChangeShuffleMode -> playerService?.changeShuffleMode()
                 PlayerEvent.SyncPlayList -> requestMediaPermissionWithSyncPlaylist(
@@ -90,18 +96,13 @@ fun PlayerScreen(
                     context = context,
                     onSyncTrack = { tracks -> viewModel.syncTracks(tracks) })
 
-                PlayerEvent.Nothing ->  {
+                PlayerEvent.Nothing -> {
                     /**do nothing **/
                 }
             }
         }
     }
 
-    LaunchedEffect(playerService, startUriTrack) {
-        if (playerService != null && startUriTrack != null) {
-            viewModel.playSingleTrack(startUriTrack)
-        }
-    }
 
     if (state.isShowWelcomeDialog) FirstLaunchDialog(
         onSyncClick = { viewModel.requestSync() },

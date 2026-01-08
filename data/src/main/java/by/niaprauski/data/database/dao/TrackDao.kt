@@ -17,7 +17,7 @@ interface TrackDao {
     fun getAllAsFlow(): Flow<List<TrackEntity>>
 
 
-    @Query("SELECT * FROM tracks WHERE artist LIKE ('%' || :text || '%') OR title LIKE ('%' || :text || '%') ")
+    @Query("SELECT * FROM tracks WHERE name LIKE ('%' || :text || '%') OR name LIKE ('%' || :text || '%') ")
     fun getAllAsFlow(text: String): Flow<List<TrackEntity>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

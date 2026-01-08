@@ -2,8 +2,8 @@ package by.niaprauski.domain.models
 
 data class Track(
     val id: Long,
-    val title: String,
-    val artist: String,
-    val path: String,
+    val fileName: String,
+    val pathOrUrl: String,
     val isIgnore: Boolean,
+    val isRadio: Boolean,
 )

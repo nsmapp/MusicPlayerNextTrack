@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
@@ -16,6 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NextTrack"
         android:configChanges="uiMode"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
@@ -31,7 +33,10 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="audio/mpeg" />
+                <data android:mimeType="audio/x-mpegurl" />
+                <data android:mimeType="audio/x-scpls" />
             </intent-filter>
         </activity>
 

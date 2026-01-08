@@ -21,7 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.designsystem.ui.button.PlayerLiteButton
-import by.niaprauski.designsystem.ui.text.TextMediumSmall
+import by.niaprauski.designsystem.ui.text.TextMedium
 import by.niaprauski.domain.models.Track
 import by.niaprauski.translations.R
 
@@ -46,16 +46,10 @@ fun TrackItem(
 
 
         Column(modifier = Modifier.weight(1f)) {
-            TextMediumSmall(
+            TextMedium(
                 modifier = Modifier
                     .padding(bottom = AppTheme.padding.default),
-                text = track.artist,
-                color = contentColor,
-                maxLines = 1,
-            )
-
-            TextMediumSmall(
-                text = track.title,
+                text = track.fileName,
                 color = contentColor,
                 maxLines = 1,
             )

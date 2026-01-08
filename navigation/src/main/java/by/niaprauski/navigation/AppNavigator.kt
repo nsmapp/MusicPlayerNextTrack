@@ -18,7 +18,8 @@ import by.niaprauski.settings.SettingsScreen
 
 @Composable
 fun AppNavigator(
-    startUriTrack: Uri? = null,
+    radioTrack: Uri? = null,
+    singleAudioTrack: Uri? = null,
 ) {
 
     val backStack: NavBackStack<NavKey> = rememberNavBackStack(PlayerDest)
@@ -29,7 +30,13 @@ fun AppNavigator(
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },
         entryProvider = entryProvider {
-            entry(PlayerDest) { PlayerScreen(startUriTrack, playerRouter) }
+            entry(PlayerDest) {
+                PlayerScreen(
+                    radioTrack = radioTrack,
+                    singleAudioTrack = singleAudioTrack,
+                    router = playerRouter
+                )
+            }
             entry(LibraryDest) { LibraryScreen() }
             entry(SettingsDest) { SettingsScreen() }
         }

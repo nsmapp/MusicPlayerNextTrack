@@ -16,7 +16,7 @@ class TracRepoImpl @Inject constructor(
 
 
     override fun saveTrackInfo(tracks: List<Track>) {
-        val validPaths = tracks.map { it.path }
+        val validPaths = tracks.map { it.pathOrUrl }
         val brokenTracksIds = trackDao.getBrokenTracksIds(validPaths)
         trackDao.deleteByIds(brokenTracksIds)
 
