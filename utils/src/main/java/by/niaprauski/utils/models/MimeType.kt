@@ -1,4 +1,4 @@
-package by.niaprauski.utils.handlers
+package by.niaprauski.utils.models
 
 enum class MimeType(val type: String){
     PLS("audio/x-scpls"),

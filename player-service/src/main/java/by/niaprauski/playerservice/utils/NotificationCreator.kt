@@ -16,6 +16,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaButtonReceiver
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaStyleNotificationHelper
+import by.niaprauski.utils.intents.OpenAppIntent
 
 class NotificationCreator {
 
@@ -65,8 +66,6 @@ class NotificationCreator {
             builder.setPriority(NotificationCompat.PRIORITY_LOW).setOngoing(it.isPlaying)
         }
 
-
-
         builder.setShowWhen(false)
             .addAction(R.drawable.ic_media_previous, "Track back", prevPendingIntent).addAction(
                 if (player?.isPlaying == true) R.drawable.ic_media_pause
@@ -75,7 +74,24 @@ class NotificationCreator {
                 if (player?.isPlaying == true) pausePendingIntent else playPendingIntent
             ).addAction(R.drawable.ic_media_next, "Next", nextPendingIntent)
 
+        builder.setContentIntent(createOpenActivityIntent(context))
+        
         return builder.build()
+    }
+
+    private fun createOpenActivityIntent(context: Context): PendingIntent {
+        val openActivityIntent = Intent(OpenAppIntent.OPEN_APP_ACTION
+        ).apply {
+            `package` = context.packageName
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val openAppIntent = PendingIntent.getActivity(
+            /* context = */ context,
+            /* requestCode = */ 0,
+            /* intent = */ openActivityIntent,
+            /* flags = */ PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        return openAppIntent
     }
 
     @OptIn(UnstableApi::class)

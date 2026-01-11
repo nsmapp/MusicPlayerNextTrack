@@ -38,6 +38,11 @@
                 <data android:mimeType="audio/x-mpegurl" />
                 <data android:mimeType="audio/x-scpls" />
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="by.niaprauski.OPEN_APP" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <service android:name="by.niaprauski.playerservice.PlayerService"

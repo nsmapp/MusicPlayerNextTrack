@@ -13,6 +13,7 @@ import android.provider.MediaStore.Files.FileColumns.DISPLAY_NAME
 import android.provider.MediaStore.Files.FileColumns.DATA
 import androidx.media3.common.MediaItem
 import by.niaprauski.utils.constants.TEXT_EMPTY
+import by.niaprauski.utils.models.MimeType
 
 object MediaHandler {
 

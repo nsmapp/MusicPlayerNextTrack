@@ -9,7 +9,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.navigation.AppNavigator
 import by.niaprauski.nt.models.ExternalTrack
-import by.niaprauski.utils.handlers.MimeType
+import by.niaprauski.utils.models.MimeType
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
