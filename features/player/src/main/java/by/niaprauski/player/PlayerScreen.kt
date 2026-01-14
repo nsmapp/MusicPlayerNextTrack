@@ -3,37 +3,47 @@ package by.niaprauski.player
 import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.player.contracts.PlayerRouter
 import by.niaprauski.player.models.PlayerEvent
+import by.niaprauski.player.models.PlayerState
 import by.niaprauski.player.views.PlayerControlView
 import by.niaprauski.player.views.PlayerUpView
 import by.niaprauski.player.views.TrackInfoView
 import by.niaprauski.player.views.TrackProgressSlider
+import by.niaprauski.player.views.WaveBarView
 import by.niaprauski.player.views.dialogs.FirstLaunchDialog
 import by.niaprauski.player.views.dialogs.NeedMediaPermissionDialog
+import by.niaprauski.playerservice.PlayerService
+import by.niaprauski.playerservice.models.ExoPlayerState
 import by.niaprauski.playerservice.models.TrackProgress
-import by.niaprauski.utils.constants.TEXT_EMPTY
 import by.niaprauski.utils.handlers.MediaHandler
 import by.niaprauski.utils.models.ITrack
 import by.niaprauski.utils.permission.MediaPermissions
+import kotlinx.coroutines.flow.StateFlow
 
+@OptIn(UnstableApi::class)
 @Composable
 fun PlayerScreen(
     radioTrack: Uri? = null,
@@ -45,23 +55,10 @@ fun PlayerScreen(
     }
 
     val context = LocalContext.current
-    val state by viewModel.state.collectAsStateWithLifecycle()
-
+    val state: PlayerState by viewModel.state.collectAsStateWithLifecycle()
+    val exoPlayerState by viewModel.exoPlayerState.collectAsStateWithLifecycle()
     val playerService by viewModel.playerService.collectAsStateWithLifecycle()
 
-    val title = playerService?.currentTitle?.collectAsStateWithLifecycle(initialValue = TEXT_EMPTY)
-    val artist = playerService?.currentArtist
-        ?.collectAsStateWithLifecycle(initialValue = TEXT_EMPTY)
-    val trackProgress = playerService?.trackProgress?.collectAsStateWithLifecycle(
-        initialValue = TrackProgress.DEFAULT
-    )
-
-    val isPlaying = playerService?.isPlaying?.collectAsStateWithLifecycle(
-        initialValue = false
-    )
-
-    val shuffle = playerService?.shuffle?.collectAsStateWithLifecycle(false)
-    val repeatMode = playerService?.repeatMode?.collectAsStateWithLifecycle(Player.REPEAT_MODE_ALL)
 
     val hasMediaPermission by MediaPermissions.rememberMediaPermissions()
 
@@ -115,12 +112,9 @@ fun PlayerScreen(
     )
 
     PlayersScreenContent(
-        artist = artist,
-        title = title,
-        isPlaying = isPlaying,
-        shuffle = shuffle,
-        repeatMode = repeatMode,
-        trackProgress = trackProgress,
+        exoPlayerState = exoPlayerState,
+        trackProgress = playerService?.trackProgress,
+        waveformFlow = playerService?.waveform,
         onOpenSettingsClick = viewModel::openSettings,
         onSyncPlayListClick = viewModel::requestSync,
         onOpenPlayListClick = viewModel::openLibrary,
@@ -136,14 +130,12 @@ fun PlayerScreen(
 
 }
 
+@OptIn(UnstableApi::class)
 @Composable
 private fun PlayersScreenContent(
-    artist: State<String>?,
-    title: State<String>?,
-    isPlaying: State<Boolean>?,
-    shuffle: State<Boolean>?,
-    repeatMode: State<Int>?,
-    trackProgress: State<TrackProgress>?,
+    exoPlayerState: ExoPlayerState,
+    trackProgress : StateFlow<TrackProgress>?,
+    waveformFlow: StateFlow<FloatArray>?,
     onOpenSettingsClick: () -> Unit,
     onSyncPlayListClick: () -> Unit,
     onOpenPlayListClick: () -> Unit,
@@ -157,43 +149,62 @@ private fun PlayersScreenContent(
     onSeek: (Float) -> Unit,
 ) {
 
-
-    Column(
+    Box(
         modifier = Modifier
+            .fillMaxSize()
             .background(color = AppTheme.appColors.background)
             .navigationBarsPadding()
-            .statusBarsPadding()
-            .fillMaxSize()
-            .padding(horizontal = AppTheme.padding.default),
-        verticalArrangement = Arrangement.SpaceBetween
+            .statusBarsPadding(),
+        contentAlignment = Alignment.BottomCenter
     ) {
 
-
-        PlayerUpView(
-            onOpenSettingsClick = onOpenSettingsClick,
-            onSyncPlayListClick = onSyncPlayListClick,
-            onOpenPlayListClick = onOpenPlayListClick,
-        )
-
-        TrackInfoView(artist, title)
-
-        PlayerControlView(
-            onPlayClick = onPlayClick,
-            onPauseClick = onPauseClick,
-            onStopClick = onStopClick,
-            onNextClick = onNextClick,
-            onPreviousClick = onPreviousClick,
-            onShuffleModeClick = onShuffleModeClick,
-            onRepeatModeClick = onRepeatModeClick,
-            isPlaying = isPlaying,
-            shuffle = shuffle,
-            repeatMode = repeatMode,
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = AppTheme.padding.default),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            TrackProgressSlider(
-                trackProgress,
-                onSeek = onSeek
+
+
+            PlayerUpView(
+                onOpenSettingsClick = onOpenSettingsClick,
+                onSyncPlayListClick = onSyncPlayListClick,
+                onOpenPlayListClick = onOpenPlayListClick,
             )
+
+            TrackInfoView(exoPlayerState.artist, exoPlayerState.title)
+
+            PlayerControlView(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .padding(vertical = AppTheme.padding.large),
+                onPlayClick = onPlayClick,
+                onPauseClick = onPauseClick,
+                onStopClick = onStopClick,
+                onNextClick = onNextClick,
+                onPreviousClick = onPreviousClick,
+                onShuffleModeClick = onShuffleModeClick,
+                onRepeatModeClick = onRepeatModeClick,
+                isPlaying = exoPlayerState.isPlaying,
+                shuffle = exoPlayerState.shuffle,
+                repeatMode = exoPlayerState.repeatMode,
+            ) {
+                TrackProgressSlider(
+                    trackProgress = trackProgress,
+                    onSeek = onSeek
+                )
+            }
+
         }
+
+        WaveBarView(
+            modifier = Modifier
+                .padding(horizontal = AppTheme.padding.default)
+                .fillMaxWidth()
+                .height(AppTheme.padding.large),
+            waveformFlow = waveformFlow,
+            isPlaying = exoPlayerState.isPlaying
+        )
     }
 }
 

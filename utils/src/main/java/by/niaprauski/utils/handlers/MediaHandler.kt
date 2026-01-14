@@ -17,6 +17,9 @@ import by.niaprauski.utils.models.MimeType
 
 object MediaHandler {
 
+    private const val MIN_DURATION = 20000
+
+
     fun getTrackData(cr: ContentResolver): List<ITrack> {
 
         val iTracks = mutableListOf<ITrack>()
@@ -26,15 +29,18 @@ object MediaHandler {
             DISPLAY_NAME,
             DATA,
             MIME_TYPE,
+            MediaStore.Audio.Media.DURATION,
         )
 
-        val selection = "$MIME_TYPE = ? OR $MIME_TYPE = ? OR $MIME_TYPE = ? OR $MIME_TYPE = ?"
+        val selection = "($MIME_TYPE = ? OR $MIME_TYPE = ? OR " +
+                "($MIME_TYPE = ? OR $MIME_TYPE = ?) AND ${MediaStore.Audio.Media.DURATION} >= ?)"
 
         val selectionArgs = arrayOf(
             MimeType.PLS.type,
             MimeType.M3U.type,
             MimeType.OGG.type,
             MimeType.MPEG.type,
+            MIN_DURATION.toString(),
         )
 
         val cursor =

@@ -32,6 +32,7 @@ import by.niaprauski.playerservice.models.RepeatMode
 
 @Composable
 fun PlayerControlView(
+    modifier: Modifier = Modifier,
     onPlayClick: () -> Unit,
     onPauseClick: () -> Unit,
     onStopClick: () -> Unit,
@@ -39,16 +40,15 @@ fun PlayerControlView(
     onPreviousClick: () -> Unit,
     onShuffleModeClick: () -> Unit,
     onRepeatModeClick: () -> Unit,
-    isPlaying: State<Boolean>?,
-    shuffle: State<Boolean>?,
-    repeatMode: State<Int>?,
+    isPlaying: Boolean,
+    shuffle: Boolean,
+    repeatMode: Int,
     progressIndicator: @Composable () -> Unit,
 ) {
 
 
     Column(
-        modifier = Modifier.wrapContentHeight()
-            .padding(vertical = AppTheme.padding.large),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -107,10 +107,10 @@ fun PlayerControlView(
 
 @Composable
 private fun RepeatModeButton(
-    repeatMode: State<Int>?,
+    repeatMode: Int,
     onRepeatModeClick: () -> Unit
 ) {
-    val repeatModeIcon = when (repeatMode?.value) {
+    val repeatModeIcon = when (repeatMode) {
         RepeatMode.REPEAT_MODE_OFF.value -> Icons.Outlined.Repeat
         RepeatMode.REPEAT_MODE_ONE.value -> Icons.Outlined.RepeatOne
         RepeatMode.REPEAT_MODE_ALL.value -> Icons.Outlined.RepeatOn
@@ -130,10 +130,10 @@ private fun RepeatModeButton(
 
 @Composable
 fun ShuffleButton(
-    shuffle: State<Boolean>?,
+    shuffle: Boolean,
     onShuffleModeClick: () -> Unit
 ) {
-    val shuffleIcon = if (shuffle?.value == true) Icons.Outlined.ShuffleOn
+    val shuffleIcon = if (shuffle) Icons.Outlined.ShuffleOn
     else Icons.Outlined.Shuffle
 
     PlayerLiteButton(
@@ -148,13 +148,13 @@ fun ShuffleButton(
 
 @Composable
 private fun PlayPauseButton(
-    isPlaying: State<Boolean>?,
+    isPlaying: Boolean,
     onPauseClick: () -> Unit,
     onPlayClick: () -> Unit
 ) {
 
-    val playIcon = if (isPlaying?.value == true) Icons.Outlined.Pause else Icons.Outlined.PlayArrow
-    val playClickAction = if (isPlaying?.value == true) onPauseClick else onPlayClick
+    val playIcon = if (isPlaying) Icons.Outlined.Pause else Icons.Outlined.PlayArrow
+    val playClickAction = if (isPlaying) onPauseClick else onPlayClick
 
     PlayerLiteButton(
         modifier = Modifier

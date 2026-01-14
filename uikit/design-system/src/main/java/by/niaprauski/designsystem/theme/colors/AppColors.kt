@@ -14,6 +14,7 @@ data class DayColors(
     override val text: Color = Color(0xFFE5E5E0),
     override val text_ligth: Color = Color(0x59F4F4EF),
     override val accent: Color = Color(0xFFE5E5E1),
+    override val accent50: Color = Color(0x80E5E5E1),
     override val transparent: Color =  Color(0x00FFFFFF),
     override val warning: Color = Color(0xFFed5752),
 ): AppColors
@@ -27,6 +28,7 @@ data class NightColors(
     override val text: Color = Color(0xFFE5E5E0),
     override val text_ligth: Color = Color(0x59F4F4EF),
     override val accent: Color = Color(0xFFE5E5E0),
+    override val accent50: Color = Color(0x80E5E5E0),
     override val transparent: Color =  Color(0x00FFFFFF),
     override val warning: Color = Color(0xFFed5752),
 ): AppColors
@@ -39,6 +41,7 @@ interface AppColors{
     val text: Color
     val text_ligth: Color
     val accent: Color
+    val accent50: Color
     val transparent: Color
     val warning: Color
 }

@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Reply
@@ -18,7 +20,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
+import by.niaprauski.designsystem.icons.SmallIcon
 import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.designsystem.ui.button.PlayerLiteButton
 import by.niaprauski.designsystem.ui.text.TextMedium
@@ -33,22 +37,28 @@ fun TrackItem(
     onIgnoreClick: (Track) -> Unit,
     onRestoreTrackClick: (Track) -> Unit,
 ) {
-    val contentColor = if (track.isIgnore) AppTheme.appColors.text_ligth else AppTheme.appColors.text
+    val contentColor =
+        if (track.isIgnore) AppTheme.appColors.text_ligth else AppTheme.appColors.text
+    val trackIcon = remember(track.isRadio) {
+        if (track.isRadio) Icons.Default.Radio else Icons.Default.MusicNote
+    }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(AppTheme.padding.default),
+            .padding(horizontal = AppTheme.padding.default, vertical = AppTheme.padding.mini),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
 
 
+        SmallIcon(
+            imageVector = trackIcon,
+            )
+
         Column(modifier = Modifier.weight(1f)) {
             TextMedium(
-                modifier = Modifier
-                    .padding(bottom = AppTheme.padding.default),
                 text = track.fileName,
                 color = contentColor,
                 maxLines = 1,

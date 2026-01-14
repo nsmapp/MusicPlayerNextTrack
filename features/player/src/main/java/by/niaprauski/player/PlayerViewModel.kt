@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
 import by.niaprauski.domain.usecases.settings.GetWelcomeMessageStatusUseCase
 import by.niaprauski.domain.usecases.settings.SetWelcomeMessageStatusUseCase
 import by.niaprauski.domain.usecases.track.GetTracksUseCase
@@ -17,6 +18,7 @@ import by.niaprauski.player.models.PlayerEvent
 import by.niaprauski.player.models.PlayerState
 import by.niaprauski.playerservice.PlayerService
 import by.niaprauski.playerservice.PlayerServiceConnection
+import by.niaprauski.playerservice.models.ExoPlayerState
 import by.niaprauski.utils.handlers.MediaHandler
 import by.niaprauski.utils.models.ITrack
 import dagger.assisted.Assisted
@@ -30,12 +32,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
+@UnstableApi
 @HiltViewModel(assistedFactory = PlayerViewModel.Factory::class)
 class PlayerViewModel @AssistedInject constructor(
     @Assisted("radioTrack") val radioTrack: Uri? = null,
@@ -56,12 +61,6 @@ class PlayerViewModel @AssistedInject constructor(
         ): PlayerViewModel
     }
 
-    private val _state = MutableStateFlow<PlayerState>(PlayerState.INITIAL)
-    val state = _state.asStateFlow()
-
-    private val _event by lazy { Channel<PlayerEvent>() }
-    val event: Flow<PlayerEvent> by lazy { _event.receiveAsFlow() }
-
     private val serviceConnection = PlayerServiceConnection(application)
     val playerService: StateFlow<PlayerService?> = serviceConnection.service
         .stateIn(
@@ -70,11 +69,19 @@ class PlayerViewModel @AssistedInject constructor(
             initialValue = null
         )
 
-    init {
-        serviceConnection.bind()
-        startPlayerService(application)
-        playInitialTrack()
-    }
+    private val _state = MutableStateFlow<PlayerState>(PlayerState.DEFAULT)
+    val state = _state.asStateFlow()
+
+    val exoPlayerState: StateFlow<ExoPlayerState> = playerService.flatMapLatest { service ->
+        service?.state ?: flowOf(ExoPlayerState.DEFAULT)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ExoPlayerState.DEFAULT
+    )
+
+    private val _event by lazy { Channel<PlayerEvent>() }
+    val event: Flow<PlayerEvent> by lazy { _event.receiveAsFlow() }
 
     private fun playInitialTrack() {
         viewModelScope.launch {
@@ -88,6 +95,11 @@ class PlayerViewModel @AssistedInject constructor(
     }
 
     fun onCreate() {
+        if (playerService.value != null) return
+
+        serviceConnection.bind()
+        startPlayerService(application)
+        playInitialTrack()
         checkWelcomeDialogStatus()
     }
 

@@ -10,23 +10,30 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.util.UnstableApi
 import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.playerservice.models.TrackProgress
+import kotlinx.coroutines.flow.StateFlow
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrackProgressSlider(
-    trackProgress: State<TrackProgress>?,
+    trackProgress : StateFlow<TrackProgress>?,
     onSeek: (Float) -> Unit
 ) {
 
-    val progressValue = trackProgress?.value?.progress ?: 0f
+    val trackProgress by trackProgress?.collectAsStateWithLifecycle(initialValue = TrackProgress.DEFAULT)
+        ?: remember { mutableStateOf(TrackProgress.DEFAULT) }
 
     Slider(
-        value = progressValue,
+        value = trackProgress.progress,
         onValueChange = { newPosition -> onSeek(newPosition) },
         modifier = Modifier.fillMaxWidth(),
         valueRange = 0f..1f,
@@ -34,11 +41,11 @@ fun TrackProgressSlider(
         thumb = {
             Spacer(
                 modifier = Modifier
-                    .padding(AppTheme.padding.mini)
+                    .padding(vertical = AppTheme.padding.mini)
                     .size(AppTheme.viewSize.icon_micro)
                     .clip(RoundedCornerShape(AppTheme.viewSize.icon_micro))
                     .background(AppTheme.appColors.text)
-                    .padding(AppTheme.viewSize.border_small)
+                    .padding(vertical = AppTheme.viewSize.border_small)
                     .background(AppTheme.appColors.accent)
             )
         },

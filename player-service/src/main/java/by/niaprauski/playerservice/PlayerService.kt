@@ -1,6 +1,7 @@
 package by.niaprauski.playerservice
 
 import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
@@ -10,14 +11,22 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.audio.AudioSink
+import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import by.niaprauski.playerservice.models.PlayerServiceAction
+import by.niaprauski.playerservice.models.ExoPlayerState
 import by.niaprauski.playerservice.models.TrackProgress
 import by.niaprauski.playerservice.utils.NotificationCreator
+import by.niaprauski.playerservice.utils.SoundProcessor
 import by.niaprauski.playerservice.utils.getMediaItemIndex
-import by.niaprauski.utils.constants.TEXT_EMPTY
+import by.niaprauski.translations.R
+import by.niaprauski.utils.extension.ifNullOrEmpty
+import by.niaprauski.utils.extension.orDefault
 import by.niaprauski.utils.extension.toTrackTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -28,10 +37,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import by.niaprauski.translations.R
-import by.niaprauski.utils.extension.ifNullOrEmpty
-import by.niaprauski.utils.extension.orDefault
 
+@UnstableApi
 class PlayerService : MediaSessionService() {
 
     private var player: ExoPlayer? = null
@@ -41,27 +48,18 @@ class PlayerService : MediaSessionService() {
     private val serviceScope by lazy { MainScope() }
 
     private val playerBinder = PlayerBinder()
-//    private var mediaItems: List<MediaItem> = emptyList()
 
     private val notificationId = 5465
 
-    private val _currentTitle = MutableStateFlow(TEXT_EMPTY)
-    val currentTitle = _currentTitle.asStateFlow()
-
-    private val _currentArtist = MutableStateFlow(TEXT_EMPTY)
-    val currentArtist = _currentArtist.asStateFlow()
+    private val _state = MutableStateFlow(ExoPlayerState.DEFAULT)
+    val state = _state.asStateFlow()
 
     private val _trackProgress = MutableStateFlow(TrackProgress.DEFAULT)
     val trackProgress = _trackProgress.asStateFlow()
+    private val _waveform = MutableStateFlow(FloatArray(0))
+    val waveform = _waveform.asStateFlow()
 
-    private val _shuffle = MutableStateFlow(false)
-    val shuffle = _shuffle.asStateFlow()
-
-    private val _repeatMode = MutableStateFlow(Player.REPEAT_MODE_ALL)
-    val repeatMode = _repeatMode.asStateFlow()
-
-    private val _isPlaying = MutableStateFlow(false)
-    val isPlaying = _isPlaying.asStateFlow()
+    private val soundProcessor = SoundProcessor(64, _waveform)
 
 
     inner class PlayerBinder : Binder() {
@@ -70,15 +68,33 @@ class PlayerService : MediaSessionService() {
 
     override fun onCreate() {
         super.onCreate()
-        player = ExoPlayer.Builder(this).build().apply {
-            val audioAttributes = AudioAttributes.Builder().setUsage(C.USAGE_MEDIA)
-                .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).build()
-            addListener(playerListener)
-            repeatMode = Player.REPEAT_MODE_ALL
-            setAudioAttributes(audioAttributes, true)
-        }
+
+        player = ExoPlayer.Builder(this, createRenderFactory())
+            .build().apply {
+                val audioAttributes = AudioAttributes.Builder()
+                    .setUsage(C.USAGE_MEDIA)
+                    .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).build()
+                addListener(playerListener)
+                repeatMode = Player.REPEAT_MODE_ALL
+                setAudioAttributes(audioAttributes, true)
+            }
         player?.let { player ->
             mediaSession = MediaSession.Builder(this, player).build()
+        }
+    }
+
+    private fun createRenderFactory(): DefaultRenderersFactory {
+
+        val audioSink = DefaultAudioSink.Builder(this)
+            .setAudioProcessors(arrayOf(soundProcessor))
+            .build()
+
+        return object : DefaultRenderersFactory(this) {
+            override fun buildAudioSink(
+                context: Context,
+                enableFloatOutput: Boolean,
+                enableAudioOutputPlaybackParams: Boolean
+            ): AudioSink = audioSink
         }
     }
 
@@ -204,26 +220,22 @@ class PlayerService : MediaSessionService() {
 
     fun playWithPosition(item: MediaItem) {
 
-        val index  = player?.getMediaItemIndex(item) ?: -1
-        if (index == -1) player?.setMediaItem(item)
-        else player?.seekTo(index, 0)
+        val index = player?.getMediaItemIndex(item) ?: -1
+        if (index != -1) {
+            if (player?.currentMediaItemIndex == index) return
+            player?.seekTo(index, 0)
+        }
 
         if (!isPlaying()) play()
     }
 
     fun changeShuffleMode() {
-
-        if (isPlaying().not()) return
-
         val shuffleMode = player?.shuffleModeEnabled?.not() ?: return
         player?.shuffleModeEnabled = shuffleMode
-        _shuffle.update { shuffleMode }
+        _state.update { it.copy(shuffle = shuffleMode) }
     }
 
     fun changeRepeatMode() {
-
-        if (isPlaying().not()) return
-
         val newRepeatMode = when (player?.repeatMode) {
             Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ONE
             Player.REPEAT_MODE_ONE -> Player.REPEAT_MODE_ALL
@@ -231,12 +243,9 @@ class PlayerService : MediaSessionService() {
             else -> Player.REPEAT_MODE_OFF
         }
 
-        if (player?.repeatMode == Player.REPEAT_MODE_ALL) Player.REPEAT_MODE_ONE
-        else Player.REPEAT_MODE_ALL
-
         player?.let { player ->
             player.repeatMode = newRepeatMode
-            _repeatMode.update { newRepeatMode }
+            _state.update { it.copy(repeatMode = newRepeatMode) }
         }
     }
 
@@ -255,24 +264,17 @@ class PlayerService : MediaSessionService() {
     }
 
     private fun startProgressTracking() {
-        progressTrackingJob?.cancel()
-
+        if (progressTrackingJob?.isActive == true) return
 
         progressTrackingJob = serviceScope.launch(Dispatchers.Main) {
-            while (true) {
-                if (_isPlaying.value) {
-                    val currentPosition = getCurrentPosition()
-                    val duration = getDuration().toFloat()
+            while (_state.value.isPlaying) {
+                val currentPosition = getCurrentPosition()
+                val duration = getDuration().toFloat()
+                val trackTime = (currentPosition / 1000).toTrackTime()
+                val progress = currentPosition / duration
 
-                    val trackTime = (currentPosition / 1000).toTrackTime()
-                    val progress = currentPosition / duration
-
-                    _trackProgress.update { TrackProgress(progress, trackTime) }
-
-                    delay(500)
-                } else {
-                    delay(1000)
-                }
+                _trackProgress.update { TrackProgress(progress, trackTime) }
+                delay(333)
             }
         }
     }
@@ -286,8 +288,14 @@ class PlayerService : MediaSessionService() {
                 PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW,
                 PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND,
                 PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT -> {
-                    player?.seekToNextMediaItem()
-                    player?.play()
+                    if (player?.hasNextMediaItem() == true) {
+                        player?.seekToNextMediaItem()
+                        player?.prepare()
+                        serviceScope.launch {
+                            delay(500)
+                            player?.play()
+                        }
+                    } else player?.stop()
                 }
                 //TODO handle other errors
                 else -> println("!!! player error: ${error?.message}  code ${error?.errorCode}")
@@ -300,10 +308,10 @@ class PlayerService : MediaSessionService() {
 
         override fun onPlaybackStateChanged(playbackState: Int) {
             when (playbackState) {
-//                Player.STATE_IDLE -> println("!!! player state: STATE_IDLE")
-//                Player.STATE_BUFFERING -> println("!!! player state: STATE_BUFFERING")
-//                Player.STATE_READY -> println("!!! player state: STATE_READY")
-//                Player.STATE_ENDED -> println("!!! player state: STATE_ENDED")
+                Player.STATE_IDLE -> println("!!! player state: STATE_IDLE")
+                Player.STATE_BUFFERING -> println("!!! player state: STATE_BUFFERING")
+                Player.STATE_READY -> println("!!! player state: STATE_READY")
+                Player.STATE_ENDED -> println("!!! player state: STATE_ENDED")
             }
         }
 
@@ -312,7 +320,7 @@ class PlayerService : MediaSessionService() {
         }
 
         override fun onIsPlayingChanged(isPlaying: Boolean) {
-            _isPlaying.update { isPlaying }
+            _state.update { it.copy(isPlaying = isPlaying) }
             updateNotification()
         }
     }
@@ -325,8 +333,10 @@ class PlayerService : MediaSessionService() {
             val trackTitle = title.ifNullOrEmpty {
                 player?.currentMediaItem?.mediaMetadata?.displayTitle
             }
-            _currentArtist.update { trackArtist.orDefault(getString(R.string.feature_player_no_artist)) }
-            _currentTitle.update { trackTitle.orDefault(getString(R.string.feature_player_no_track)) }
+            _state.update { it.copy(
+                title = trackTitle.orDefault(getString(R.string.feature_player_no_track)),
+                artist = trackArtist.orDefault(getString(R.string.feature_player_no_artist)),
+            ) }
         }
     }
 }

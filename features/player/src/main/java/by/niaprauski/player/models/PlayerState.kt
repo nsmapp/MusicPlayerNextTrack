@@ -9,11 +9,11 @@ data class PlayerState(
 ) {
     companion object {
 
-        val INITIAL = PlayerState(
+        val DEFAULT = PlayerState(
             isLoading = true,
             isShowWelcomeDialog = false,
             isShowPermissionInformationDialog = false,
-            trackCount = 0
+            trackCount = 0,
         )
     }
 }
