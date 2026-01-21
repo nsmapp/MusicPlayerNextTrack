@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class PlayerServiceConnection(
@@ -26,6 +28,7 @@ class PlayerServiceConnection(
         isBound = false
     }
 
+    @OptIn(UnstableApi::class)
     fun bind() {
         if (!isBound) {
             val intent = Intent(context, PlayerService::class.java)

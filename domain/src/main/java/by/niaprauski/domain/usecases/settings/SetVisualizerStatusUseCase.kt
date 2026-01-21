@@ -5,15 +5,14 @@ import by.niaprauski.domain.utils.DispatcherProvider
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class GetWelcomeMessageStatusUseCase @Inject constructor(
+class SetVisualizerStatusUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val dispatcherProvider: DispatcherProvider
 ) {
 
-    suspend fun invoke(): Result<Boolean> =
+    suspend fun set(enabled: Boolean): Result<Unit> =
         withContext(dispatcherProvider.io) {
             runCatching {
-                settingsRepository.isShowWelcomeMessage()
-            }
+                settingsRepository.setVisuallyEnabled(enabled)            }
         }
 }

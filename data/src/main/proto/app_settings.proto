@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option java_package = "by.niaprauski.data.datastore";
+option java_multiple_files = true;
+
+message AppSettingsEntity {
+    bool is_welcome_message = 1;
+    bool is_dark_mode = 2;
+    bool is_visually_enabled = 3;
+}

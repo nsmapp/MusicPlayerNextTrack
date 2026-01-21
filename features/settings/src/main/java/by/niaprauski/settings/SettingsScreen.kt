@@ -45,12 +45,26 @@ fun SettingsScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextMedium(text = stringResource(R.string.feature_settings_night_mode))
-            
+
             CSwitch(
-                checked = state.isNightMode,
+                checked = state.isDarkMode,
                 onCheckedChange = { isChecked -> viewModel.setDarkMode(isChecked) }
             )
+        }
 
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextMedium(text = stringResource(R.string.feature_settings_visually))
+
+            CSwitch(
+                checked = state.isVisuallyEnabled,
+                onCheckedChange = { isChecked -> viewModel.setVisuallyEnabled(isChecked) }
+            )
         }
 
     }

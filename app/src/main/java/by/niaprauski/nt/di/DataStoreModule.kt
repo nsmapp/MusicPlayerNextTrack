@@ -2,8 +2,8 @@ package by.niaprauski.nt.di
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import by.niaprauski.data.datastore.playerDatastore
+import by.niaprauski.data.datastore.AppSettingsEntity
+import by.niaprauski.data.datastore.appSettingsStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,7 +17,7 @@ object DataStoreModule {
 
     @Provides
     @Singleton
-    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
-        return context.playerDatastore
+    fun provideDataStore(@ApplicationContext context: Context): DataStore<AppSettingsEntity> {
+        return context.appSettingsStore
     }
 }

@@ -28,4 +28,5 @@
 <!--    feature settings-->
 
     <string name="feature_settings_night_mode">Night mode</string>
+    <string name="feature_settings_visually">Track animation</string>
 </resources>

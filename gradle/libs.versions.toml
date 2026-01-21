@@ -23,7 +23,8 @@ material = "1.12.0"
 runtimeAndroid = "1.7.8"
 foundationLayoutAndroid = "1.7.8"
 material3 = "1.7.8"
-datastore = "1.1.7"
+datastore = "1.2.0"
+protobuf = "4.32.1"
 immutable-list = "0.4.0"
 
 kotlinSerializationPlugin = "1.9.0"
@@ -82,7 +83,12 @@ androidx-material3-android = { group = "androidx.compose.material3", name = "mat
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serializationJson" }
 material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3AndroidVersion" }
 androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
-androidx-datastore = {group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore"}
+
+
+androidx-datastore2= {group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore"}
+androidx-datastore = { group = "androidx.datastore", name = "datastore", version.ref = "datastore"}
+protobuf-javalite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobuf"}
+protobuf-core = { group = "com.google.protobuf", name = "protoc", version.ref = "protobuf"}
 
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }

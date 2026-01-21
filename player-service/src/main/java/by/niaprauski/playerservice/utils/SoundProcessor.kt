@@ -9,12 +9,15 @@ import kotlin.math.sqrt
 
 @UnstableApi
 class SoundProcessor(
-    val chank: Int,
-    val waveFlow: MutableStateFlow<FloatArray>
+    val waveFlow: MutableStateFlow<FloatArray>,
 ): AudioProcessor {
 
     private val max16BitSoundValue = 32767.0f
     private var outputBuffer: ByteBuffer = AudioProcessor.EMPTY_BUFFER
+
+    private var isVisuallyEnabled = false
+    private var chank: Int = 64
+
 
     override fun configure(inputAudioFormat: AudioProcessor.AudioFormat): AudioProcessor.AudioFormat {
         return inputAudioFormat
@@ -24,8 +27,9 @@ class SoundProcessor(
 
     override fun queueInput(inputBuffer: ByteBuffer) {
         if (!inputBuffer.hasRemaining()) return
-
         outputBuffer = inputBuffer
+
+        if (!isVisuallyEnabled) return
 
         val readOnlyBuffer = inputBuffer.asReadOnlyBuffer()
         val shortBuffer = readOnlyBuffer.asShortBuffer()
@@ -64,4 +68,12 @@ class SoundProcessor(
 
     override fun flush() {}
     override fun reset() {}
+
+    fun setIsVisuallyEnabled(enabled: Boolean) {
+        isVisuallyEnabled = enabled
+    }
+
+    fun setChank(chank: Int) {
+        this.chank = chank
+    }
 }

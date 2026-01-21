@@ -6,6 +6,7 @@ data class PlayerState(
     val isShowWelcomeDialog: Boolean,
     val isShowPermissionInformationDialog: Boolean,
     val trackCount: Int,
+    val isVisuallyEnabled: Boolean,
 ) {
     companion object {
 
@@ -14,6 +15,7 @@ data class PlayerState(
             isShowWelcomeDialog = false,
             isShowPermissionInformationDialog = false,
             trackCount = 0,
+            isVisuallyEnabled = true,
         )
     }
 }

@@ -1,11 +1,13 @@
 package by.niaprauski.settings.models
 
 data class SettingsState(
-    val isNightMode: Boolean,
+    val isDarkMode: Boolean,
+    val isVisuallyEnabled: Boolean,
 ){
     companion object{
         val INITIAL = SettingsState(
-            isNightMode = false,
+            isDarkMode = false,
+            isVisuallyEnabled = true
         )
     }
 }

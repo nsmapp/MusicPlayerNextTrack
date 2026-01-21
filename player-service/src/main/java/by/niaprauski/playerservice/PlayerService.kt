@@ -18,6 +18,7 @@ import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import by.niaprauski.domain.usecases.settings.GetSettingsFlowUseCase
 import by.niaprauski.playerservice.models.PlayerServiceAction
 import by.niaprauski.playerservice.models.ExoPlayerState
 import by.niaprauski.playerservice.models.TrackProgress
@@ -28,27 +29,35 @@ import by.niaprauski.translations.R
 import by.niaprauski.utils.extension.ifNullOrEmpty
 import by.niaprauski.utils.extension.orDefault
 import by.niaprauski.utils.extension.toTrackTime
+import dagger.Lazy
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @UnstableApi
+@AndroidEntryPoint
 class PlayerService : MediaSessionService() {
+
+    @Inject
+    lateinit var getSettingsFlowUseCase: Lazy<GetSettingsFlowUseCase>
+
+    private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
 
     private var player: ExoPlayer? = null
     private var mediaSession: MediaSession? = null
     private var progressTrackingJob: Job? = null
-
-    private val serviceScope by lazy { MainScope() }
-
     private val playerBinder = PlayerBinder()
-
     private val notificationId = 5465
 
     private val _state = MutableStateFlow(ExoPlayerState.DEFAULT)
@@ -59,7 +68,7 @@ class PlayerService : MediaSessionService() {
     private val _waveform = MutableStateFlow(FloatArray(0))
     val waveform = _waveform.asStateFlow()
 
-    private val soundProcessor = SoundProcessor(64, _waveform)
+    private val soundProcessor = SoundProcessor(_waveform,)
 
 
     inner class PlayerBinder : Binder() {
@@ -80,6 +89,16 @@ class PlayerService : MediaSessionService() {
             }
         player?.let { player ->
             mediaSession = MediaSession.Builder(this, player).build()
+        }
+
+        observeAppSettings()
+    }
+
+    private fun observeAppSettings() {
+        serviceScope.launch {
+            getSettingsFlowUseCase.get().invoke().collectLatest { settings ->
+                soundProcessor.setIsVisuallyEnabled(settings.isVisuallyEnabled)
+            }
         }
     }
 
@@ -333,10 +352,12 @@ class PlayerService : MediaSessionService() {
             val trackTitle = title.ifNullOrEmpty {
                 player?.currentMediaItem?.mediaMetadata?.displayTitle
             }
-            _state.update { it.copy(
-                title = trackTitle.orDefault(getString(R.string.feature_player_no_track)),
-                artist = trackArtist.orDefault(getString(R.string.feature_player_no_artist)),
-            ) }
+            _state.update {
+                it.copy(
+                    title = trackTitle.orDefault(getString(R.string.feature_player_no_track)),
+                    artist = trackArtist.orDefault(getString(R.string.feature_player_no_artist)),
+                )
+            }
         }
     }
 }

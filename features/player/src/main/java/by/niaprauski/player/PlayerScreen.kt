@@ -113,6 +113,7 @@ fun PlayerScreen(
 
     PlayersScreenContent(
         exoPlayerState = exoPlayerState,
+        isVisuallyEnabled = state.isVisuallyEnabled,
         trackProgress = playerService?.trackProgress,
         waveformFlow = playerService?.waveform,
         onOpenSettingsClick = viewModel::openSettings,
@@ -134,6 +135,7 @@ fun PlayerScreen(
 @Composable
 private fun PlayersScreenContent(
     exoPlayerState: ExoPlayerState,
+    isVisuallyEnabled: Boolean,
     trackProgress : StateFlow<TrackProgress>?,
     waveformFlow: StateFlow<FloatArray>?,
     onOpenSettingsClick: () -> Unit,
@@ -164,7 +166,6 @@ private fun PlayersScreenContent(
                 .padding(horizontal = AppTheme.padding.default),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-
 
             PlayerUpView(
                 onOpenSettingsClick = onOpenSettingsClick,
@@ -197,14 +198,16 @@ private fun PlayersScreenContent(
 
         }
 
-        WaveBarView(
-            modifier = Modifier
-                .padding(horizontal = AppTheme.padding.default)
-                .fillMaxWidth()
-                .height(AppTheme.padding.large),
-            waveformFlow = waveformFlow,
-            isPlaying = exoPlayerState.isPlaying
-        )
+        if (isVisuallyEnabled){
+            WaveBarView(
+                modifier = Modifier
+                    .padding(horizontal = AppTheme.padding.default)
+                    .fillMaxWidth()
+                    .height(AppTheme.padding.large),
+                waveformFlow = waveformFlow,
+                isPlaying = exoPlayerState.isPlaying
+            )
+        }
     }
 }
 

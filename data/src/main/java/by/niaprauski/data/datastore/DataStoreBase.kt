@@ -2,8 +2,12 @@ package by.niaprauski.data.datastore
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
+import androidx.datastore.dataStore
+import by.niaprauski.data.datastore.serializer.AppSettingsSerializer
 
+private const val APP_SETTINGS_FILE_NAME = "app_settings.pb"
 
-val Context.playerDatastore: DataStore<Preferences> by preferencesDataStore(name = "player_data_store")
+val Context.appSettingsStore: DataStore<AppSettingsEntity> by dataStore(
+    fileName = APP_SETTINGS_FILE_NAME,
+    serializer = AppSettingsSerializer
+)

@@ -4,5 +4,7 @@ interface SettingsContract {
 
     fun setDarkMode(enabled: Boolean)
 
-    fun getNightModeFlow()
+    fun getSettingsFlow()
+
+    fun setVisuallyEnabled(enabled: Boolean)
 }

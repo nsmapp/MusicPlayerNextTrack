@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
-import by.niaprauski.domain.usecases.settings.GetWelcomeMessageStatusUseCase
+import by.niaprauski.domain.usecases.settings.GetSettingsFlowUseCase
 import by.niaprauski.domain.usecases.settings.SetWelcomeMessageStatusUseCase
 import by.niaprauski.domain.usecases.track.GetTracksUseCase
 import by.niaprauski.domain.usecases.track.SaveTrackUseCase
@@ -48,7 +48,7 @@ class PlayerViewModel @AssistedInject constructor(
     private val application: Application,
     private val saveTrackUseCase: SaveTrackUseCase,
     private val getTracksUseCase: GetTracksUseCase,
-    private val getWelcomeMessageStatusUseCase: GetWelcomeMessageStatusUseCase,
+    private val getSettingsFlowUseCase: GetSettingsFlowUseCase,
     private val setWelcomeMessageStatusUseCase: SetWelcomeMessageStatusUseCase,
     private val trackModelMapper: TrackModelMapper,
 ) : ViewModel(), PlayerContract {
@@ -100,7 +100,7 @@ class PlayerViewModel @AssistedInject constructor(
         serviceConnection.bind()
         startPlayerService(application)
         playInitialTrack()
-        checkWelcomeDialogStatus()
+        getSettings()
     }
 
     fun openLibrary() {
@@ -238,12 +238,17 @@ class PlayerViewModel @AssistedInject constructor(
         }
     }
 
-    private fun checkWelcomeDialogStatus() {
+    private fun getSettings() {
         viewModelScope.launch {
-            getWelcomeMessageStatusUseCase.invoke()
-                .onSuccess { isShowWelcomeDialog ->
+            getSettingsFlowUseCase.invoke()
+                .collect { settings ->
                     setWelcomeMessageStatusUseCase.setFirstLaunchStatus(false)
-                    _state.update { it.copy(isShowWelcomeDialog = isShowWelcomeDialog) }
+                    _state.update {
+                        it.copy(
+                            isShowWelcomeDialog = settings.isShowWelcomeMessage,
+                            isVisuallyEnabled = settings.isVisuallyEnabled
+                        )
+                    }
                 }
         }
     }

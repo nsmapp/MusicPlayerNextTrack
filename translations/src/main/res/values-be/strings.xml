@@ -28,4 +28,5 @@
 <!--    feature settings-->
 
     <string name="feature_settings_night_mode">Начная тэма</string>
+    <string name="feature_settings_visually">Анімаваць прайграванне</string>
 </resources>
