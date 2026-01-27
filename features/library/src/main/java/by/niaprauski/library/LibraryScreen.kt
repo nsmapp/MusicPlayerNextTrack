@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.util.UnstableApi
 import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.designsystem.ui.texxtfield.CTextField
 import by.niaprauski.library.models.LibraryEvent
@@ -35,6 +36,7 @@ import by.niaprauski.playerservice.PlayerServiceConnection
 import by.niaprauski.translations.R
 
 
+@UnstableApi
 @Composable
 fun LibraryScreen(
     viewModel: LibraryViewModel = hiltViewModel()
