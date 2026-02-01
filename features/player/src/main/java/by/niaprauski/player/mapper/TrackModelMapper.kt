@@ -21,7 +21,8 @@ class TrackModelMapper @Inject constructor(
                         fileName = fileName,
                         pathOrUrl = pathOrUrl,
                         isIgnore = false,
-                        isRadio = isRadio
+                        isRadio = isRadio,
+                        duration = duration,
                     )
                 }
             }
@@ -36,6 +37,7 @@ class TrackModelMapper @Inject constructor(
                     .setUri(track.pathOrUrl)
                     .setMediaMetadata(
                         MediaMetadata.Builder()
+                            .setDurationMs(track.duration)
                             .setDisplayTitle(track.fileName)
                             .build()
                     )

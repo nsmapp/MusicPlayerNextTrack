@@ -1,23 +1,30 @@
 package by.niaprauski.data.datastore
 
 import androidx.datastore.core.DataStore
+import by.niaprauski.data.datastore.mapper.SettingsMapper
 import by.niaprauski.domain.models.AppSettings
 import by.niaprauski.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class SettingsRepoImpl @Inject constructor(val store: DataStore<AppSettingsEntity>) :
-    SettingsRepository {
+class SettingsRepoImpl @Inject constructor(
+    val store: DataStore<AppSettingsEntity>,
+    val mapper: SettingsMapper,
+) : SettingsRepository {
 
-    override suspend fun get(): Flow<AppSettings> =
-        store.data.map { settingsEntity ->
-            AppSettings(
-                settingsEntity.isWelcomeMessage,
-                settingsEntity.isDarkMode,
-                settingsEntity.isVisuallyEnabled
-            )
+    override suspend fun getFlow(): Flow<AppSettings> =
+        store.data
+            .map { entity ->
+            mapper.toDomainModel(entity)
         }
+
+    override suspend fun get(): AppSettings =
+        store.data
+            .map { entity -> mapper.toDomainModel(entity) }
+            .first()
+
 
     override suspend fun save(settings: AppSettings) {
         store.updateData {
@@ -49,6 +56,22 @@ class SettingsRepoImpl @Inject constructor(val store: DataStore<AppSettingsEntit
         store.updateData { currentSettings ->
             currentSettings.toBuilder()
                 .setIsVisuallyEnabled(enabled)
+                .build()
+        }
+    }
+
+    override suspend fun setMinDuration(duration: Int) {
+        store.updateData { currentSettings ->
+            currentSettings.toBuilder()
+                .setMinDuration(duration)
+                .build()
+        }
+    }
+
+    override suspend fun setMaxDuration(duration: Int) {
+        store.updateData { currentSettings ->
+            currentSettings.toBuilder()
+                .setMaxDuration(duration)
                 .build()
         }
     }

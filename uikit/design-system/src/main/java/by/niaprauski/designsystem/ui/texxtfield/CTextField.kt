@@ -53,15 +53,18 @@ fun CTextField(
             focusedContainerColor = AppTheme.appColors.background_hard,
             unfocusedContainerColor = AppTheme.appColors.background,
             disabledContainerColor = AppTheme.appColors.background,
+            errorContainerColor = AppTheme.appColors.background,
             cursorColor = AppTheme.appColors.accent,
+            errorTextColor = AppTheme.appColors.accent,
             textSelectionColors = TextSelectionColors(
                 handleColor = AppTheme.appColors.accent,
                 backgroundColor = AppTheme.appColors.foreground
             ),
             focusedPlaceholderColor = AppTheme.appColors.text_ligth,
             focusedIndicatorColor = AppTheme.appColors.transparent,
-            unfocusedIndicatorColor = AppTheme.appColors.transparent
-
+            unfocusedIndicatorColor = AppTheme.appColors.transparent,
+            disabledIndicatorColor = AppTheme.appColors.transparent,
+            errorIndicatorColor = AppTheme.appColors.transparent,
         )
 ) {
 
@@ -69,7 +72,7 @@ fun CTextField(
         modifier = modifier.border(
             border = BorderStroke(
                 width = AppTheme.viewSize.border_normal,
-                color = AppTheme.appColors.accent
+                color = if (isError) AppTheme.appColors.warning else  AppTheme.appColors.accent
             ),
             shape = shape
         ),

@@ -4,7 +4,11 @@ interface SettingsContract {
 
     fun setDarkMode(enabled: Boolean)
 
-    fun getSettingsFlow()
+    fun getSettings()
 
     fun setVisuallyEnabled(enabled: Boolean)
+
+    fun setMinDuration(duration: String)
+
+    fun setMaxDuration(duration: String)
 }

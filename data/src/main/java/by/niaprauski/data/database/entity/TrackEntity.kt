@@ -17,5 +17,7 @@ data class TrackEntity(
     @ColumnInfo("is_ignore")
     val isIgnore: Boolean,
     @ColumnInfo("is_radio")
-    val isRadio: Boolean
+    val isRadio: Boolean,
+    @ColumnInfo("duration")
+    val duration: Long,
 )

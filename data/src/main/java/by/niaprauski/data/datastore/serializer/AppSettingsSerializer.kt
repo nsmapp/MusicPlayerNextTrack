@@ -13,6 +13,8 @@ object AppSettingsSerializer : Serializer<AppSettingsEntity> {
         .setIsWelcomeMessage(true)
         .setIsDarkMode(false)
         .setIsVisuallyEnabled(true)
+        .setMinDuration(5000)
+        .setMaxDuration(900000)
         .build()
 
     override suspend fun readFrom(input: InputStream): AppSettingsEntity {

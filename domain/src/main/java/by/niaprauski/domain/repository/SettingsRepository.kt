@@ -6,7 +6,10 @@ import kotlinx.coroutines.flow.Flow
 
 interface SettingsRepository {
 
-    suspend fun get(): Flow<AppSettings>
+    suspend fun getFlow(): Flow<AppSettings>
+
+    suspend fun get(): AppSettings
+
 
     suspend fun save(settings: AppSettings)
 
@@ -15,5 +18,9 @@ interface SettingsRepository {
     suspend fun setShowWelcomeMessage(isFirstLaunch: Boolean)
 
     suspend fun setVisuallyEnabled(enabled: Boolean)
+
+    suspend fun setMinDuration(duration: Int)
+
+    suspend fun setMaxDuration(duration: Int)
 
 }

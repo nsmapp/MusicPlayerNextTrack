@@ -7,4 +7,6 @@ message AppSettingsEntity {
     bool is_welcome_message = 1;
     bool is_dark_mode = 2;
     bool is_visually_enabled = 3;
+    int32 min_duration = 5000;
+    int32 max_duration = 900000;
 }

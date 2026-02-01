@@ -6,4 +6,5 @@ data class Track(
     val pathOrUrl: String,
     val isIgnore: Boolean,
     val isRadio: Boolean,
+    val duration: Long,
 )

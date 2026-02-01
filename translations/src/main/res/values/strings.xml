@@ -27,6 +27,10 @@
 
 <!--    feature settings-->
 
+    <string name="feature_settings_interface">Interface</string>
+    <string name="feature_settings_sync_settings">Sync settings</string>
+    <string name="feature_settings_min_duration_sec">Min duration, sec</string>
+    <string name="feature_settings_max_duration_min">Max duration, min</string>
     <string name="feature_settings_night_mode">Night mode</string>
     <string name="feature_settings_visually">Track animation</string>
 </resources>

@@ -13,7 +13,8 @@ class TrackMapper @Inject constructor(){
                 name = fileName,
                 path = pathOrUrl,
                 isIgnore = isIgnore,
-                isRadio,
+                isRadio = isRadio,
+                duration = duration,
             )
         }
 
@@ -25,6 +26,7 @@ class TrackMapper @Inject constructor(){
                 pathOrUrl = path,
                 isIgnore = isIgnore,
                 isRadio = isRadio,
+                duration = duration
             )
         }
 

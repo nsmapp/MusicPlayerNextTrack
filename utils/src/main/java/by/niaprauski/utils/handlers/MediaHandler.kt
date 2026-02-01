@@ -11,16 +11,17 @@ import java.io.InputStreamReader
 import android.provider.MediaStore.Files.FileColumns.MIME_TYPE
 import android.provider.MediaStore.Files.FileColumns.DISPLAY_NAME
 import android.provider.MediaStore.Files.FileColumns.DATA
+import androidx.core.database.getLongOrNull
+import androidx.core.database.getStringOrNull
 import androidx.media3.common.MediaItem
 import by.niaprauski.utils.constants.TEXT_EMPTY
 import by.niaprauski.utils.models.MimeType
 
 object MediaHandler {
 
-    private const val MIN_DURATION = 20000
-
-
-    fun getTrackData(cr: ContentResolver): List<ITrack> {
+    fun getTrackData(
+        cr: ContentResolver,
+    ): List<ITrack> {
 
         val iTracks = mutableListOf<ITrack>()
 
@@ -33,14 +34,13 @@ object MediaHandler {
         )
 
         val selection = "($MIME_TYPE = ? OR $MIME_TYPE = ? OR " +
-                "($MIME_TYPE = ? OR $MIME_TYPE = ?) AND ${MediaStore.Audio.Media.DURATION} >= ?)"
+                "($MIME_TYPE = ? OR $MIME_TYPE = ?) AND ${MediaStore.Audio.Media.DURATION} >= 0)"
 
         val selectionArgs = arrayOf(
             MimeType.PLS.type,
             MimeType.M3U.type,
             MimeType.OGG.type,
             MimeType.MPEG.type,
-            MIN_DURATION.toString(),
         )
 
         val cursor =
@@ -53,10 +53,12 @@ object MediaHandler {
 
         cursor?.use { c ->
             while (c.moveToNext()) {
-                val id = c.getLong(c.getColumnIndexOrThrow(_ID))
-                val path = c.getString(c.getColumnIndexOrThrow(DATA))
-                val displayName = c.getString(c.getColumnIndexOrThrow(DISPLAY_NAME))
-                val mimeType = c.getString(c.getColumnIndexOrThrow(MIME_TYPE))
+                val id = c.getLong(c.getColumnIndexOrThrow(_ID)) ?: continue
+                val path = c.getString(c.getColumnIndexOrThrow(DATA)) ?: continue
+                val displayName = c.getString(c.getColumnIndexOrThrow(DISPLAY_NAME)) ?: TEXT_EMPTY
+                val mimeType = c.getStringOrNull(c.getColumnIndexOrThrow(MIME_TYPE)) ?: TEXT_EMPTY
+                val duration = c.getLongOrNull(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
+
 
                 val isRadio = when (mimeType) {
                     MimeType.M3U.type, MimeType.PLS.type -> true
@@ -75,6 +77,7 @@ object MediaHandler {
                         override val artist = TEXT_EMPTY
                         override val pathOrUrl = urlOrPath ?: TEXT_EMPTY
                         override val isRadio = isRadio
+                        override val duration = duration ?: 0L
                     }
                     iTracks.add(iTrack)
                 }

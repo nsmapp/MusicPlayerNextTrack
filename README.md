@@ -12,7 +12,7 @@ The project utilizes the following key libraries/technologies:
 * **Jetpack Compose**
 * **Hilt**
 * **Kotlin Coroutines**
-* **Jetpack Navigation v2**
+* **Jetpack Navigation v3**
 * **Kotlinx Serialization**
 * **DataStore**
 * *and others*

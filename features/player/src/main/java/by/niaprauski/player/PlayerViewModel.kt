@@ -11,7 +11,7 @@ import androidx.media3.common.util.UnstableApi
 import by.niaprauski.domain.usecases.settings.GetSettingsFlowUseCase
 import by.niaprauski.domain.usecases.settings.SetWelcomeMessageStatusUseCase
 import by.niaprauski.domain.usecases.track.GetTracksUseCase
-import by.niaprauski.domain.usecases.track.SaveTrackUseCase
+import by.niaprauski.domain.usecases.track.FilterAndSaveTracksUseCase
 import by.niaprauski.player.contracts.PlayerContract
 import by.niaprauski.player.mapper.TrackModelMapper
 import by.niaprauski.player.models.PlayerEvent
@@ -46,7 +46,7 @@ class PlayerViewModel @AssistedInject constructor(
     @Assisted("radioTrack") val radioTrack: Uri? = null,
     @Assisted("singleAudioTrack") val singleAudioTrack: Uri? = null,
     private val application: Application,
-    private val saveTrackUseCase: SaveTrackUseCase,
+    private val filterAndSaveTracksUseCase: FilterAndSaveTracksUseCase,
     private val getTracksUseCase: GetTracksUseCase,
     private val getSettingsFlowUseCase: GetSettingsFlowUseCase,
     private val setWelcomeMessageStatusUseCase: SetWelcomeMessageStatusUseCase,
@@ -126,11 +126,10 @@ class PlayerViewModel @AssistedInject constructor(
     }
 
     fun syncTracks(tracks: List<ITrack>) {
-
         viewModelScope.launch {
 
             val syncTracks = trackModelMapper.toDomainModels(tracks)
-            saveTrackUseCase.invoke(syncTracks)
+            filterAndSaveTracksUseCase.invoke(syncTracks)
                 .onSuccess { handleSyncedTracks() }
                 .onFailure {
                     //TODO add sync failure message
@@ -209,6 +208,7 @@ class PlayerViewModel @AssistedInject constructor(
 
     override fun requestSync() {
         viewModelScope.launch {
+            setWelcomeMessageStatusUseCase.setFirstLaunchStatus(false)
             _event.send(PlayerEvent.SyncPlayList)
         }
     }
@@ -242,7 +242,6 @@ class PlayerViewModel @AssistedInject constructor(
         viewModelScope.launch {
             getSettingsFlowUseCase.invoke()
                 .collect { settings ->
-                    setWelcomeMessageStatusUseCase.setFirstLaunchStatus(false)
                     _state.update {
                         it.copy(
                             isShowWelcomeDialog = settings.isShowWelcomeMessage,
