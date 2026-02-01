@@ -45,36 +45,15 @@ fun CTextField(
     singleLine: Boolean = true,
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     shape: Shape = RoundedCornerShape(AppTheme.radius.default),
-    colors: TextFieldColors = TextFieldDefaults.colors()
-        .copy(
-            focusedTextColor = AppTheme.appColors.text,
-            unfocusedTextColor = AppTheme.appColors.text,
-            disabledTextColor = AppTheme.appColors.text_ligth,
-            focusedContainerColor = AppTheme.appColors.background_hard,
-            unfocusedContainerColor = AppTheme.appColors.background,
-            disabledContainerColor = AppTheme.appColors.background,
-            errorContainerColor = AppTheme.appColors.background,
-            cursorColor = AppTheme.appColors.accent,
-            errorTextColor = AppTheme.appColors.accent,
-            textSelectionColors = TextSelectionColors(
-                handleColor = AppTheme.appColors.accent,
-                backgroundColor = AppTheme.appColors.foreground
-            ),
-            focusedPlaceholderColor = AppTheme.appColors.text_ligth,
-            focusedIndicatorColor = AppTheme.appColors.transparent,
-            unfocusedIndicatorColor = AppTheme.appColors.transparent,
-            disabledIndicatorColor = AppTheme.appColors.transparent,
-            errorIndicatorColor = AppTheme.appColors.transparent,
-        )
+    colors: TextFieldColors = CTextFieldDefaults.colors()
 ) {
 
     TextField(
         modifier = modifier.border(
             border = BorderStroke(
                 width = AppTheme.viewSize.border_normal,
-                color = if (isError) AppTheme.appColors.warning else  AppTheme.appColors.accent
-            ),
-            shape = shape
+                color = if (isError) AppTheme.appColors.warning else AppTheme.appColors.accent
+            ), shape = shape
         ),
         value = value,
         onValueChange = onValueChange,
@@ -84,8 +63,7 @@ fun CTextField(
         placeholder = {
             hint?.let {
                 TextMedium(
-                    text = hint,
-                    color = colors.focusedPlaceholderColor
+                    text = hint, color = colors.focusedPlaceholderColor
                 )
             }
         },
@@ -122,6 +100,73 @@ fun CTextField(
         colors = colors,
     )
 
+}
+
+object CTextFieldDefaults {
+    @Composable
+    fun colors(): TextFieldColors {
+
+        val text = AppTheme.appColors.text
+        val textLigth = AppTheme.appColors.text_ligth
+        val background = AppTheme.appColors.background
+        val backgroundHard = AppTheme.appColors.background_hard
+        val accent = AppTheme.appColors.accent
+        val warning = AppTheme.appColors.warning
+        val transparent = AppTheme.appColors.transparent
+        val foreground = AppTheme.appColors.foreground
+
+        return remember(
+            text, textLigth, background, backgroundHard, accent, warning, transparent, foreground
+        ) {
+            TextFieldColors(
+                focusedTextColor = text,
+                unfocusedTextColor = text,
+                disabledTextColor = textLigth,
+                errorTextColor = accent,
+                focusedContainerColor = backgroundHard,
+                unfocusedContainerColor = background,
+                disabledContainerColor = background,
+                errorContainerColor = background,
+                cursorColor = accent,
+                errorCursorColor = warning,
+                textSelectionColors = TextSelectionColors(
+                    handleColor = accent, backgroundColor = foreground
+                ),
+                focusedIndicatorColor = transparent,
+                unfocusedIndicatorColor = transparent,
+                disabledIndicatorColor = transparent,
+                errorIndicatorColor = transparent,
+                focusedLeadingIconColor = textLigth,
+                unfocusedLeadingIconColor = textLigth,
+                disabledLeadingIconColor = textLigth,
+                errorLeadingIconColor = textLigth,
+                focusedTrailingIconColor = text,
+                unfocusedTrailingIconColor = text,
+                disabledTrailingIconColor = text,
+                errorTrailingIconColor = text,
+                focusedLabelColor = textLigth,
+                unfocusedLabelColor = textLigth,
+                disabledLabelColor = textLigth,
+                errorLabelColor = warning,
+                focusedPlaceholderColor = textLigth,
+                unfocusedPlaceholderColor = textLigth,
+                disabledPlaceholderColor = textLigth,
+                errorPlaceholderColor = warning,
+                focusedSupportingTextColor = textLigth,
+                unfocusedSupportingTextColor = textLigth,
+                disabledSupportingTextColor = textLigth,
+                errorSupportingTextColor = warning,
+                focusedPrefixColor = text,
+                unfocusedPrefixColor = text,
+                disabledPrefixColor = textLigth,
+                errorPrefixColor = text,
+                focusedSuffixColor = text,
+                unfocusedSuffixColor = text,
+                disabledSuffixColor = textLigth,
+                errorSuffixColor = text,
+            )
+        }
+    }
 }
 
 

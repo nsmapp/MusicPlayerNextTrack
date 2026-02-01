@@ -2,14 +2,12 @@ package by.niaprauski.playerservice.utils
 
 import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.util.UnstableApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import java.nio.ByteBuffer
 import kotlin.math.sqrt
 
 @UnstableApi
 class SoundProcessor(
-    val waveFlow: MutableStateFlow<FloatArray>,
+    private val onWaveformData: (FloatArray) -> Unit,
 ): AudioProcessor {
 
     private val max16BitSoundValue = 32767.0f
@@ -51,11 +49,11 @@ class SoundProcessor(
                 waveArray[chankPart] = powerRms.coerceIn(0f, 1f)
             }
         }
-        waveFlow.update { waveArray }
+        onWaveformData(waveArray)
     }
 
     override fun queueEndOfStream() {
-        waveFlow.update { FloatArray(chank) }
+        onWaveformData(FloatArray(chank))
     }
 
     override fun getOutput(): ByteBuffer {

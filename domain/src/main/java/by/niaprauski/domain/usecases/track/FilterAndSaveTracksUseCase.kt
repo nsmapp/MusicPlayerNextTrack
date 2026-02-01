@@ -22,7 +22,7 @@ class FilterAndSaveTracksUseCase @Inject constructor(
                 val settingsResult = getSettingsUseCase()
 
                 if (settingsResult.isSuccess) filterAndSave(settingsResult, tracks)
-                else throw IllegalStateException("!!! Settings not found")
+                else throw IllegalStateException("Settings not found")
             }
         }
 

@@ -1,6 +1,13 @@
 package by.niaprauski.library
 
 import android.content.Context
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +28,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -34,6 +43,10 @@ import by.niaprauski.library.models.LibraryEvent
 import by.niaprauski.library.view.TrackItem
 import by.niaprauski.playerservice.PlayerServiceConnection
 import by.niaprauski.translations.R
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+
+const val TRACK_INDEX_POSITION = 6
 
 
 @UnstableApi
@@ -47,6 +60,20 @@ fun LibraryScreen(
 
     val serviceConnection = rememberPlayerServiceConnection(context)
     val playerService by serviceConnection.service.collectAsStateWithLifecycle(null)
+
+    val listState = rememberLazyListState()
+    var isSearchBarVisible by remember { mutableStateOf(true) }
+
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex }
+            .map { currentOffset -> currentOffset <= TRACK_INDEX_POSITION }
+            .distinctUntilChanged()
+            .collect {
+                isSearchBarVisible = it
+            }
+
+    }
 
     LaunchedEffect(Unit) {
         viewModel.onCreate()
@@ -77,7 +104,7 @@ fun LibraryScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
-                state = rememberLazyListState(),
+                state = listState,
                 content = {
                     itemsIndexed(
                         items = state.tracks, key = { _, item -> item.id }) { _, item ->
@@ -100,16 +127,43 @@ fun LibraryScreen(
                 }
             )
 
-
-            CTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = state.searchText,
-                onValueChange = { viewModel.searchTrack(it) },
-                hint = stringResource(R.string.feature_library_search),
-                leadingIcon = Icons.Outlined.Search,
+            AnimatedContent(
+                targetState = isSearchBarVisible,
+                transitionSpec = { searchRowTransform() },
+                content = { isVisible ->
+                    if (isVisible) {
+                        CTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = state.searchText,
+                            onValueChange = { viewModel.searchTrack(it) },
+                            hint = stringResource(R.string.feature_library_search),
+                            leadingIcon = Icons.Outlined.Search,
+                        )
+                    }
+                }
             )
         }
     }
+}
+
+
+private fun searchRowTransform(): ContentTransform {
+    val enter = slideInVertically(
+        initialOffsetY = { -it },
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+    )
+    val exit = slideOutVertically(
+        targetOffsetY = { it },
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+    )
+
+    return enter togetherWith exit
 }
 
 @Composable

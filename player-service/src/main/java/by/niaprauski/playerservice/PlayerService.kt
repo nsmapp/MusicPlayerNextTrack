@@ -16,6 +16,7 @@ import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.DefaultAudioSink
+import androidx.media3.exoplayer.util.EventLogger
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import by.niaprauski.domain.usecases.settings.GetSettingsFlowUseCase
@@ -26,6 +27,7 @@ import by.niaprauski.playerservice.utils.NotificationCreator
 import by.niaprauski.playerservice.utils.SoundProcessor
 import by.niaprauski.playerservice.utils.getMediaItemIndex
 import by.niaprauski.translations.R
+import by.niaprauski.utils.constants.TEXT_EMPTY
 import by.niaprauski.utils.extension.ifNullOrEmpty
 import by.niaprauski.utils.extension.orDefault
 import by.niaprauski.utils.extension.toTrackTime
@@ -68,7 +70,9 @@ class PlayerService : MediaSessionService() {
     private val _waveform = MutableStateFlow(FloatArray(0))
     val waveform = _waveform.asStateFlow()
 
-    private val soundProcessor = SoundProcessor(_waveform,)
+    private val soundProcessor = SoundProcessor { waveArray ->
+        _waveform.update { waveArray }
+    }
 
 
     inner class PlayerBinder : Binder() {
@@ -78,7 +82,7 @@ class PlayerService : MediaSessionService() {
     override fun onCreate() {
         super.onCreate()
 
-        player = ExoPlayer.Builder(this, createRenderFactory())
+        player = ExoPlayer.Builder(this, createRenderFactory()) //TODO check infinity play\pause (RADY/DUFFERING) cycle
             .build().apply {
                 val audioAttributes = AudioAttributes.Builder()
                     .setUsage(C.USAGE_MEDIA)
@@ -86,6 +90,7 @@ class PlayerService : MediaSessionService() {
                 addListener(playerListener)
                 repeatMode = Player.REPEAT_MODE_ALL
                 setAudioAttributes(audioAttributes, true)
+                addAnalyticsListener(EventLogger()) //TODO remove/to debug
             }
         player?.let { player ->
             mediaSession = MediaSession.Builder(this, player).build()
@@ -193,14 +198,11 @@ class PlayerService : MediaSessionService() {
             setMediaItems(playList, 0, 0)
             prepare()
             play()
-            startProgressTracking()
         }
     }
 
     fun play() {
-        player?.prepare()
         player?.play()
-        startProgressTracking()
     }
 
     fun pause() {
@@ -282,20 +284,29 @@ class PlayerService : MediaSessionService() {
         player?.addMediaItem(item)
     }
 
-    private fun startProgressTracking() {
+    private fun startProgressTracking() { //TODO check frizzing progress after change track
         if (progressTrackingJob?.isActive == true) return
 
         progressTrackingJob = serviceScope.launch(Dispatchers.Main) {
-            while (_state.value.isPlaying) {
+            while (player?.isPlaying == true) {
                 val currentPosition = getCurrentPosition()
                 val duration = getDuration().toFloat()
-                val trackTime = (currentPosition / 1000).toTrackTime()
-                val progress = currentPosition / duration
+                if (duration <= 0){ // for radio
+                    _trackProgress.update { TrackProgress(0f, TEXT_EMPTY) }
+                }else{
+                    val trackTime = (currentPosition / 1000).toTrackTime()
+                    val progress = currentPosition / duration
 
-                _trackProgress.update { TrackProgress(progress, trackTime) }
+                    _trackProgress.update { TrackProgress(progress, trackTime) }
+                }
                 delay(333)
             }
         }
+    }
+
+    private fun stopProgressTracking() {
+        progressTrackingJob?.cancel()
+        progressTrackingJob = null
     }
 
     private val playerListener = object : Player.Listener {
@@ -341,6 +352,7 @@ class PlayerService : MediaSessionService() {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             _state.update { it.copy(isPlaying = isPlaying) }
             updateNotification()
+            if (isPlaying) startProgressTracking() else stopProgressTracking()
         }
     }
 
