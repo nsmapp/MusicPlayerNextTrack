@@ -1,71 +1,112 @@
 package by.niaprauski.playerservice.utils
 
 import androidx.media3.common.audio.AudioProcessor
+import androidx.media3.common.audio.AudioProcessor.EMPTY_BUFFER
 import androidx.media3.common.util.UnstableApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer
-import kotlin.math.sqrt
+import java.nio.ByteOrder
 
 @UnstableApi
 class SoundProcessor(
-    private val onWaveformData: (FloatArray) -> Unit,
-): AudioProcessor {
+    private val scope: CoroutineScope,
+    private val waveForm: MutableStateFlow<FloatArray>,
+) : AudioProcessor {
 
-    private val max16BitSoundValue = 32767.0f
-    private var outputBuffer: ByteBuffer = AudioProcessor.EMPTY_BUFFER
+    private val waveChannel = Channel<ByteBuffer>(Channel.CONFLATED)
 
     private var isVisuallyEnabled = false
     private var chank: Int = 64
 
+    private var inputAudioFormat = AudioProcessor.AudioFormat.NOT_SET
+    private var outputBuffer: ByteBuffer = EMPTY_BUFFER
+    private var buffer: ByteBuffer = EMPTY_BUFFER
+    private var inputEnded = false
+
+    init {
+        scope.launch {
+            for (buffer in waveChannel) {
+                val array = processWave(buffer)
+                waveForm.update { array }
+            }
+        }
+    }
 
     override fun configure(inputAudioFormat: AudioProcessor.AudioFormat): AudioProcessor.AudioFormat {
+        this.inputAudioFormat = inputAudioFormat
         return inputAudioFormat
     }
 
-    override fun isActive(): Boolean = true
+    override fun isActive(): Boolean {
+        return inputAudioFormat != AudioProcessor.AudioFormat.NOT_SET
+    }
 
     override fun queueInput(inputBuffer: ByteBuffer) {
         if (!inputBuffer.hasRemaining()) return
-        outputBuffer = inputBuffer
 
-        if (!isVisuallyEnabled) return
+        val count = inputBuffer.remaining()
 
-        val readOnlyBuffer = inputBuffer.asReadOnlyBuffer()
-        val shortBuffer = readOnlyBuffer.asShortBuffer()
-        val limit = shortBuffer.limit()
+        if (buffer.capacity() < count) buffer = ByteBuffer.allocateDirect(count)
+            .order(ByteOrder.nativeOrder())
+        else buffer.clear()
 
-        val waveArray = FloatArray(chank)
-        val pointOnChank = limit / chank
+        if (isVisuallyEnabled) waveChannel.trySend(buffer)
 
-        if (pointOnChank > 0) {
-            for (chankPart in 0 until chank) {
-                var sumOfSquares = 0.0
-                for (point in 0 until pointOnChank) {
-                    val sample = shortBuffer.get(chankPart * pointOnChank + point).toDouble()
-                    sumOfSquares += sample * sample
-                }
-                val rms = sqrt(sumOfSquares / pointOnChank)
-                val linearRms = (rms / max16BitSoundValue).toFloat()
-                val powerRms = linearRms * linearRms
-                waveArray[chankPart] = powerRms.coerceIn(0f, 1f)
-            }
-        }
-        onWaveformData(waveArray)
+        buffer.put(inputBuffer)
+        buffer.flip()
+        outputBuffer = buffer
     }
 
+    private suspend fun processWave(buffer: ByteBuffer): FloatArray =
+        withContext(Dispatchers.Default) {
+            buffer.order(ByteOrder.nativeOrder())
+
+            val totalSamples = buffer.remaining() / 2
+            val targetPoints = chank
+            val step = (totalSamples / targetPoints).coerceAtLeast(1)
+
+            val waveArray = FloatArray(targetPoints)
+
+            for (i in 0 until targetPoints) {
+                val index = i * step
+                if (index * 2 < buffer.capacity()) {
+                    val sample = buffer.getShort(index * 2).toFloat() / Short.MAX_VALUE
+                    waveArray[i] = sample
+                }
+            }
+            waveArray
+        }
+
     override fun queueEndOfStream() {
-        onWaveformData(FloatArray(chank))
+        inputEnded = true
     }
 
     override fun getOutput(): ByteBuffer {
-        val buffer = outputBuffer
-        outputBuffer = AudioProcessor.EMPTY_BUFFER
-        return buffer
+        val output = outputBuffer
+        outputBuffer = EMPTY_BUFFER
+        return output
     }
 
-    override fun isEnded(): Boolean = false
+    override fun isEnded(): Boolean {
+        return inputEnded && outputBuffer === EMPTY_BUFFER
+    }
 
-    override fun flush() {}
-    override fun reset() {}
+    override fun flush() {
+        outputBuffer = EMPTY_BUFFER
+        inputEnded = false
+    }
+
+    override fun reset() {
+        flush()
+        buffer = EMPTY_BUFFER
+        inputAudioFormat = AudioProcessor.AudioFormat.NOT_SET
+    }
 
     fun setIsVisuallyEnabled(enabled: Boolean) {
         isVisuallyEnabled = enabled

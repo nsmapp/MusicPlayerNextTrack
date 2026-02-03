@@ -19,7 +19,7 @@ import by.niaprauski.player.models.PlayerState
 import by.niaprauski.playerservice.PlayerService
 import by.niaprauski.playerservice.PlayerServiceConnection
 import by.niaprauski.playerservice.models.ExoPlayerState
-import by.niaprauski.utils.handlers.MediaHandler
+import by.niaprauski.utils.media.MediaHandler
 import by.niaprauski.utils.models.ITrack
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject

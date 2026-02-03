@@ -1,4 +1,4 @@
-package by.niaprauski.utils.handlers
+package by.niaprauski.utils.media
 
 import android.content.ContentResolver
 import android.content.ContentUris

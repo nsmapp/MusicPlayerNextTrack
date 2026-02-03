@@ -70,9 +70,7 @@ class PlayerService : MediaSessionService() {
     private val _waveform = MutableStateFlow(FloatArray(0))
     val waveform = _waveform.asStateFlow()
 
-    private val soundProcessor = SoundProcessor { waveArray ->
-        _waveform.update { waveArray }
-    }
+    private val soundProcessor = SoundProcessor(serviceScope, _waveform)
 
 
     inner class PlayerBinder : Binder() {
@@ -82,7 +80,7 @@ class PlayerService : MediaSessionService() {
     override fun onCreate() {
         super.onCreate()
 
-        player = ExoPlayer.Builder(this, createRenderFactory()) //TODO check infinity play\pause (RADY/DUFFERING) cycle
+        player = ExoPlayer.Builder(this, createRenderFactory())
             .build().apply {
                 val audioAttributes = AudioAttributes.Builder()
                     .setUsage(C.USAGE_MEDIA)

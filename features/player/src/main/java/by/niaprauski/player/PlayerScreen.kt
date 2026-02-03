@@ -35,10 +35,9 @@ import by.niaprauski.player.views.TrackProgressSlider
 import by.niaprauski.player.views.WaveBarView
 import by.niaprauski.player.views.dialogs.FirstLaunchDialog
 import by.niaprauski.player.views.dialogs.NeedMediaPermissionDialog
-import by.niaprauski.playerservice.PlayerService
 import by.niaprauski.playerservice.models.ExoPlayerState
 import by.niaprauski.playerservice.models.TrackProgress
-import by.niaprauski.utils.handlers.MediaHandler
+import by.niaprauski.utils.media.MediaHandler
 import by.niaprauski.utils.models.ITrack
 import by.niaprauski.utils.permission.MediaPermissions
 import kotlinx.coroutines.flow.StateFlow
