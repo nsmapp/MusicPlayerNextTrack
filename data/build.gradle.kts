@@ -22,6 +22,11 @@ dependencies {
     implementation(libs.protobuf.core)
     implementation(libs.protobuf.javalite)
 
+    implementation(libs.paging3.runtime)
+    implementation(libs.paging3.compose)
+    implementation(libs.android.room.paging)
+
+
     implementation(libs.android.dagger.hilt)
     ksp(libs.ksp.hilt.compiler)
 

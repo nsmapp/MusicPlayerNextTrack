@@ -5,8 +5,6 @@ import by.niaprauski.domain.models.Track
 
 interface LibraryContract {
 
-    fun getTracksFlow(filter: SearchTrackFilter )
-
     fun ignoreTrack(track: Track)
 
     fun onRestoreTrackClick(track: Track)

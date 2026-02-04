@@ -18,4 +18,6 @@ dependencies{
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.immutable.collections.list)
+
+    implementation(libs.paging3.common)
 }

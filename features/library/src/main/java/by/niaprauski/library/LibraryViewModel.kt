@@ -2,23 +2,23 @@ package by.niaprauski.library
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import by.niaprauski.domain.models.SearchTrackFilter
 import by.niaprauski.domain.models.Track
-import by.niaprauski.domain.usecases.track.GetTracksFlowUseCase
+import by.niaprauski.domain.usecases.track.GetTracksPagedUseCase
 import by.niaprauski.domain.usecases.track.MarkTrackAsIgnoredUseCase
 import by.niaprauski.domain.usecases.track.UnmarkTrackAsIgnoredUseCase
 import by.niaprauski.library.mapper.TrackModelMapper
 import by.niaprauski.library.models.LibraryEvent
 import by.niaprauski.library.models.LibraryState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.collections.immutable.toPersistentList
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
-    private val getTracksFlowUseCase: GetTracksFlowUseCase,
+    private val getTrackPagedUseCase: GetTracksPagedUseCase,
     private val markTrackAsIgnoredUseCase: MarkTrackAsIgnoredUseCase,
     private val unmarkTrackAsIgnoredUseCase: UnmarkTrackAsIgnoredUseCase,
     private val trackModelMapper: TrackModelMapper,
@@ -39,33 +39,17 @@ class LibraryViewModel @Inject constructor(
     private val _event by lazy { Channel<LibraryEvent>() }
     val event: Flow<LibraryEvent> by lazy { _event.receiveAsFlow() }
 
-    private val searchFlow = MutableSharedFlow<String>(replay = 0, extraBufferCapacity = 1)
+    private val _searchFlow = MutableStateFlow<SearchTrackFilter>(SearchTrackFilter.DEFAULT)
+
+    var pagingTracks: Flow<PagingData<Track>> = _searchFlow
+        .debounce(DEBOUNCE_SEARCH_INPUT)
+        .flatMapLatest {
+        getTrackPagedUseCase.invoke(it)
+    }.cachedIn(viewModelScope)
 
 
-    @OptIn(FlowPreview::class)
     fun onCreate() {
 
-        getTracksFlow(SearchTrackFilter.DEFAULT)
-
-        viewModelScope.launch {
-            searchFlow.debounce(DEBOUNCE_SEARCH_INPUT)
-                .collect { text ->
-                    getTracksFlow(
-                        SearchTrackFilter(text = text)
-                    )
-                }
-        }
-    }
-
-    override fun getTracksFlow(filter: SearchTrackFilter) {
-        viewModelScope.launch {
-            getTracksFlowUseCase.invoke(filter)
-                .onSuccess { tracks ->
-                    tracks.collect { trackList ->
-                        _state.update { it.copy(tracks = trackList.toPersistentList()) }
-                    }
-                }
-        }
     }
 
     override fun ignoreTrack(track: Track) {
@@ -100,7 +84,7 @@ class LibraryViewModel @Inject constructor(
         _state.update { it.copy(searchText = text) }
 
         viewModelScope.launch {
-            searchFlow.emit(text)
+            _searchFlow.update{it.copy(text = text)}
         }
 
     }

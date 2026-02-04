@@ -1,7 +1,7 @@
 package by.niaprauski.nt.di
 
 import by.niaprauski.data.datastore.SettingsRepoImpl
-import by.niaprauski.data.repoimpl.TracRepoImpl
+import by.niaprauski.data.repoimpl.TrackRepoImpl
 import by.niaprauski.domain.repository.SettingsRepository
 import by.niaprauski.domain.repository.TrackRepository
 import dagger.Binds
@@ -15,7 +15,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindTrackRepository(
-        trackRepoImpl: TracRepoImpl
+        trackRepoImpl: TrackRepoImpl
     ): TrackRepository
 
     @Binds

@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.paging.compose.itemKey
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
@@ -37,8 +37,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.designsystem.ui.texxtfield.CTextField
+import by.niaprauski.domain.models.Track
 import by.niaprauski.library.models.LibraryEvent
 import by.niaprauski.library.view.TrackItem
 import by.niaprauski.playerservice.PlayerServiceConnection
@@ -57,6 +60,8 @@ fun LibraryScreen(
 
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val pagingTracks: LazyPagingItems<Track> = viewModel.pagingTracks.collectAsLazyPagingItems()
+
 
     val serviceConnection = rememberPlayerServiceConnection(context)
     val playerService by serviceConnection.service.collectAsStateWithLifecycle(null)
@@ -105,17 +110,20 @@ fun LibraryScreen(
                     .weight(1f)
                     .fillMaxWidth(),
                 state = listState,
-                content = {
-                    itemsIndexed(
-                        items = state.tracks, key = { _, item -> item.id }) { _, item ->
+            ) {
+                items(
+                    count = pagingTracks.itemCount,
+                    key = pagingTracks.itemKey { it.id },
+                ) { index ->
 
-                        val track by remember(item.id, item.isIgnore) { mutableStateOf(item) }
+                    val item: Track? = pagingTracks[index]
 
+                    if (item != null) {
                         TrackItem(
-                            track = track,
-                            onPlayClick = { track -> viewModel.playTrack(track) },
-                            onIgnoreClick = { track -> viewModel.ignoreTrack(track) },
-                            onRestoreTrackClick = { track -> viewModel.onRestoreTrackClick(track) }
+                            track = item,
+                            onPlayClick = { item -> viewModel.playTrack(item) },
+                            onIgnoreClick = { item -> viewModel.ignoreTrack(item) },
+                            onRestoreTrackClick = { item -> viewModel.onRestoreTrackClick(item) }
                         )
 
                         HorizontalDivider(
@@ -125,8 +133,9 @@ fun LibraryScreen(
                         )
                     }
                 }
-            )
+            }
 
+            //TODO to stickHeader?
             AnimatedContent(
                 targetState = isSearchBarVisible,
                 transitionSpec = { searchRowTransform() },
