@@ -28,6 +28,7 @@ import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.player.contracts.PlayerRouter
 import by.niaprauski.player.models.PlayerEvent
 import by.niaprauski.player.models.PlayerState
+import by.niaprauski.player.models.SyncTrackStatus
 import by.niaprauski.player.views.PlayerControlView
 import by.niaprauski.player.views.PlayerUpView
 import by.niaprauski.player.views.TrackInfoView
@@ -38,7 +39,6 @@ import by.niaprauski.player.views.dialogs.NeedMediaPermissionDialog
 import by.niaprauski.playerservice.models.ExoPlayerState
 import by.niaprauski.playerservice.models.TrackProgress
 import by.niaprauski.utils.media.MediaHandler
-import by.niaprauski.utils.models.ITrack
 import by.niaprauski.utils.permission.MediaPermissions
 import kotlinx.coroutines.flow.StateFlow
 
@@ -90,7 +90,7 @@ fun PlayerScreen(
                     hasMediaPermission = hasMediaPermission,
                     mediaPermissionLauncher = mediaPermissionLauncher,
                     context = context,
-                    onSyncTrack = { tracks -> viewModel.syncTracks(tracks) })
+                    onSyncTrack = { syncStatus -> viewModel.syncTracks(syncStatus) })
 
                 PlayerEvent.Nothing -> {
                     /**do nothing **/
@@ -115,6 +115,7 @@ fun PlayerScreen(
         isVisuallyEnabled = state.isVisuallyEnabled,
         trackProgress = playerService?.trackProgress,
         waveformFlow = playerService?.waveform,
+        isSyncing = state.isSyncing,
         onOpenSettingsClick = viewModel::openSettings,
         onSyncPlayListClick = viewModel::requestSync,
         onOpenPlayListClick = viewModel::openLibrary,
@@ -125,7 +126,7 @@ fun PlayerScreen(
         onPreviousClick = viewModel::playPrevious,
         onShuffleModeClick = viewModel::changeShuffleMode,
         onRepeatModeClick = viewModel::changeRepeatMode,
-        onSeek = viewModel::seekTo
+        onSeek = viewModel::seekTo,
     )
 
 }
@@ -137,6 +138,7 @@ private fun PlayersScreenContent(
     isVisuallyEnabled: Boolean,
     trackProgress : StateFlow<TrackProgress>?,
     waveformFlow: StateFlow<FloatArray>?,
+    isSyncing: Boolean,
     onOpenSettingsClick: () -> Unit,
     onSyncPlayListClick: () -> Unit,
     onOpenPlayListClick: () -> Unit,
@@ -170,6 +172,7 @@ private fun PlayersScreenContent(
                 onOpenSettingsClick = onOpenSettingsClick,
                 onSyncPlayListClick = onSyncPlayListClick,
                 onOpenPlayListClick = onOpenPlayListClick,
+                isSyncing = isSyncing,
             )
 
             TrackInfoView(exoPlayerState.artist, exoPlayerState.title)
@@ -214,7 +217,7 @@ private fun requestMediaPermissionWithSyncPlaylist(
     hasMediaPermission: Boolean,
     mediaPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
     context: Context,
-    onSyncTrack: (List<ITrack>) -> Unit,
+    onSyncTrack: (SyncTrackStatus) -> Unit,
 ) {
     if (!hasMediaPermission) mediaPermissionLauncher.launch(MediaPermissions.permission)
     else syncPlaylist(context) { tracks -> onSyncTrack(tracks) }
@@ -222,8 +225,9 @@ private fun requestMediaPermissionWithSyncPlaylist(
 
 private fun syncPlaylist(
     context: Context,
-    onSyncTrack: (List<ITrack>) -> Unit,
+    onSyncTrack: (SyncTrackStatus) -> Unit,
 ) {
+    onSyncTrack(SyncTrackStatus.Started)
     val tracks = MediaHandler.getTrackData(context.contentResolver)
-    onSyncTrack(tracks)
+    onSyncTrack(SyncTrackStatus.Finished(tracks))
 }

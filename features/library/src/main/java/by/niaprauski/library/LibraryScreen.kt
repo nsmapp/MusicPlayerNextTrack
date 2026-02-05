@@ -3,25 +3,21 @@ package by.niaprauski.library
 import android.content.Context
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ContentTransform
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.paging.compose.itemKey
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -33,21 +29,18 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import by.niaprauski.designsystem.theme.AppTheme
-import by.niaprauski.designsystem.ui.texxtfield.CTextField
 import by.niaprauski.domain.models.Track
 import by.niaprauski.library.models.LibraryEvent
-import by.niaprauski.library.view.TrackItem
+import by.niaprauski.library.view.TrackListWithSearchView
 import by.niaprauski.playerservice.PlayerServiceConnection
-import by.niaprauski.translations.R
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 
 const val TRACK_INDEX_POSITION = 6
 
@@ -70,12 +63,16 @@ fun LibraryScreen(
     var isSearchBarVisible by remember { mutableStateOf(true) }
 
 
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.firstVisibleItemIndex }
-            .map { currentOffset -> currentOffset <= TRACK_INDEX_POSITION }
-            .distinctUntilChanged()
-            .collect {
-                isSearchBarVisible = it
+    LaunchedEffect(listState, pagingTracks.loadState) {
+        snapshotFlow {
+            val isScrolledPastThreshold = listState.firstVisibleItemIndex > TRACK_INDEX_POSITION
+            val isAppending = pagingTracks.loadState.append is LoadState.Loading
+
+            isScrolledPastThreshold.not() || isAppending
+
+        }.distinctUntilChanged()
+            .collect { isShowing ->
+                isSearchBarVisible = isShowing
             }
 
     }
@@ -104,76 +101,43 @@ fun LibraryScreen(
             .fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                state = listState,
-            ) {
-                items(
-                    count = pagingTracks.itemCount,
-                    key = pagingTracks.itemKey { it.id },
-                ) { index ->
 
-                    val item: Track? = pagingTracks[index]
 
-                    if (item != null) {
-                        TrackItem(
-                            track = item,
-                            onPlayClick = { item -> viewModel.playTrack(item) },
-                            onIgnoreClick = { item -> viewModel.ignoreTrack(item) },
-                            onRestoreTrackClick = { item -> viewModel.onRestoreTrackClick(item) }
-                        )
-
-                        HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = AppTheme.padding.medium),
-                            thickness = AppTheme.viewSize.border_small,
-                            color = AppTheme.appColors.background_hard
-                        )
-                    }
-                }
+        AnimatedContent(
+            targetState =pagingTracks.loadState.refresh is LoadState.Loading && pagingTracks.itemCount == 0,
+            transitionSpec = { loadingTransform() }
+        ) { isLoading ->
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(AppTheme.viewSize.view_extra_larger),
+                    color = AppTheme.appColors.background_hard,
+                    trackColor = AppTheme.appColors.accent,
+                    strokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap
+                )
+            } else {
+                TrackListWithSearchView(
+                    listState = listState,
+                    pagingTracks = pagingTracks,
+                    isSearchBarVisible = isSearchBarVisible,
+                    state = state,
+                    onPlayClick = viewModel::playTrack,
+                    onIgnoreClick = viewModel::ignoreTrack,
+                    onRestoreTrackClick = viewModel::onRestoreTrackClick,
+                    onSearchTrack = viewModel::searchTrack
+                )
             }
-
-            //TODO to stickHeader?
-            AnimatedContent(
-                targetState = isSearchBarVisible,
-                transitionSpec = { searchRowTransform() },
-                content = { isVisible ->
-                    if (isVisible) {
-                        CTextField(
-                            modifier = Modifier.fillMaxWidth(),
-                            value = state.searchText,
-                            onValueChange = { viewModel.searchTrack(it) },
-                            hint = stringResource(R.string.feature_library_search),
-                            leadingIcon = Icons.Outlined.Search,
-                        )
-                    }
-                }
-            )
         }
     }
 }
 
-
-private fun searchRowTransform(): ContentTransform {
-    val enter = slideInVertically(
-        initialOffsetY = { -it },
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-    )
-    val exit = slideOutVertically(
-        targetOffsetY = { it },
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-    )
+private fun loadingTransform(): ContentTransform {
+    val enter = fadeIn(animationSpec = tween(300, delayMillis = 90)) +
+            scaleIn(initialScale = 0.7f, animationSpec = tween(300, delayMillis = 90))
+    val exit = fadeOut(animationSpec = tween(90))
 
     return enter togetherWith exit
 }
+
 
 @Composable
 fun rememberPlayerServiceConnection(context: Context): PlayerServiceConnection {

@@ -16,15 +16,17 @@ import by.niaprauski.player.contracts.PlayerContract
 import by.niaprauski.player.mapper.TrackModelMapper
 import by.niaprauski.player.models.PlayerEvent
 import by.niaprauski.player.models.PlayerState
+import by.niaprauski.player.models.SyncTrackStatus
 import by.niaprauski.playerservice.PlayerService
 import by.niaprauski.playerservice.PlayerServiceConnection
 import by.niaprauski.playerservice.models.ExoPlayerState
 import by.niaprauski.utils.media.MediaHandler
-import by.niaprauski.utils.models.ITrack
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -62,8 +64,7 @@ class PlayerViewModel @AssistedInject constructor(
     }
 
     private val serviceConnection = PlayerServiceConnection(application)
-    val playerService: StateFlow<PlayerService?> = serviceConnection.service
-        .stateIn(
+    val playerService: StateFlow<PlayerService?> = serviceConnection.service.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = null
@@ -125,16 +126,28 @@ class PlayerViewModel @AssistedInject constructor(
         }
     }
 
-    fun syncTracks(tracks: List<ITrack>) {
-        viewModelScope.launch {
+    fun syncTracks(syncTracks: SyncTrackStatus) {
+        if (syncTracks !is SyncTrackStatus.Finished) {
+            _state.update { it.copy(isSyncing = true) }
+            return
+        } else viewModelScope.launch { saveTracks(syncTracks) }
+    }
 
-            val syncTracks = trackModelMapper.toDomainModels(tracks)
-            filterAndSaveTracksUseCase.invoke(syncTracks)
-                .onSuccess { handleSyncedTracks() }
+    private suspend fun CoroutineScope.saveTracks(syncTracks: SyncTrackStatus.Finished) {
+
+        val saveJob = launch {
+            val syncTracks = trackModelMapper.toDomainModels(syncTracks.tracks)
+            filterAndSaveTracksUseCase.invoke(syncTracks).onSuccess { handleSyncedTracks() }
                 .onFailure {
                     //TODO add sync failure message
                 }
         }
+
+        val animationJob = launch { delay(MIN_SYNC_TIME) }
+
+        saveJob.join()
+        animationJob.join()
+        _state.update { it.copy(isSyncing = false) }
     }
 
     private fun handleSyncedTracks() {
@@ -199,8 +212,7 @@ class PlayerViewModel @AssistedInject constructor(
 
     override fun playRadioTrack(uri: Uri) {
         viewModelScope.launch {
-            MediaHandler.radioUriToMediaItem(uri, application.contentResolver)
-                ?.let { mediaItem ->
+            MediaHandler.radioUriToMediaItem(uri, application.contentResolver)?.let { mediaItem ->
                     _event.send(PlayerEvent.PlaySingleTrack(mediaItem))
                 }
         }
@@ -240,8 +252,7 @@ class PlayerViewModel @AssistedInject constructor(
 
     private fun getSettings() {
         viewModelScope.launch {
-            getSettingsFlowUseCase.invoke()
-                .collect { settings ->
+            getSettingsFlowUseCase.invoke().collect { settings ->
                     _state.update {
                         it.copy(
                             isShowWelcomeDialog = settings.isShowWelcomeMessage,
@@ -262,4 +273,7 @@ class PlayerViewModel @AssistedInject constructor(
         context.startService(intent)
     }
 
+    companion object {
+        private const val MIN_SYNC_TIME = 500L
+    }
 }

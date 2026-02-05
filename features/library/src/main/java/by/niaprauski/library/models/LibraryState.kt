@@ -7,7 +7,7 @@ data class LibraryState(
 ){
     companion object{
         val INITIAL = LibraryState(
-            searchText = TEXT_EMPTY
+            searchText = TEXT_EMPTY,
         )
     }
 }

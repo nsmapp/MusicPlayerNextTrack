@@ -1,5 +1,7 @@
 package by.niaprauski.player.views
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,8 +12,10 @@ import androidx.compose.material.icons.outlined.PlaylistPlay
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.designsystem.ui.button.PlayerLiteButton
@@ -22,6 +26,7 @@ fun PlayerUpView(
     onOpenPlayListClick: () -> Unit,
     onSyncPlayListClick: () -> Unit,
     onOpenSettingsClick: () -> Unit,
+    isSyncing: Boolean,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -37,10 +42,17 @@ fun PlayerUpView(
             description = stringResource(R.string.feature_player_library)
         )
 
+        val rotationAngle by animateFloatAsState(
+            targetValue = if (isSyncing) 360f else 0f,
+            animationSpec = tween(durationMillis = if (isSyncing) 750 else 0),
+            label = "Syncrotation"
+        )
+
         PlayerLiteButton(
             modifier = Modifier
                 .size(AppTheme.viewSize.icon_normal)
-                .clip(RoundedCornerShape(AppTheme.viewSize.icon_normal)),
+                .clip(RoundedCornerShape(AppTheme.viewSize.icon_normal))
+                .rotate(rotationAngle),
             imageVector = Icons.Outlined.Sync,
             onClick = onSyncPlayListClick,
             description = stringResource(R.string.feature_player_sync_playlist)
