@@ -3,7 +3,11 @@ package by.niaprauski.nt
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import by.niaprauski.designsystem.theme.AppTheme
@@ -32,12 +36,17 @@ class MainActivity : FragmentActivity() {
             val state by viewModel.state.collectAsStateWithLifecycle()
 
             AppTheme(isDarkThemeEnabled = state.isNightMode) {
-                AppNavigator(
-                    radioTrack = externalTrack.radioTrack,
-                    singleAudioTrack = externalTrack.singleAudioTrack,
-                )
+                if (state.isLoading) {
+                    Box(modifier = Modifier
+                        .fillMaxSize()
+                        .background(AppTheme.appColors.transparent))
+                } else {
+                    AppNavigator(
+                        radioTrack = externalTrack.radioTrack,
+                        singleAudioTrack = externalTrack.singleAudioTrack,
+                    )
+                }
             }
-
         }
     }
 

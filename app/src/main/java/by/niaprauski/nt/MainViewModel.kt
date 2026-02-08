@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
     private val getSettingsFlowUseCase: GetSettingsFlowUseCase,
-): ViewModel() {
+) : ViewModel() {
 
     private val _state = MutableStateFlow<MainState>(MainState.INITIAL)
     val state = _state.asStateFlow()
@@ -25,7 +25,12 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             getSettingsFlowUseCase.invoke()
                 .collect { settings ->
-                _state.update {  it.copy(isNightMode = settings.isDarkMode) }
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            isNightMode = settings.isDarkMode
+                        )
+                    }
                 }
         }
     }
