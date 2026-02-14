@@ -11,10 +11,13 @@ object AppSettingsSerializer : Serializer<AppSettingsEntity> {
 
     override val defaultValue: AppSettingsEntity = AppSettingsEntity.getDefaultInstance().toBuilder()
         .setIsWelcomeMessage(true)
-        .setIsDarkMode(false)
         .setIsVisuallyEnabled(true)
         .setMinDuration(5000)
         .setMaxDuration(900000)
+        .setAccentColorHex("#E5E5E1")
+        .setBackgroundColorHex("#FF65A591")
+        .setAccentPosition(0f)
+        .setBackgroundPosition(0.7f)
         .build()
 
     override suspend fun readFrom(input: InputStream): AppSettingsEntity {

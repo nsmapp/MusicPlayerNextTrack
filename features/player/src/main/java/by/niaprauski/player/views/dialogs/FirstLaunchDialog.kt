@@ -62,18 +62,4 @@ fun FirstLaunchDialog(
             }
         }
     }
-
-
-}
-
-
-@Preview
-@Composable
-fun FirstLaunchDialogPreview() {
-    AppTheme {
-        FirstLaunchDialog(
-            {},
-            {},
-        )
-    }
 }

@@ -19,10 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.designsystem.ui.text.TextMedium
-import by.niaprauski.designsystem.ui.texxtfield.CTextField
 
 @Composable
 fun TextFieldRow(

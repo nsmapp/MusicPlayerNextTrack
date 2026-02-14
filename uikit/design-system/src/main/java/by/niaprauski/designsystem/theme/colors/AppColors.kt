@@ -1,25 +1,23 @@
 package by.niaprauski.designsystem.theme.colors
 
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 
-@Immutable
+@Stable
 data class DayColors(
-    override val background: Color = Color(0xff75b1a9),
+    override val background: Color = Color(0xFF75B1A9),
     override val background_hard: Color = Color(0xFF589791),
     override val foreground: Color = Color(0xFF75b18b),
     override val foreground_light: Color = Color(0xFF7FBF96),
     override val text: Color = Color(0xFFE5E5E0),
     override val text_ligth: Color = Color(0x59F4F4EF),
     override val accent: Color = Color(0xFFE5E5E1),
-    override val accent50: Color = Color(0x80E5E5E1),
     override val transparent: Color =  Color(0x00FFFFFF),
     override val warning: Color = Color(0xFFed5752),
 ): AppColors
 
-@Immutable
+@Stable
 data class NightColors(
     override val background: Color = Color(0xFF3B3D4C),
     override val background_hard: Color =  Color(0xFF2F2F3B),
@@ -28,11 +26,11 @@ data class NightColors(
     override val text: Color = Color(0xFFE5E5E0),
     override val text_ligth: Color = Color(0x59F4F4EF),
     override val accent: Color = Color(0xFFE5E5E0),
-    override val accent50: Color = Color(0x80E5E5E0),
     override val transparent: Color =  Color(0x00FFFFFF),
     override val warning: Color = Color(0xFFed5752),
 ): AppColors
 
+@Stable
 interface AppColors{
     val background: Color
     val background_hard: Color
@@ -41,7 +39,6 @@ interface AppColors{
     val text: Color
     val text_ligth: Color
     val accent: Color
-    val accent50: Color
     val transparent: Color
     val warning: Color
 }

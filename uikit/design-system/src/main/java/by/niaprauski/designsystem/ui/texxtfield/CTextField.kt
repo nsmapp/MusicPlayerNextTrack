@@ -168,18 +168,3 @@ object CTextFieldDefaults {
         }
     }
 }
-
-
-@Preview
-@Composable
-fun PreviewTextField() {
-    AppTheme {
-        CTextField(
-            value = "",
-            onValueChange = {},
-            hint = "hint text",
-            leadingIcon = Icons.Default.Search,
-            trailingIcon = Icons.Default.Settings,
-        )
-    }
-}

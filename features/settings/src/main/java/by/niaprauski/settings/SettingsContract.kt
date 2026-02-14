@@ -2,8 +2,6 @@ package by.niaprauski.settings
 
 interface SettingsContract {
 
-    fun setDarkMode(enabled: Boolean)
-
     fun getSettings()
 
     fun setVisuallyEnabled(enabled: Boolean)
@@ -11,4 +9,9 @@ interface SettingsContract {
     fun setMinDuration(duration: String)
 
     fun setMaxDuration(duration: String)
+
+    fun setAccentColorSettings(hexColor: String, position: Float)
+
+    fun setBackgroundColorSettings(hexColor: String, position: Float)
+
 }

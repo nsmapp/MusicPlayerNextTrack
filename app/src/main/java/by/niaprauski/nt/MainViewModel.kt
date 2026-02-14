@@ -28,7 +28,8 @@ class MainViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            isNightMode = settings.isDarkMode
+                            accentColor = settings.accentColorHex,
+                            backgroundColor = settings.backgroundColorHex,
                         )
                     }
                 }

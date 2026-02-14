@@ -10,10 +10,13 @@ class SettingsMapper @Inject constructor() {
         return with(entity) {
             AppSettings(
                 isShowWelcomeMessage = isWelcomeMessage,
-                isDarkMode = isDarkMode,
                 isVisuallyEnabled = isVisuallyEnabled,
                 minDuration = minDuration,
-                maxDuration = maxDuration
+                maxDuration = maxDuration,
+                accentColorHex = accentColorHex,
+                backgroundColorHex = backgroundColorHex,
+                accentPosition = accentPosition,
+                backgroundPosition = backgroundPosition
             )
         }
     }

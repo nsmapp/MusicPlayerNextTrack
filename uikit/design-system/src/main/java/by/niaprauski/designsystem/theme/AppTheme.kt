@@ -12,11 +12,12 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import by.niaprauski.designsystem.theme.colors.AppColors
 import by.niaprauski.designsystem.theme.colors.DayColors
-import by.niaprauski.designsystem.theme.colors.NightColors
 import by.niaprauski.designsystem.theme.colors.dayColorScheme
 import by.niaprauski.designsystem.theme.dimens.Padding
 import by.niaprauski.designsystem.theme.dimens.Radius
@@ -27,11 +28,15 @@ import by.niaprauski.designsystem.theme.dimens.defaultViewSizes
 import by.niaprauski.designsystem.theme.typography.OpenSansTypography
 import by.niaprauski.designsystem.theme.typography.opensansTypography
 import by.niaprauski.utils.constants.TEXT_EMPTY
+import by.niaprauski.utils.extension.darken
+import by.niaprauski.utils.extension.lighten
+import by.niaprauski.utils.extension.toColor
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun AppTheme(
-    isDarkThemeEnabled: Boolean = true,
+    accentColor: String,
+    backgroundColor: String,
     snackBarHost: @Composable BoxScope.() -> Unit = {},
     content: @Composable () -> Unit,
 ) {
@@ -41,14 +46,25 @@ fun AppTheme(
     val radius = defaultRadius
     val viewSize = defaultViewSizes
 
-    val dayColors = if (isDarkThemeEnabled) NightColors() else DayColors()
-    val colorScheme = if (isDarkThemeEnabled) dayColorScheme else dayColorScheme
+    val accentColor = accentColor.toColor()
+    val backgroundColor = backgroundColor.toColor()
+
+    val dayColors = DayColors().copy(
+        accent = accentColor,
+        foreground = backgroundColor,
+        foreground_light = backgroundColor.lighten(0.2f),
+        background = backgroundColor.darken(0.2f),
+        background_hard = backgroundColor.darken(0.4f),
+        text = accentColor,
+        text_ligth = accentColor.copy(alpha = 0.35f),
+    )
+    val colorScheme = dayColorScheme
 
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
 
-    SystemAppearance(isDarkTheme = isDarkThemeEnabled)
+    SetSystemAppearance()
 
     CompositionLocalProvider(
         LocalTypography provides typography,
@@ -99,11 +115,15 @@ object AppTheme {
 }
 
 @Composable
-private fun SystemAppearance(isDarkTheme: Boolean) {
+private fun SetSystemAppearance() {
     val view = LocalView.current
 
-    LaunchedEffect(isDarkTheme) {
+    LaunchedEffect(Unit) {
         val window = (view.context as Activity).window
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = Color.Transparent.toArgb()
+        window.navigationBarColor = Color.Transparent.toArgb()
 
         WindowCompat.getInsetsController(window, window.decorView).apply {
             isAppearanceLightStatusBars = false

@@ -29,7 +29,7 @@ fun WaveBarView(
         WaveformVisualizer(
             modifier = modifier,
             waveform = debouncedWaveform,
-            barColor = AppTheme.appColors.accent50
+            barColor = AppTheme.appColors.text_ligth
         )
     }
 }

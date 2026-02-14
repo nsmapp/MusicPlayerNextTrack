@@ -35,7 +35,10 @@ class MainActivity : FragmentActivity() {
 
             val state by viewModel.state.collectAsStateWithLifecycle()
 
-            AppTheme(isDarkThemeEnabled = state.isNightMode) {
+            AppTheme(
+                accentColor = state.accentColor,
+                backgroundColor = state.backgroundColor,
+            ) {
                 if (state.isLoading) {
                     Box(modifier = Modifier
                         .fillMaxSize()

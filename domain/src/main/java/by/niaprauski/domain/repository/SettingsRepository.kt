@@ -1,6 +1,7 @@
 package by.niaprauski.domain.repository
 
 import by.niaprauski.domain.models.AppSettings
+import by.niaprauski.domain.models.ColorPosition
 import kotlinx.coroutines.flow.Flow
 
 
@@ -10,11 +11,6 @@ interface SettingsRepository {
 
     suspend fun get(): AppSettings
 
-
-    suspend fun save(settings: AppSettings)
-
-    suspend fun setNightMode(enabled: Boolean)
-
     suspend fun setShowWelcomeMessage(isFirstLaunch: Boolean)
 
     suspend fun setVisuallyEnabled(enabled: Boolean)
@@ -22,5 +18,10 @@ interface SettingsRepository {
     suspend fun setMinDuration(duration: Int)
 
     suspend fun setMaxDuration(duration: Int)
+
+    suspend fun setAccentColorSettings(position: ColorPosition)
+
+    suspend fun setBackgroundColorSettings(position: ColorPosition)
+
 
 }

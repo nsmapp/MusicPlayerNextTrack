@@ -3,8 +3,9 @@ package by.niaprauski.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import by.niaprauski.domain.models.AppSettings
-import by.niaprauski.domain.usecases.settings.ChangeNightModeUseCase
 import by.niaprauski.domain.usecases.settings.GetSettingsUseCase
+import by.niaprauski.domain.usecases.settings.SetAccentColorUseCase
+import by.niaprauski.domain.usecases.settings.SetBackgroundColorUseCase
 import by.niaprauski.domain.usecases.settings.SetMaxTrackDurationUseCase
 import by.niaprauski.domain.usecases.settings.SetMinTrackDurationUseCase
 import by.niaprauski.domain.usecases.settings.SetVisualizerStatusUseCase
@@ -21,15 +22,17 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val changeNightModeUseCase: ChangeNightModeUseCase,
     private val getSettingsUseCase: GetSettingsUseCase,
     private val setVisualizerStatusUseCase: SetVisualizerStatusUseCase,
     private val setMinDurationUseCase: SetMinTrackDurationUseCase,
     private val setMaxDurationUseCase: SetMaxTrackDurationUseCase,
+    private val setAccentColorUseCase: SetAccentColorUseCase,
+    private val setBackgroundColorUseCase: SetBackgroundColorUseCase,
 ) : ViewModel(), SettingsContract {
 
     companion object {
-        private const val INPUT_DEBOUNCE = 500L
+        private const val INPUT_DEBOUNCE_TEXT = 500L
+        private const val INPUT_DEBOUNCE_COLOR = 100L
         private const val SEK_MLS = 1000
         private const val MIN_MLS = 60000
     }
@@ -40,18 +43,12 @@ class SettingsViewModel @Inject constructor(
     private val _minDuration = MutableSharedFlow<Int>()
     private val _maxDuration = MutableSharedFlow<Int>()
 
+    private val _accentPosition = MutableSharedFlow<Pair<String, Float>>()
+    private val _backgroundPosition = MutableSharedFlow<Pair<String, Float>>()
+
 
     fun onLaunch() {
         getSettings()
-    }
-
-    override fun setDarkMode(enabled: Boolean) {
-        viewModelScope.launch {
-            changeNightModeUseCase.invoke(enabled)
-                .onSuccess {
-                    _state.update { it.copy(isDarkMode = enabled) }
-                }
-        }
     }
 
     override fun getSettings() {
@@ -69,25 +66,27 @@ class SettingsViewModel @Inject constructor(
         with(settings) {
             _state.update {
                 it.copy(
-                    isDarkMode = isDarkMode,
                     isVisuallyEnabled = isVisuallyEnabled,
                     minDuration = (minDuration / SEK_MLS).toString(),
                     isMinDurationError = false,
                     maxDuration = (maxDuration / MIN_MLS).toString(),
                     isMaxDurationError = false,
+                    acentPositon = accentPosition,
+                    backgroundPosition = backgroundPosition,
                 )
             }
         }
 
         startCollectMinDuration()
         startCollectMaxDuration()
+        startCollectColorChanging()
     }
 
 
     private fun startCollectMinDuration() {
         viewModelScope.launch {
             _minDuration
-                .debounce(INPUT_DEBOUNCE)
+                .debounce(INPUT_DEBOUNCE_TEXT)
                 .collect { duration ->
                     setMinDurationUseCase.invoke(duration)
                         .onFailure {
@@ -100,7 +99,7 @@ class SettingsViewModel @Inject constructor(
     private fun startCollectMaxDuration() {
         viewModelScope.launch {
             _maxDuration
-                .debounce(INPUT_DEBOUNCE)
+                .debounce(INPUT_DEBOUNCE_TEXT)
                 .collect { duration ->
                     setMaxDurationUseCase.invoke(duration)
                         .onFailure {
@@ -119,9 +118,9 @@ class SettingsViewModel @Inject constructor(
     }
 
     override fun setMinDuration(duration: String) {
-        if (duration.length > 2 ) return
+        if (duration.length > 2) return
         _state.update { it.copy(minDuration = duration, isMinDurationError = false) }
-        if (duration.isEmpty() ) return
+        if (duration.isEmpty()) return
 
         val durationLong = duration.convertToInt()
         viewModelScope.launch {
@@ -130,13 +129,58 @@ class SettingsViewModel @Inject constructor(
     }
 
     override fun setMaxDuration(duration: String) {
-        if (duration.length > 2 ) return
+        if (duration.length > 2) return
         _state.update { it.copy(maxDuration = duration, isMaxDurationError = false) }
         if (duration.isEmpty()) return
 
         val durationLong = duration.convertToInt()
         viewModelScope.launch {
             _maxDuration.emit(durationLong)
+        }
+    }
+
+    override fun setAccentColorSettings(hexColor: String, position: Float) {
+        _state.update { it.copy(acentPositon = position) }
+        viewModelScope.launch {
+            _accentPosition.emit(hexColor to position)
+        }
+
+    }
+
+    override fun setBackgroundColorSettings(hexColor: String, position: Float) {
+        _state.update { it.copy(backgroundPosition = position) }
+        viewModelScope.launch {
+            _backgroundPosition.emit(hexColor to position)
+        }
+    }
+
+    private fun saveBackgroundColorSettings(hexColor: String, position: Float) {
+        viewModelScope.launch {
+            setBackgroundColorUseCase.invoke(hexColor, position)
+        }
+    }
+
+    private fun saveAccentColorSettings(hexColor: String, position: Float) {
+        viewModelScope.launch {
+            setAccentColorUseCase.invoke(hexColor, position)
+        }
+    }
+
+    private fun startCollectColorChanging() {
+        viewModelScope.launch {
+            _accentPosition
+                .debounce(INPUT_DEBOUNCE_COLOR)
+                .collect { (hexColor, position) ->
+                    saveAccentColorSettings(hexColor, position)
+                }
+        }
+
+        viewModelScope.launch {
+            _backgroundPosition
+                .debounce(INPUT_DEBOUNCE_COLOR)
+                .collect { (hexColor, position) ->
+                    saveBackgroundColorSettings(hexColor, position)
+                }
         }
     }
 

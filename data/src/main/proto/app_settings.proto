@@ -5,8 +5,11 @@ option java_multiple_files = true;
 
 message AppSettingsEntity {
     bool is_welcome_message = 1;
-    bool is_dark_mode = 2;
     bool is_visually_enabled = 3;
-    int32 min_duration = 5000;
-    int32 max_duration = 900000;
+    int32 min_duration = 4;
+    int32 max_duration = 5;
+    string accent_color_hex = 6;
+    string background_color_hex = 7;
+    float accent_position = 8;
+    float background_position = 9;
 }

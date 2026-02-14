@@ -29,8 +29,10 @@
 
     <string name="feature_settings_interface">Інтэрфейс</string>
     <string name="feature_settings_sync_settings">Налады сінхранізацыі</string>
-    <string name="feature_settings_min_duration_sec">Мінімальная працягласць, сек.</string>
+    <string name="feature_settings_min_duration_sec">Мінімальная працягласць, сек</string>
     <string name="feature_settings_max_duration_min">Максімальная працягласць, хв</string>
     <string name="feature_settings_night_mode">Начная тэма</string>
     <string name="feature_settings_visually">Анімаваць прайграванне</string>
+    <string name="feature_settings_text_color">Колер тэксту</string>
+    <string name="feature_settings_background_color">Колер фону</string>
 </resources>
