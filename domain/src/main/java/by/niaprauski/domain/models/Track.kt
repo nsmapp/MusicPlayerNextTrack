@@ -7,4 +7,5 @@ data class Track(
     val isIgnore: Boolean,
     val isRadio: Boolean,
     val duration: Long,
+    val favorite: Int,
 )

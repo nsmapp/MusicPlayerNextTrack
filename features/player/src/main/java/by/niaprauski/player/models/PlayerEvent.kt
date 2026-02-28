@@ -23,6 +23,8 @@ sealed class PlayerEvent {
     data class PlaySingleTrack(val track: MediaItem): PlayerEvent()
     object SyncPlayList: PlayerEvent()
 
+    data class UpFavorite(val trackId: Long): PlayerEvent()
+    data class ChangeFavorite(val trackId: Long): PlayerEvent()
 
     object Nothing: PlayerEvent()
 }

@@ -20,17 +20,21 @@ import androidx.media3.exoplayer.util.EventLogger
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import by.niaprauski.domain.usecases.settings.GetSettingsFlowUseCase
-import by.niaprauski.playerservice.models.PlayerServiceAction
 import by.niaprauski.playerservice.models.ExoPlayerState
+import by.niaprauski.playerservice.models.PlayerServiceAction
 import by.niaprauski.playerservice.models.TrackProgress
 import by.niaprauski.playerservice.utils.NotificationCreator
 import by.niaprauski.playerservice.utils.SoundProcessor
 import by.niaprauski.playerservice.utils.getMediaItemIndex
 import by.niaprauski.translations.R
+import by.niaprauski.utils.constants.EMPTY_FLOW_ARRAY
 import by.niaprauski.utils.constants.TEXT_EMPTY
 import by.niaprauski.utils.extension.ifNullOrEmpty
 import by.niaprauski.utils.extension.orDefault
 import by.niaprauski.utils.extension.toTrackTime
+import by.niaprauski.utils.models.TRACK_KEY_FAVORITE
+import by.niaprauski.utils.models.TRACK_KEY_ID
+import by.niaprauski.utils.models.TRACK_KEY_NAME
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -67,7 +71,7 @@ class PlayerService : MediaSessionService() {
 
     private val _trackProgress = MutableStateFlow(TrackProgress.DEFAULT)
     val trackProgress = _trackProgress.asStateFlow()
-    private val _waveform = MutableStateFlow(FloatArray(0))
+    private val _waveform = MutableStateFlow(EMPTY_FLOW_ARRAY)
     val waveform = _waveform.asStateFlow()
 
     private val soundProcessor = SoundProcessor(serviceScope, _waveform)
@@ -282,6 +286,34 @@ class PlayerService : MediaSessionService() {
         player?.addMediaItem(item)
     }
 
+    fun upTrackFavorite(trackId: Long) {
+        val currentTrack = player?.currentMediaItem ?: return
+        val id = currentTrack.mediaMetadata.extras?.getLong(TRACK_KEY_ID) ?: return
+        val favorite = currentTrack.mediaMetadata.extras?.getInt(TRACK_KEY_FAVORITE) ?: return
+
+        if (id == trackId) {
+            val favorite = favorite + 1
+            currentTrack.mediaMetadata.extras?.apply {
+                putInt(TRACK_KEY_FAVORITE, favorite)
+            }
+            _state.update { it.copy(favorite = favorite) }
+        }
+    }
+
+    fun changeTrackFavorite(trackId: Long) {
+        val currentTrack = player?.currentMediaItem ?: return
+        val id = currentTrack.mediaMetadata.extras?.getLong(TRACK_KEY_ID) ?: return
+        val favorite = currentTrack.mediaMetadata.extras?.getInt(TRACK_KEY_FAVORITE) ?: return
+
+        if (id == trackId) {
+            val favorite = if (favorite == 0) 1 else 0
+            currentTrack.mediaMetadata.extras?.apply {
+                putInt(TRACK_KEY_FAVORITE, favorite)
+            }
+            _state.update { it.copy(favorite = favorite) }
+        }
+    }
+
     private fun startProgressTracking() { //TODO check frizzing progress after change track
         if (progressTrackingJob?.isActive == true) return
 
@@ -289,9 +321,9 @@ class PlayerService : MediaSessionService() {
             while (player?.isPlaying == true) {
                 val currentPosition = getCurrentPosition()
                 val duration = getDuration().toFloat()
-                if (duration <= 0){ // for radio
+                if (duration <= 0) { // for radio
                     _trackProgress.update { TrackProgress(0f, TEXT_EMPTY) }
-                }else{
+                } else {
                     val trackTime = (currentPosition / 1000).toTrackTime()
                     val progress = currentPosition / duration
 
@@ -357,15 +389,27 @@ class PlayerService : MediaSessionService() {
     private fun updateTrackInfo(mediaMetadata: MediaMetadata) {
         with(mediaMetadata) {
             val trackArtist = artist.ifNullOrEmpty {
-                player?.currentMediaItem?.mediaMetadata?.displayTitle
+                player?.currentMediaItem?.mediaMetadata?.extras?.getString(
+                    TRACK_KEY_NAME,
+                    TEXT_EMPTY
+                )
             }
             val trackTitle = title.ifNullOrEmpty {
-                player?.currentMediaItem?.mediaMetadata?.displayTitle
+                player?.currentMediaItem?.mediaMetadata?.extras?.getString(
+                    TRACK_KEY_NAME,
+                    TEXT_EMPTY
+                )
             }
+
+            val trackId = extras?.getLong(TRACK_KEY_ID, -1) ?: -1
+            val favorite = extras?.getInt(TRACK_KEY_FAVORITE, -1) ?: -1
+
             _state.update {
                 it.copy(
+                    id = trackId,
                     title = trackTitle.orDefault(getString(R.string.feature_player_no_track)),
                     artist = trackArtist.orDefault(getString(R.string.feature_player_no_artist)),
+                    favorite = favorite
                 )
             }
         }

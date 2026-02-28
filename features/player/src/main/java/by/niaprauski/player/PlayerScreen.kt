@@ -1,10 +1,14 @@
+@file:kotlin.OptIn(ExperimentalFoundationApi::class)
+
 package by.niaprauski.player
 
 import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.annotation.OptIn
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -92,6 +97,9 @@ fun PlayerScreen(
                     context = context,
                     onSyncTrack = { syncStatus -> viewModel.syncTracks(syncStatus) })
 
+                is PlayerEvent.UpFavorite -> playerService?.upTrackFavorite(event.trackId)
+                is PlayerEvent.ChangeFavorite -> playerService?.changeTrackFavorite(event.trackId)
+
                 PlayerEvent.Nothing -> {
                     /**do nothing **/
                 }
@@ -126,6 +134,8 @@ fun PlayerScreen(
         onPreviousClick = viewModel::playPrevious,
         onShuffleModeClick = viewModel::changeShuffleMode,
         onRepeatModeClick = viewModel::changeRepeatMode,
+        onFavoriteUp = viewModel::upTrackFavorite,
+        onChangeTrackFavorite = viewModel::changeTrackFavorite,
         onSeek = viewModel::seekTo,
     )
 
@@ -136,7 +146,7 @@ fun PlayerScreen(
 private fun PlayersScreenContent(
     exoPlayerState: ExoPlayerState,
     isVisuallyEnabled: Boolean,
-    trackProgress : StateFlow<TrackProgress>?,
+    trackProgress: StateFlow<TrackProgress>?,
     waveformFlow: StateFlow<FloatArray>?,
     isSyncing: Boolean,
     onOpenSettingsClick: () -> Unit,
@@ -149,6 +159,8 @@ private fun PlayersScreenContent(
     onPreviousClick: () -> Unit,
     onShuffleModeClick: () -> Unit,
     onRepeatModeClick: () -> Unit,
+    onFavoriteUp: (trackId: Long) -> Unit,
+    onChangeTrackFavorite: (trackId: Long) -> Unit,
     onSeek: (Float) -> Unit,
 ) {
 
@@ -157,7 +169,12 @@ private fun PlayersScreenContent(
             .fillMaxSize()
             .background(color = AppTheme.appColors.background)
             .navigationBarsPadding()
-            .statusBarsPadding(),
+            .statusBarsPadding()
+            .pointerInput(exoPlayerState.id) {
+                detectTapGestures(onDoubleTap = {
+                    onFavoriteUp(exoPlayerState.id)
+                })
+            },
         contentAlignment = Alignment.BottomCenter
     ) {
 
@@ -175,7 +192,13 @@ private fun PlayersScreenContent(
                 isSyncing = isSyncing,
             )
 
-            TrackInfoView(exoPlayerState.artist, exoPlayerState.title)
+            TrackInfoView(
+                trackId = exoPlayerState.id,
+                exoPlayerState.artist,
+                exoPlayerState.title,
+                exoPlayerState.favorite,
+                onChangeTrackFavorite = onChangeTrackFavorite,
+            )
 
             PlayerControlView(
                 modifier = Modifier
@@ -200,7 +223,7 @@ private fun PlayersScreenContent(
 
         }
 
-        if (isVisuallyEnabled){
+        if (isVisuallyEnabled) {
             WaveBarView(
                 modifier = Modifier
                     .padding(horizontal = AppTheme.padding.default)

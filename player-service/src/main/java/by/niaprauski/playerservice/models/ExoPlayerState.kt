@@ -4,19 +4,23 @@ import androidx.media3.common.Player
 import by.niaprauski.utils.constants.TEXT_EMPTY
 
 data class ExoPlayerState(
+    val id: Long = 0,
     val title: String,
     val artist: String,
     val shuffle: Boolean,
     val repeatMode: Int,
     val isPlaying: Boolean,
+    val favorite: Int,
 ) {
     companion object {
         val DEFAULT = ExoPlayerState(
+            id = -1,
             title = TEXT_EMPTY,
             artist = TEXT_EMPTY,
             shuffle = false,
             repeatMode = Player.REPEAT_MODE_ALL,
             isPlaying = false,
+            favorite = 0,
         )
     }
 }

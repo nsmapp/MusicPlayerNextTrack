@@ -17,6 +17,7 @@
     <string name="feature_player_no_track">no_track</string>
     <string name="feature_player_open_settings">Перайці ў налады</string>
     <string name="feature_player_need_media_permission_message">Няма дазволу на доступ да медыяфайлаў; вам трэба даць яго ў наладах праграмы.</string>
+    <string name="feature_player_favorite">Абранае</string>
 
 
 <!--    feature library-->

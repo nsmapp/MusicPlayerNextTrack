@@ -21,5 +21,7 @@ interface TrackRepository {
 
     fun unmarkTrackAsIgnored(trackId: Long)
 
+    fun upTrackFavorite(trackId: Long, value: Int)
 
+    fun getTrackById(trackId: Long): Track?
 }

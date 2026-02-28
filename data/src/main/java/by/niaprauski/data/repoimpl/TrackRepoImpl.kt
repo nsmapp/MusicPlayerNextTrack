@@ -58,4 +58,12 @@ class TrackRepoImpl @Inject constructor(
     override fun unmarkTrackAsIgnored(trackId: Long) {
         trackDao.unmarkTrackAsIgnore(trackId)
     }
+
+    override fun upTrackFavorite(trackId: Long, value: Int){
+        trackDao.upTrackFavorite(trackId, value)
+    }
+    override fun getTrackById(trackId: Long): Track? {
+        val track = trackDao.getById(trackId) ?: return null
+        return trackMapper.toModel(track)
+    }
 }

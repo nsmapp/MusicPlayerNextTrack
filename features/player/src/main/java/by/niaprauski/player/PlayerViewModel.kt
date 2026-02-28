@@ -10,8 +10,10 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import by.niaprauski.domain.usecases.settings.GetSettingsFlowUseCase
 import by.niaprauski.domain.usecases.settings.SetWelcomeMessageStatusUseCase
+import by.niaprauski.domain.usecases.track.ChangeTrackFavoriteUpUseCase
 import by.niaprauski.domain.usecases.track.GetTracksUseCase
 import by.niaprauski.domain.usecases.track.FilterAndSaveTracksUseCase
+import by.niaprauski.domain.usecases.track.SetTrackFavoriteUpUseCase
 import by.niaprauski.player.contracts.PlayerContract
 import by.niaprauski.player.mapper.TrackModelMapper
 import by.niaprauski.player.models.PlayerEvent
@@ -52,6 +54,8 @@ class PlayerViewModel @AssistedInject constructor(
     private val getTracksUseCase: GetTracksUseCase,
     private val getSettingsFlowUseCase: GetSettingsFlowUseCase,
     private val setWelcomeMessageStatusUseCase: SetWelcomeMessageStatusUseCase,
+    private val setTrackFavoriteUpUseCase: SetTrackFavoriteUpUseCase,
+    private val changeTrackFavoriteUpUseCase: ChangeTrackFavoriteUpUseCase,
     private val trackModelMapper: TrackModelMapper,
 ) : ViewModel(), PlayerContract {
 
@@ -247,6 +251,24 @@ class PlayerViewModel @AssistedInject constructor(
     override fun hideMediaPermissionInfoDialog() {
         viewModelScope.launch {
             _state.update { it.copy(isShowPermissionInformationDialog = false) }
+        }
+    }
+
+    override fun upTrackFavorite(trackId: Long) {
+        if (playerService.value == null) return
+
+        viewModelScope.launch {
+            setTrackFavoriteUpUseCase.invoke(trackId)
+            _event.send(PlayerEvent.UpFavorite(trackId))
+        }
+    }
+
+    override fun changeTrackFavorite(trackId: Long) {
+        if (playerService.value == null) return
+
+        viewModelScope.launch {
+            changeTrackFavoriteUpUseCase.invoke(trackId)
+            _event.send(PlayerEvent.ChangeFavorite(trackId))
         }
     }
 

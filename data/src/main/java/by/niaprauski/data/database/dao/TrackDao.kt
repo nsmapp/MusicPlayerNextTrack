@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TrackDao {
 
-    @Query("SELECT * FROM tracks WHERE is_ignore == 0")
+    @Query("SELECT * FROM tracks WHERE is_ignore == 0 ORDER BY favorite DESC")
     fun getAll(): List<TrackEntity>
 
     @Query("SELECT * FROM tracks")
@@ -37,4 +37,10 @@ interface TrackDao {
 
     @Query("UPDATE tracks SET is_ignore = 0 WHERE id = :trackId")
     fun unmarkTrackAsIgnore(trackId: Long)
+
+    @Query("SELECT * FROM tracks WHERE id = :trackId")
+    fun getById(trackId: Long): TrackEntity?
+
+    @Query("UPDATE tracks SET favorite = :value WHERE id = :trackId")
+    fun upTrackFavorite(trackId: Long, value: Int)
 }

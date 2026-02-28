@@ -15,6 +15,7 @@ class TrackMapper @Inject constructor(){
                 isIgnore = isIgnore,
                 isRadio = isRadio,
                 duration = duration,
+                favorite = favorite,
             )
         }
 
@@ -26,7 +27,8 @@ class TrackMapper @Inject constructor(){
                 pathOrUrl = path,
                 isIgnore = isIgnore,
                 isRadio = isRadio,
-                duration = duration
+                duration = duration,
+                favorite = favorite,
             )
         }
 

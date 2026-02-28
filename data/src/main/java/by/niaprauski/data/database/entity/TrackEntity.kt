@@ -20,4 +20,6 @@ data class TrackEntity(
     val isRadio: Boolean,
     @ColumnInfo("duration")
     val duration: Long,
+    @ColumnInfo("favorite")
+    val favorite: Int,
 )

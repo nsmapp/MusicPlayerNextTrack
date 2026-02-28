@@ -17,6 +17,7 @@
     <string name="feature_player_no_track">no_track</string>
     <string name="feature_player_open_settings">Open settings</string>
     <string name="feature_player_need_media_permission_message">Media file access permission is missing; you need to grant it in the app settings.</string>
+    <string name="feature_player_favorite">favorite</string>
 
 
 <!--    feature library-->

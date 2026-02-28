@@ -20,31 +20,30 @@ fun WaveformVisualizer(
     barGap: Dp = 2.dp,
     minBarHeight: Dp = 1.dp
 ) {
-    val animatedWaveform = waveform.map { value ->
-        animateFloatAsState(
-            targetValue = value,
-            animationSpec = tween(30),
-            label = "waveformValue"
-        ).value
-    }
-
     Canvas(modifier = modifier) {
-        if (animatedWaveform.isEmpty()) return@Canvas
+        if (waveform.isEmpty()) return@Canvas
 
-        val totalGapsWidth = (animatedWaveform.size - 1) * barGap.toPx()
-        val totalBarWidth = size.width - totalGapsWidth
-        val barWidth = totalBarWidth / animatedWaveform.size
+        val gapPx = barGap.toPx()
+        val minHeightPx = minBarHeight.toPx()
+        val count = waveform.size
+        val canvasWidth = size.width
+        val canvasHeight = size.height
+        val barWidth = (canvasWidth - (count - 1) * gapPx) / count
 
-        animatedWaveform.forEachIndexed { index, value ->
-            val barHeight = (size.height * value).coerceAtLeast(minBarHeight.toPx())
-            val x = index * (barWidth + barGap.toPx())
-            val y = (size.height - barHeight)
+        if (barWidth <= 0f) return@Canvas
+
+        for (index in waveform.indices) {
+            val value = waveform[index]
+            val barHeight = (canvasHeight * value)
+                .coerceIn(minHeightPx, canvasHeight)
+            val x = index * (barWidth + gapPx)
+            val y = (canvasHeight - barHeight)
 
             drawRoundRect(
                 color = barColor,
-                topLeft = Offset(x = x, y = y),
-                size = Size(width = barWidth, height = barHeight),
-                cornerRadius = CornerRadius(x = 4f, y = 4f)
+                topLeft = Offset(x, y),
+                size = Size(barWidth, barHeight),
+                cornerRadius = CornerRadius(barWidth / 2f, barWidth / 2f)
             )
         }
     }
