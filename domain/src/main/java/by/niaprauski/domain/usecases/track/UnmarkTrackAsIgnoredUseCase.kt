@@ -1,6 +1,5 @@
 package by.niaprauski.domain.usecases.track
 
-import by.niaprauski.domain.models.Track
 import by.niaprauski.domain.repository.TrackRepository
 import by.niaprauski.domain.utils.DispatcherProvider
 import kotlinx.coroutines.withContext
@@ -11,9 +10,9 @@ class UnmarkTrackAsIgnoredUseCase @Inject constructor(
     private val dispatcherProvider: DispatcherProvider
 )  {
 
-    suspend fun invoke(track: Track): Result<Unit> = withContext(dispatcherProvider.io){
+    suspend operator fun invoke(trackId: Long): Result<Unit> = withContext(dispatcherProvider.io){
         runCatching {
-            trackRepository.unmarkTrackAsIgnored(track.id)
+            trackRepository.unmarkTrackAsIgnored(trackId)
         }
     }
 }

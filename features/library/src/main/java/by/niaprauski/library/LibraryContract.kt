@@ -1,15 +1,14 @@
 package by.niaprauski.library
 
-import by.niaprauski.domain.models.SearchTrackFilter
-import by.niaprauski.domain.models.Track
+import by.niaprauski.library.models.TrackModel
 
 interface LibraryContract {
 
-    fun ignoreTrack(track: Track)
+    fun ignoreTrack(track: TrackModel)
 
-    fun onRestoreTrackClick(track: Track)
+    fun onRestoreTrackClick(track: TrackModel)
 
-    fun playTrack(track: Track)
+    fun playTrack(track: TrackModel)
 
     fun searchTrack(text: String)
 }

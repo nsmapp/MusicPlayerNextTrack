@@ -245,7 +245,6 @@ class PlayerService : MediaSessionService() {
 
         val index = player?.getMediaItemIndex(item) ?: -1
         if (index != -1) {
-            if (player?.currentMediaItemIndex == index) return
             player?.seekTo(index, 0)
         }
 

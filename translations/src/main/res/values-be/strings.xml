@@ -21,13 +21,12 @@
 
 
 <!--    feature library-->
-    <string name="feature_library_search">Шукаць</string>
+    <string name="feature_library_search">Пошук</string>
     <string name="feature_library_ignore">Ігнараваць</string>
     <string name="feature_library_play">Прайграць</string>
     <string name="feature_library_restore_track">Аднавіць трэк</string>
 
 <!--    feature settings-->
-
     <string name="feature_settings_interface">Інтэрфейс</string>
     <string name="feature_settings_sync_settings">Налады сінхранізацыі</string>
     <string name="feature_settings_min_duration_sec">Мінімальная працягласць, сек</string>

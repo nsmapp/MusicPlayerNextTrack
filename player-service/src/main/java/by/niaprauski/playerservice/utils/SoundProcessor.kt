@@ -67,16 +67,22 @@ class SoundProcessor(
         withContext(Dispatchers.Default) {
             buffer.order(ByteOrder.nativeOrder())
 
+            val limit = buffer.limit()
             val totalSamples = buffer.remaining() / 2
             val targetPoints = chank
-            val step = (totalSamples / targetPoints).coerceAtLeast(1)
 
+            val actualPoints = if (totalSamples < targetPoints) totalSamples else targetPoints
             val waveArray = FloatArray(targetPoints)
+            if (totalSamples == 0) return@withContext waveArray
 
-            for (i in 0 until targetPoints) {
+            val step = totalSamples / actualPoints
+
+            for (i in 0 until actualPoints) {
                 val index = i * step
-                if (index * 2 < buffer.capacity()) {
-                    val sample = buffer.getShort(index * 2).toFloat() / Short.MAX_VALUE
+                val position = index * 2
+
+                if (index * 2 < limit) {
+                    val sample = buffer.getShort(position).toFloat() / Short.MAX_VALUE
                     waveArray[i] = sample
                 }
             }

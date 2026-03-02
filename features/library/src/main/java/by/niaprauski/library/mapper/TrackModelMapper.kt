@@ -1,20 +1,30 @@
 package by.niaprauski.library.mapper
 
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import by.niaprauski.domain.models.Track
+import by.niaprauski.library.models.TrackModel
+import by.niaprauski.utils.media.MediaHandler
 import javax.inject.Inject
 
 class TrackModelMapper @Inject constructor() {
 
-    fun toMediaItem(track: Track): MediaItem =
-        MediaItem.Builder()
-            .setMediaId(track.pathOrUrl)
-            .setUri(track.pathOrUrl)
-            .setMediaMetadata(
-                MediaMetadata.Builder()
-                    .setDisplayTitle(track.fileName)
-                    .build()
-            )
-            .build()
+    fun toTrackModel(track: Track): TrackModel =
+        TrackModel(
+            id = track.id,
+            fileName = track.fileName,
+            pathOrUrl = track.pathOrUrl,
+            isIgnore = track.isIgnore,
+            isRadio = track.isRadio,
+            duration = track.duration,
+            favorite = track.favorite
+        )
+
+    fun toMediaItem(track: TrackModel): MediaItem  =
+        MediaHandler.createMediaItem(
+            id = track.id,
+            fileName = track.fileName,
+            pathOrUrl = track.pathOrUrl,
+            duration = track.duration,
+            favorite = track.favorite
+        )
 }

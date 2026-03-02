@@ -3,6 +3,7 @@ package by.niaprauski.utils.media
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.net.Uri
+import android.os.Bundle
 import android.provider.BaseColumns._ID
 import android.provider.MediaStore
 import by.niaprauski.utils.models.ITrack
@@ -14,8 +15,12 @@ import android.provider.MediaStore.Files.FileColumns.DATA
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import by.niaprauski.utils.constants.TEXT_EMPTY
 import by.niaprauski.utils.models.MimeType
+import by.niaprauski.utils.models.TRACK_KEY_FAVORITE
+import by.niaprauski.utils.models.TRACK_KEY_ID
+import by.niaprauski.utils.models.TRACK_KEY_NAME
 
 object MediaHandler {
 
@@ -55,7 +60,7 @@ object MediaHandler {
             while (c.moveToNext()) {
                 val id = c.getLong(c.getColumnIndexOrThrow(_ID)) ?: continue
                 val path = c.getString(c.getColumnIndexOrThrow(DATA)) ?: continue
-                val displayName = c.getString(c.getColumnIndexOrThrow(DISPLAY_NAME)) ?: TEXT_EMPTY
+                val displayName = c.getStringOrNull(c.getColumnIndexOrThrow(DISPLAY_NAME)) ?: TEXT_EMPTY
                 val mimeType = c.getStringOrNull(c.getColumnIndexOrThrow(MIME_TYPE)) ?: TEXT_EMPTY
                 val duration = c.getLongOrNull(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
 
@@ -137,5 +142,31 @@ object MediaHandler {
     fun radioUriToMediaItem(uri: Uri, cr: ContentResolver): MediaItem? {
         val url = parsePlaylistForStreamUrl(uri, cr) ?: return null
         return MediaItem.fromUri(url)
+    }
+
+    fun createMediaItem(
+        id: Long,
+        fileName: String,
+        pathOrUrl: String,
+        duration: Long,
+        favorite: Int,
+    ): MediaItem{
+
+        val extras = Bundle().apply {
+            putLong(TRACK_KEY_ID, id)
+            putInt(TRACK_KEY_FAVORITE, favorite)
+            putString(TRACK_KEY_NAME, fileName)
+        }
+
+        return MediaItem.Builder()
+            .setMediaId(pathOrUrl)
+            .setUri(pathOrUrl)
+            .setMediaMetadata(
+                MediaMetadata.Builder()
+                    .setDurationMs(duration)
+                    .setExtras(extras)
+                    .build()
+            )
+            .build()
     }
 }

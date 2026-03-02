@@ -11,9 +11,9 @@ class MarkTrackAsIgnoredUseCase @Inject constructor(
     private val dispatcherProvider: DispatcherProvider
 )  {
 
-    suspend fun invoke(track: Track): Result<Unit> = withContext(dispatcherProvider.io){
+    suspend operator fun invoke(trackId: Long): Result<Unit> = withContext(dispatcherProvider.io){
         runCatching {
-            trackRepository.markTrackAsIgnored(track.id)
+            trackRepository.markTrackAsIgnored(trackId)
         }
     }
 }
