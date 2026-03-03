@@ -12,4 +12,5 @@ message AppSettingsEntity {
     string background_color_hex = 7;
     float accent_position = 8;
     float background_position = 9;
+    int32 playlist_limit_size = 10;
 }

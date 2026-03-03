@@ -11,7 +11,7 @@ import androidx.media3.common.util.UnstableApi
 import by.niaprauski.domain.usecases.settings.GetSettingsFlowUseCase
 import by.niaprauski.domain.usecases.settings.SetWelcomeMessageStatusUseCase
 import by.niaprauski.domain.usecases.track.ChangeTrackFavoriteUpUseCase
-import by.niaprauski.domain.usecases.track.GetTracksUseCase
+import by.niaprauski.domain.usecases.track.GetTracksForPlayUseCase
 import by.niaprauski.domain.usecases.track.FilterAndSaveTracksUseCase
 import by.niaprauski.domain.usecases.track.SetTrackFavoriteUpUseCase
 import by.niaprauski.player.contracts.PlayerContract
@@ -51,7 +51,7 @@ class PlayerViewModel @AssistedInject constructor(
     @Assisted("singleAudioTrack") val singleAudioTrack: Uri? = null,
     private val application: Application,
     private val filterAndSaveTracksUseCase: FilterAndSaveTracksUseCase,
-    private val getTracksUseCase: GetTracksUseCase,
+    private val getTracksForPlayUseCase: GetTracksForPlayUseCase,
     private val getSettingsFlowUseCase: GetSettingsFlowUseCase,
     private val setWelcomeMessageStatusUseCase: SetWelcomeMessageStatusUseCase,
     private val setTrackFavoriteUpUseCase: SetTrackFavoriteUpUseCase,
@@ -122,7 +122,7 @@ class PlayerViewModel @AssistedInject constructor(
 
     fun loadTracks() {
         viewModelScope.launch {
-            getTracksUseCase.invoke()
+            getTracksForPlayUseCase.invoke()
                 .onSuccess { items -> setPlayList(trackModelMapper.toMediaItems(items)) }
                 .onFailure {
                     //TODO add get track failure information

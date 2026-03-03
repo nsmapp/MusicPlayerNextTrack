@@ -11,6 +11,8 @@ interface TrackRepository {
 
     fun getAll(): List<Track>
 
+    fun getRandom(limit: Int): List<Track>
+
     fun getAllAsFlow(): Flow<List<Track>>
 
     fun getAllAsFlow(filter: SearchTrackFilter): Flow<List<Track>>

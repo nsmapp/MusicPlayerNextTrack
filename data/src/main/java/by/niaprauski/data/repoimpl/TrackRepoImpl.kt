@@ -31,6 +31,15 @@ class TrackRepoImpl @Inject constructor(
     override fun getAll(): List<Track> = trackDao.getAll()
         .map {track -> trackMapper.toModel(track) }
 
+    override fun getRandom(limit: Int): List<Track> {
+        val allIds = trackDao.getAllIdsWithoutIgnored()
+        val randomIds = allIds.shuffled().take(limit)
+        val result = trackDao.getTracksByIds(randomIds)
+            .map {track -> trackMapper.toModel(track) }
+
+        return result
+    }
+
     override fun getAllAsFlow(): Flow<List<Track>> = trackDao
         .getAllAsFlow()
         .map { tracks ->

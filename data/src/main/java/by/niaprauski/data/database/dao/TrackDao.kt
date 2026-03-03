@@ -14,6 +14,12 @@ interface TrackDao {
     @Query("SELECT * FROM tracks WHERE is_ignore == 0 ORDER BY favorite DESC")
     fun getAll(): List<TrackEntity>
 
+    @Query("SELECT id FROM tracks WHERE is_ignore = 0")
+    fun getAllIdsWithoutIgnored(): List<Long>
+
+    @Query("SELECT * FROM tracks WHERE id IN (:ids) ORDER BY favorite DESC")
+    fun getTracksByIds(ids: List<Long>): List<TrackEntity>
+
     @Query("SELECT * FROM tracks")
     fun getAllAsFlow(): Flow<List<TrackEntity>>
 

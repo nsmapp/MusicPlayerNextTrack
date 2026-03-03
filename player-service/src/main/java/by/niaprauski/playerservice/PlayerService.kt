@@ -159,7 +159,9 @@ class PlayerService : MediaSessionService() {
     override fun onDestroy() {
         player?.removeListener(playerListener)
         player?.release()
+        player = null
         mediaSession?.release()
+        mediaSession = null
         serviceScope.cancel()
         super.onDestroy()
     }
@@ -246,6 +248,8 @@ class PlayerService : MediaSessionService() {
         val index = player?.getMediaItemIndex(item) ?: -1
         if (index != -1) {
             player?.seekTo(index, 0)
+        } else {
+            player?.addMediaItem(item)
         }
 
         if (!isPlaying()) play()
@@ -316,6 +320,7 @@ class PlayerService : MediaSessionService() {
     private fun startProgressTracking() { //TODO check frizzing progress after change track
         if (progressTrackingJob?.isActive == true) return
 
+        progressTrackingJob?.cancel()
         progressTrackingJob = serviceScope.launch(Dispatchers.Main) {
             while (player?.isPlaying == true) {
                 val currentPosition = getCurrentPosition()

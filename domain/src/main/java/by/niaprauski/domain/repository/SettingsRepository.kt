@@ -23,5 +23,7 @@ interface SettingsRepository {
 
     suspend fun setBackgroundColorSettings(position: ColorPosition)
 
+    suspend fun getTrackLimit(): Int
+
 
 }

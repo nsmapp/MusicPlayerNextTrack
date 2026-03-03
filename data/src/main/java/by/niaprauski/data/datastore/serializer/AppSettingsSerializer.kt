@@ -18,6 +18,7 @@ object AppSettingsSerializer : Serializer<AppSettingsEntity> {
         .setBackgroundColorHex("#FF65A591")
         .setAccentPosition(0f)
         .setBackgroundPosition(0.7f)
+        .setPlaylistLimitSize(100)
         .build()
 
     override suspend fun readFrom(input: InputStream): AppSettingsEntity {
