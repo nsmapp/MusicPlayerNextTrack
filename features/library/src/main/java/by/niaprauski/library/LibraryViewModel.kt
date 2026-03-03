@@ -1,7 +1,9 @@
 package by.niaprauski.library
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.util.UnstableApi
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
@@ -13,27 +15,50 @@ import by.niaprauski.library.mapper.TrackModelMapper
 import by.niaprauski.library.models.LibraryEvent
 import by.niaprauski.library.models.LibraryState
 import by.niaprauski.library.models.TrackModel
+import by.niaprauski.playerservice.PlayerService
+import by.niaprauski.playerservice.PlayerServiceConnection
+import by.niaprauski.playerservice.models.ExoPlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@UnstableApi
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
+    private val application: Application,
     private val getTrackPagedUseCase: GetTracksPagedUseCase,
     private val markTrackAsIgnoredUseCase: MarkTrackAsIgnoredUseCase,
     private val unmarkTrackAsIgnoredUseCase: UnmarkTrackAsIgnoredUseCase,
     private val trackModelMapper: TrackModelMapper,
 ) : ViewModel(), LibraryContract {
 
+    private val serviceConnection = PlayerServiceConnection(application)
+    val playerService: StateFlow<PlayerService?> = serviceConnection.service.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = null
+    )
+
+    val exoPlayerState: StateFlow<ExoPlayerState> = playerService.flatMapLatest { service ->
+        service?.state ?: flowOf(ExoPlayerState.DEFAULT)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ExoPlayerState.DEFAULT
+    )
 
     private val _state = MutableStateFlow(LibraryState.INITIAL)
     val state = _state.asStateFlow()
@@ -57,7 +82,7 @@ class LibraryViewModel @Inject constructor(
 
 
     fun onCreate() {
-
+        serviceConnection.bind()
     }
 
     //TODO refactor to trackId
@@ -98,10 +123,27 @@ class LibraryViewModel @Inject constructor(
 
     }
 
+    override fun play(value: Unit) {
+        viewModelScope.launch {
+            sendEvent(LibraryEvent.Play)
+        }
+    }
+
+    override fun pause(value: Unit) {
+        viewModelScope.launch {
+            sendEvent(LibraryEvent.Pause)
+        }
+    }
+
     private fun sendEvent(event: LibraryEvent) {
         viewModelScope.launch {
             _event.send(event)
         }
+    }
+
+    override fun onCleared() {
+        serviceConnection.unbind()
+        super.onCleared()
     }
 
     companion object {

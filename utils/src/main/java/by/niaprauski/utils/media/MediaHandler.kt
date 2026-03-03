@@ -20,7 +20,7 @@ import by.niaprauski.utils.constants.TEXT_EMPTY
 import by.niaprauski.utils.models.MimeType
 import by.niaprauski.utils.models.TRACK_KEY_FAVORITE
 import by.niaprauski.utils.models.TRACK_KEY_ID
-import by.niaprauski.utils.models.TRACK_KEY_NAME
+import by.niaprauski.utils.models.TRACK_KEY_FILE_NAME
 
 object MediaHandler {
 
@@ -155,7 +155,7 @@ object MediaHandler {
         val extras = Bundle().apply {
             putLong(TRACK_KEY_ID, id)
             putInt(TRACK_KEY_FAVORITE, favorite)
-            putString(TRACK_KEY_NAME, fileName)
+            putString(TRACK_KEY_FILE_NAME, fileName)
         }
 
         return MediaItem.Builder()

@@ -35,8 +35,8 @@ fun PlayerUpView(
 
         PlayerLiteButton(
             modifier = Modifier
-                .size(AppTheme.viewSize.icon_normal)
-                .clip(RoundedCornerShape(AppTheme.viewSize.icon_normal)),
+                .size(AppTheme.viewSize.normal)
+                .clip(RoundedCornerShape(AppTheme.viewSize.normal)),
             imageVector = Icons.Outlined.PlaylistPlay,
             onClick = onOpenPlayListClick,
             description = stringResource(R.string.feature_player_library)
@@ -50,8 +50,8 @@ fun PlayerUpView(
 
         PlayerLiteButton(
             modifier = Modifier
-                .size(AppTheme.viewSize.icon_normal)
-                .clip(RoundedCornerShape(AppTheme.viewSize.icon_normal))
+                .size(AppTheme.viewSize.normal)
+                .clip(RoundedCornerShape(AppTheme.viewSize.normal))
                 .rotate(rotationAngle),
             imageVector = Icons.Outlined.Sync,
             onClick = onSyncPlayListClick,
@@ -60,8 +60,8 @@ fun PlayerUpView(
 
         PlayerLiteButton(
             modifier = Modifier
-                .size(AppTheme.viewSize.icon_normal)
-                .clip(RoundedCornerShape(AppTheme.viewSize.icon_normal)),
+                .size(AppTheme.viewSize.normal)
+                .clip(RoundedCornerShape(AppTheme.viewSize.normal)),
             imageVector = Icons.Outlined.Settings,
             onClick = onOpenSettingsClick,
             description = stringResource(R.string.feature_player_library_settings)

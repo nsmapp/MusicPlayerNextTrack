@@ -11,4 +11,8 @@ interface LibraryContract {
     fun playTrack(track: TrackModel)
 
     fun searchTrack(text: String)
+
+    fun play(value: Unit)
+
+    fun pause(value: Unit)
 }

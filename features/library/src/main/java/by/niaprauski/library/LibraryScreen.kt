@@ -1,12 +1,10 @@
 package by.niaprauski.library
 
-import android.content.Context
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -16,11 +14,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,7 +28,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
@@ -42,8 +37,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.library.models.LibraryEvent
 import by.niaprauski.library.models.TrackModel
-import by.niaprauski.library.view.TrackListWithSearchView
-import by.niaprauski.playerservice.PlayerServiceConnection
+import by.niaprauski.library.view.ContentView
+import by.niaprauski.playerservice.models.ExoPlayerState
 
 
 @UnstableApi
@@ -52,15 +47,12 @@ fun LibraryScreen(
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
 
-    val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val pagingTracks: LazyPagingItems<TrackModel> = viewModel.pagingTracks.collectAsLazyPagingItems()
+    val pagingTracks: LazyPagingItems<TrackModel> =
+        viewModel.pagingTracks.collectAsLazyPagingItems()
 
-
-    val serviceConnection = rememberPlayerServiceConnection(context)
-    val playerService by serviceConnection.service.collectAsStateWithLifecycle(null)
-
-    val listState = rememberLazyListState()
+    val exoPlayerState: ExoPlayerState by viewModel.exoPlayerState.collectAsStateWithLifecycle()
+    val playerService by viewModel.playerService.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.onCreate()
@@ -72,6 +64,8 @@ fun LibraryScreen(
                 is LibraryEvent.PlayMediaItem -> playerService?.playWithPosition(event.mediaItem)
                 is LibraryEvent.IgnoreMediaItem -> playerService?.removeMediaItem(event.mediaItem)
                 is LibraryEvent.AddMediaItem -> playerService?.addItemToPlayList(event.mediaItem)
+                is LibraryEvent.Play -> playerService?.play()
+                is LibraryEvent.Pause -> playerService?.pause()
             }
         }
     }
@@ -119,12 +113,16 @@ fun LibraryScreen(
                     strokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap
                 )
             } else {
-                TrackListWithSearchView(
-                    listState = listState,
+                ContentView(
                     pagingTracks = pagingTracks,
-                    isSearchVisible = isSearchVisible,
+                    isControlViewVisible = isSearchVisible,
                     state = state,
-                    onPlayClick = viewModel::playTrack,
+                    currentTrackId = { exoPlayerState.id },
+                    currentTrackName = { exoPlayerState.fileName },
+                    isPlaying = {exoPlayerState.isPlaying},
+                    onPlayNewClick = viewModel::playTrack,
+                    onPlayClick = viewModel::play,
+                    onPauseClick = viewModel::pause,
                     onIgnoreClick = viewModel::ignoreTrack,
                     onRestoreTrackClick = viewModel::onRestoreTrackClick,
                     onSearchTrack = viewModel::searchTrack
@@ -139,19 +137,4 @@ private fun loadingTransform(): ContentTransform {
     val exit = fadeOut(animationSpec = tween(90))
 
     return enter togetherWith exit
-}
-
-
-@Composable
-fun rememberPlayerServiceConnection(context: Context): PlayerServiceConnection {
-    val connection = remember { PlayerServiceConnection(context) }
-
-    DisposableEffect(context) {
-        connection.bind()
-        onDispose {
-            connection.unbind()
-        }
-    }
-
-    return connection
 }

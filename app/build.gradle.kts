@@ -10,4 +10,5 @@ android {
 
 dependencies {
     implementation(getLibs().androidx.ui)
+    implementation(libs.splashscreen)
 }

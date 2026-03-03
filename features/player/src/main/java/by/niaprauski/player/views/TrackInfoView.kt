@@ -90,12 +90,12 @@ fun TrackInfoView(
             modifier = Modifier
                 .align(Alignment.End)
                 .padding(top = AppTheme.padding.default)
-                .size(AppTheme.viewSize.icon_normal)
+                .size(AppTheme.viewSize.normal)
                 .graphicsLayer {
                     scaleX = scale.value
                     scaleY = scale.value
                 }
-                .clip(RoundedCornerShape(AppTheme.viewSize.icon_normal)),
+                .clip(RoundedCornerShape(AppTheme.viewSize.normal)),
             imageVector = favoriteIcon,
             onClick = {
                 onChangeTrackFavorite(trackId)

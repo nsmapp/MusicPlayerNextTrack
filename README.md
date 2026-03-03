@@ -1,8 +1,20 @@
 # Android Music **Player Next track**
 
-This is a **sample Android project** that uses **ExoPlayer** for music playback.
+**Android application** uses **ExoPlayer** for music playback.
 
-The project is an **experiment** and, as such, **may contain some bugs or unfinished features**.
+## About the Project
+
+This project is my personal playground for experiments.
+
+*   **Development style:** I work on this code only when I have inspiration, without a strict development plan. Because of this, the coding style may differ in various parts of the app.
+*   **Experiments:** This is primarily a laboratory for testing new technologies, so the project may contain bugs or unfinished features.
+
+## What is this project?
+
+It is a simple music player that allows you to:
+1.  Listen to music stored locally on your device.
+2.  Listen to internet radio stations.
+3.  **Note:** There are no playlists; the app simply finds and plays all the tracks it can find.
 
 ## Key Libraries & Technologies
 

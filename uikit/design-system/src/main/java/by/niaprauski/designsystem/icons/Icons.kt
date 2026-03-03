@@ -15,7 +15,7 @@ fun MicroIcon(
     BaseIcon(
         modifier = modifier,
         imageVector = imageVector,
-        size = AppTheme.viewSize.icon_micro,
+        size = AppTheme.viewSize.micro,
         contentDescription = null,
         colorFilter = colorFilter,
     )
@@ -30,7 +30,7 @@ fun SmallIcon(
     BaseIcon(
         modifier = modifier,
         imageVector = imageVector,
-        size = AppTheme.viewSize.icon_small,
+        size = AppTheme.viewSize.small,
         contentDescription = null,
         colorFilter = colorFilter,
     )
@@ -45,7 +45,7 @@ fun NormalIcon(
     BaseIcon(
         modifier = modifier,
         imageVector = imageVector,
-        size = AppTheme.viewSize.icon_normal,
+        size = AppTheme.viewSize.normal,
         contentDescription = null,
         colorFilter = colorFilter,
     )

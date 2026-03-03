@@ -4,9 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Pause
@@ -20,7 +18,6 @@ import androidx.compose.material.icons.outlined.SkipNext
 import androidx.compose.material.icons.outlined.SkipPrevious
 import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -73,8 +70,8 @@ fun PlayerControlView(
 
             PlayerLiteButton(
                 modifier = Modifier
-                    .size(AppTheme.viewSize.icon_big)
-                    .clip(RoundedCornerShape(AppTheme.viewSize.icon_big)),
+                    .size(AppTheme.viewSize.big)
+                    .clip(RoundedCornerShape(AppTheme.viewSize.big)),
                 imageVector = Icons.Outlined.SkipPrevious,
                 onClick = onPreviousClick,
                 description = stringResource(R.string.feature_player_play_previous)
@@ -83,8 +80,8 @@ fun PlayerControlView(
 
             PlayerLiteButton(
                 modifier = Modifier
-                    .size(AppTheme.viewSize.icon_large)
-                    .clip(RoundedCornerShape(AppTheme.viewSize.icon_large)),
+                    .size(AppTheme.viewSize.large)
+                    .clip(RoundedCornerShape(AppTheme.viewSize.large)),
                 imageVector = Icons.Outlined.Stop,
                 onClick = onStopClick,
                 description = stringResource(R.string.feature_player_stop)
@@ -92,8 +89,8 @@ fun PlayerControlView(
 
             PlayerLiteButton(
                 modifier = Modifier
-                    .size(AppTheme.viewSize.icon_big)
-                    .clip(RoundedCornerShape(AppTheme.viewSize.icon_big)),
+                    .size(AppTheme.viewSize.big)
+                    .clip(RoundedCornerShape(AppTheme.viewSize.big)),
                 imageVector = Icons.Outlined.SkipNext,
                 onClick = onNextClick,
                 description = stringResource(R.string.feature_player_play_next)
@@ -119,8 +116,8 @@ private fun RepeatModeButton(
 
     PlayerLiteButton(
         modifier = Modifier
-            .size(AppTheme.viewSize.icon_small)
-            .clip(RoundedCornerShape(AppTheme.viewSize.icon_small)),
+            .size(AppTheme.viewSize.small)
+            .clip(RoundedCornerShape(AppTheme.viewSize.small)),
         imageVector = repeatModeIcon,
         onClick = onRepeatModeClick,
         description = stringResource(R.string.feature_player_repeat_mode)
@@ -138,8 +135,8 @@ fun ShuffleButton(
 
     PlayerLiteButton(
         modifier = Modifier
-            .size(AppTheme.viewSize.icon_small)
-            .clip(RoundedCornerShape(AppTheme.viewSize.icon_small)),
+            .size(AppTheme.viewSize.small)
+            .clip(RoundedCornerShape(AppTheme.viewSize.small)),
         imageVector = shuffleIcon,
         onClick = onShuffleModeClick,
         description = stringResource(R.string.feature_player_shuffle)
@@ -158,8 +155,8 @@ private fun PlayPauseButton(
 
     PlayerLiteButton(
         modifier = Modifier
-            .size(AppTheme.viewSize.icon_extra_large)
-            .clip(RoundedCornerShape(AppTheme.viewSize.icon_extra_large)),
+            .size(AppTheme.viewSize.extra_large)
+            .clip(RoundedCornerShape(AppTheme.viewSize.extra_large)),
         imageVector = playIcon,
         onClick = playClickAction,
         description = stringResource(R.string.feature_player_play)

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import by.niaprauski.designsystem.theme.AppTheme
@@ -25,8 +26,12 @@ class MainActivity : FragmentActivity() {
     lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
+        splashScreen.setKeepOnScreenCondition {
+            viewModel.state.value.isLoading
+        }
 
         val externalTrack: ExternalTrack = getOutsideStartTrackUri()
 

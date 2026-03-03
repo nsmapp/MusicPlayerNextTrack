@@ -6,3 +6,5 @@ fun Long.toTrackTime(): String  {
 
     return "$min:$sec"
 }
+
+const val UNKNOWN_TRACK_ID = -1L

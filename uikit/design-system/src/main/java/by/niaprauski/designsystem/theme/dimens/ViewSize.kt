@@ -7,12 +7,12 @@ import androidx.compose.ui.unit.dp
 
 @Immutable
 data class ViewSize(
-    val icon_micro: Dp,
-    val icon_small: Dp,
-    val icon_normal: Dp,
-    val icon_big:Dp,
-    val icon_large:Dp,
-    val icon_extra_large:Dp,
+    val micro: Dp,
+    val small: Dp,
+    val normal: Dp,
+    val big:Dp,
+    val large:Dp,
+    val extra_large:Dp,
 
     val border_zero: Dp,
     val border_small: Dp,
@@ -25,12 +25,12 @@ data class ViewSize(
     )
 
 val defaultViewSizes = ViewSize(
-    icon_micro = 12.dp,
-    icon_small = 24.dp,
-    icon_normal = 48.dp,
-    icon_big = 64.dp,
-    icon_large = 96.dp,
-    icon_extra_large = 160.dp,
+    micro = 12.dp,
+    small = 24.dp,
+    normal = 48.dp,
+    big = 64.dp,
+    large = 96.dp,
+    extra_large = 160.dp,
 
     border_zero = 0.dp,
     border_small = 0.75.dp,

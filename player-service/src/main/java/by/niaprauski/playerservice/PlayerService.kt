@@ -34,7 +34,7 @@ import by.niaprauski.utils.extension.orDefault
 import by.niaprauski.utils.extension.toTrackTime
 import by.niaprauski.utils.models.TRACK_KEY_FAVORITE
 import by.niaprauski.utils.models.TRACK_KEY_ID
-import by.niaprauski.utils.models.TRACK_KEY_NAME
+import by.niaprauski.utils.models.TRACK_KEY_FILE_NAME
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -389,23 +389,26 @@ class PlayerService : MediaSessionService() {
         with(mediaMetadata) {
             val trackArtist = artist.ifNullOrEmpty {
                 player?.currentMediaItem?.mediaMetadata?.extras?.getString(
-                    TRACK_KEY_NAME,
+                    TRACK_KEY_FILE_NAME,
                     TEXT_EMPTY
                 )
             }
             val trackTitle = title.ifNullOrEmpty {
                 player?.currentMediaItem?.mediaMetadata?.extras?.getString(
-                    TRACK_KEY_NAME,
+                    TRACK_KEY_FILE_NAME,
                     TEXT_EMPTY
                 )
             }
 
             val trackId = extras?.getLong(TRACK_KEY_ID, -1) ?: -1
             val favorite = extras?.getInt(TRACK_KEY_FAVORITE, -1) ?: -1
+            val fileName = extras?.getString(TRACK_KEY_FILE_NAME, TEXT_EMPTY) ?: TEXT_EMPTY
+
 
             _state.update {
                 it.copy(
                     id = trackId,
+                    fileName = fileName,
                     title = trackTitle.orDefault(getString(R.string.feature_player_no_track)),
                     artist = trackArtist.orDefault(getString(R.string.feature_player_no_artist)),
                     favorite = favorite

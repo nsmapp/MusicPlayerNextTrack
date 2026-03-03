@@ -8,4 +8,7 @@ sealed class LibraryEvent {
     data class IgnoreMediaItem(val mediaItem: MediaItem): LibraryEvent()
     data class AddMediaItem(val mediaItem: MediaItem): LibraryEvent()
 
+    object Play: LibraryEvent()
+    object Pause: LibraryEvent()
+
 }

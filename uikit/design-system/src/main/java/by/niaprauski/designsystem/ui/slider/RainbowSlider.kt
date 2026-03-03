@@ -71,8 +71,8 @@ fun RainbowSlider(
             Spacer(
                 modifier = Modifier
                     .padding(vertical = AppTheme.padding.mini)
-                    .size(AppTheme.viewSize.icon_micro)
-                    .clip(RoundedCornerShape(AppTheme.viewSize.icon_micro))
+                    .size(AppTheme.viewSize.micro)
+                    .clip(RoundedCornerShape(AppTheme.viewSize.micro))
                     .background(AppTheme.appColors.text)
                     .padding(vertical = AppTheme.viewSize.border_small)
                     .background(AppTheme.appColors.accent)
