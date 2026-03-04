@@ -12,6 +12,8 @@ data class SettingsState(
     val isMaxDurationError: Boolean,
     val acentPositon: Float,
     val backgroundPosition: Float,
+    val isPlayListLimitError: Boolean,
+    val playListLimitSize: String,
 ){
     companion object{
         val INITIAL = SettingsState(
@@ -22,6 +24,8 @@ data class SettingsState(
             isMaxDurationError = false,
             acentPositon = 0f,
             backgroundPosition = 0f,
+            isPlayListLimitError = false,
+            playListLimitSize = "100"
         )
     }
 }

@@ -8,6 +8,7 @@ import by.niaprauski.domain.usecases.settings.SetAccentColorUseCase
 import by.niaprauski.domain.usecases.settings.SetBackgroundColorUseCase
 import by.niaprauski.domain.usecases.settings.SetMaxTrackDurationUseCase
 import by.niaprauski.domain.usecases.settings.SetMinTrackDurationUseCase
+import by.niaprauski.domain.usecases.settings.SetPlayListLimitSizeUseCase
 import by.niaprauski.domain.usecases.settings.SetVisualizerStatusUseCase
 import by.niaprauski.settings.models.SettingsState
 import by.niaprauski.utils.extension.convertToInt
@@ -26,6 +27,7 @@ class SettingsViewModel @Inject constructor(
     private val setVisualizerStatusUseCase: SetVisualizerStatusUseCase,
     private val setMinDurationUseCase: SetMinTrackDurationUseCase,
     private val setMaxDurationUseCase: SetMaxTrackDurationUseCase,
+    private val setPlayListLimitSizeUseCase: SetPlayListLimitSizeUseCase,
     private val setAccentColorUseCase: SetAccentColorUseCase,
     private val setBackgroundColorUseCase: SetBackgroundColorUseCase,
 ) : ViewModel(), SettingsContract {
@@ -42,6 +44,8 @@ class SettingsViewModel @Inject constructor(
 
     private val _minDuration = MutableSharedFlow<Int>()
     private val _maxDuration = MutableSharedFlow<Int>()
+    private val _maxTrackCount = MutableSharedFlow<Int>()
+
 
     private val _accentPosition = MutableSharedFlow<Pair<String, Float>>()
     private val _backgroundPosition = MutableSharedFlow<Pair<String, Float>>()
@@ -73,6 +77,8 @@ class SettingsViewModel @Inject constructor(
                     isMaxDurationError = false,
                     acentPositon = accentPosition,
                     backgroundPosition = backgroundPosition,
+                    isPlayListLimitError = false,
+                    playListLimitSize = playListLimitSize.toString(),
                 )
             }
         }
@@ -80,6 +86,7 @@ class SettingsViewModel @Inject constructor(
         startCollectMinDuration()
         startCollectMaxDuration()
         startCollectColorChanging()
+        startCollectPlayListLimitSize()
     }
 
 
@@ -109,6 +116,19 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    private fun startCollectPlayListLimitSize() {
+        viewModelScope.launch {
+            _maxTrackCount
+                .debounce(INPUT_DEBOUNCE_TEXT)
+                .collect { count ->
+                    setPlayListLimitSizeUseCase.invoke(count)
+                        .onFailure {
+                            _state.update { it.copy(isPlayListLimitError = true) }
+                        }
+                }
+        }
+    }
+
     override fun setVisuallyEnabled(enabled: Boolean) {
         viewModelScope.launch {
             setVisualizerStatusUseCase.set(enabled)
@@ -118,6 +138,8 @@ class SettingsViewModel @Inject constructor(
     }
 
     override fun setMinDuration(duration: String) {
+        val duration = duration.filter { it.isDigit() }
+
         if (duration.length > 2) return
         _state.update { it.copy(minDuration = duration, isMinDurationError = false) }
         if (duration.isEmpty()) return
@@ -129,13 +151,15 @@ class SettingsViewModel @Inject constructor(
     }
 
     override fun setMaxDuration(duration: String) {
+        val duration = duration.filter { it.isDigit() }
+
         if (duration.length > 2) return
         _state.update { it.copy(maxDuration = duration, isMaxDurationError = false) }
         if (duration.isEmpty()) return
 
-        val durationLong = duration.convertToInt()
+        val durationInt = duration.convertToInt()
         viewModelScope.launch {
-            _maxDuration.emit(durationLong)
+            _maxDuration.emit(durationInt)
         }
     }
 
@@ -151,6 +175,20 @@ class SettingsViewModel @Inject constructor(
         _state.update { it.copy(backgroundPosition = position) }
         viewModelScope.launch {
             _backgroundPosition.emit(hexColor to position)
+        }
+    }
+
+    override fun setPlayListLimitSize(count: String) {
+        var count = count.filter { it.isDigit() }
+
+        if (count.length >= 4) return
+        if (count == "0") count = "1"
+        _state.update { it.copy(playListLimitSize = count, isPlayListLimitError = false) }
+        if (count.isEmpty()) return
+
+        val countInt = count.convertToInt()
+        viewModelScope.launch {
+            _maxTrackCount.emit(countInt)
         }
     }
 

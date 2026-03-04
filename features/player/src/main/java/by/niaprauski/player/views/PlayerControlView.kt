@@ -6,26 +6,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Pause
-import androidx.compose.material.icons.outlined.PlayArrow
-import androidx.compose.material.icons.outlined.Repeat
-import androidx.compose.material.icons.outlined.RepeatOn
-import androidx.compose.material.icons.outlined.RepeatOne
-import androidx.compose.material.icons.outlined.Shuffle
-import androidx.compose.material.icons.outlined.ShuffleOn
-import androidx.compose.material.icons.outlined.SkipNext
-import androidx.compose.material.icons.outlined.SkipPrevious
-import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import by.niaprauski.designsystem.theme.AppTheme
+import by.niaprauski.designsystem.theme.icons.IIcon
 import by.niaprauski.designsystem.ui.button.PlayerLiteButton
-import by.niaprauski.translations.R
 import by.niaprauski.playerservice.models.RepeatMode
+import by.niaprauski.translations.R
 
 @Composable
 fun PlayerControlView(
@@ -72,7 +62,7 @@ fun PlayerControlView(
                 modifier = Modifier
                     .size(AppTheme.viewSize.big)
                     .clip(RoundedCornerShape(AppTheme.viewSize.big)),
-                imageVector = Icons.Outlined.SkipPrevious,
+                imageVector = IIcon.skipPrevious,
                 onClick = onPreviousClick,
                 description = stringResource(R.string.feature_player_play_previous)
             )
@@ -82,7 +72,7 @@ fun PlayerControlView(
                 modifier = Modifier
                     .size(AppTheme.viewSize.large)
                     .clip(RoundedCornerShape(AppTheme.viewSize.large)),
-                imageVector = Icons.Outlined.Stop,
+                imageVector = IIcon.stop,
                 onClick = onStopClick,
                 description = stringResource(R.string.feature_player_stop)
             )
@@ -91,7 +81,7 @@ fun PlayerControlView(
                 modifier = Modifier
                     .size(AppTheme.viewSize.big)
                     .clip(RoundedCornerShape(AppTheme.viewSize.big)),
-                imageVector = Icons.Outlined.SkipNext,
+                imageVector = IIcon.skipNext,
                 onClick = onNextClick,
                 description = stringResource(R.string.feature_player_play_next)
             )
@@ -108,10 +98,10 @@ private fun RepeatModeButton(
     onRepeatModeClick: () -> Unit
 ) {
     val repeatModeIcon = when (repeatMode) {
-        RepeatMode.REPEAT_MODE_OFF.value -> Icons.Outlined.Repeat
-        RepeatMode.REPEAT_MODE_ONE.value -> Icons.Outlined.RepeatOne
-        RepeatMode.REPEAT_MODE_ALL.value -> Icons.Outlined.RepeatOn
-        else -> Icons.Outlined.Repeat
+        RepeatMode.REPEAT_MODE_OFF.value -> IIcon.repeat
+        RepeatMode.REPEAT_MODE_ONE.value -> IIcon.repeatOne
+        RepeatMode.REPEAT_MODE_ALL.value -> IIcon.repeatOn
+        else -> IIcon.repeat
     }
 
     PlayerLiteButton(
@@ -130,8 +120,8 @@ fun ShuffleButton(
     shuffle: Boolean,
     onShuffleModeClick: () -> Unit
 ) {
-    val shuffleIcon = if (shuffle) Icons.Outlined.ShuffleOn
-    else Icons.Outlined.Shuffle
+    val shuffleIcon = if (shuffle) IIcon.shuffleOn
+    else IIcon.shuffle
 
     PlayerLiteButton(
         modifier = Modifier
@@ -150,7 +140,7 @@ private fun PlayPauseButton(
     onPlayClick: () -> Unit
 ) {
 
-    val playIcon = if (isPlaying) Icons.Outlined.Pause else Icons.Outlined.PlayArrow
+    val playIcon = if (isPlaying) IIcon.pause else IIcon.play
     val playClickAction = if (isPlaying) onPauseClick else onPlayClick
 
     PlayerLiteButton(

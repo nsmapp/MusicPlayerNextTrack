@@ -16,6 +16,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaButtonReceiver
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaStyleNotificationHelper
+import by.niaprauski.utils.extension.getFileName
 import by.niaprauski.utils.intents.OpenAppIntent
 
 class NotificationCreator {
@@ -58,8 +59,8 @@ class NotificationCreator {
 
         val builder =
             NotificationCompat.Builder(context, chanelId).setSmallIcon(R.drawable.ic_media_play)
-                .setContentTitle(mediaMetadata?.title ?: "No track") //TODO move to string resources
-                .setContentText(mediaMetadata?.artist ?: "No artist")//TODO move to string resources
+                .setContentTitle(mediaMetadata?.title ?: mediaMetadata?.getFileName("Next track")) //TODO move to string resources
+                .setContentText(mediaMetadata?.artist ?: mediaMetadata?.getFileName("Next artist"))//TODO move to string resources
 
         mediaSession?.let { builder.setStyle(MediaStyleNotificationHelper.MediaStyle(it)) }
         player?.let {

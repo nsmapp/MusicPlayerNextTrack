@@ -79,4 +79,12 @@ class SettingsRepoImpl @Inject constructor(
 
     override suspend fun getTrackLimit(): Int = store.data.map { it.playlistLimitSize }.first()
 
+    override suspend fun setTrackLimit(count: Int) {
+        store.updateData { currentSettings ->
+            currentSettings.toBuilder()
+                .setPlaylistLimitSize(count)
+                .build()
+        }
+    }
+
 }

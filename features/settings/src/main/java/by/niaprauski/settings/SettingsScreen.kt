@@ -2,32 +2,23 @@ package by.niaprauski.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import by.niaprauski.designsystem.theme.AppTheme
-import by.niaprauski.designsystem.ui.row.SwitchRow
-import by.niaprauski.designsystem.ui.row.TextFieldRow
-import by.niaprauski.designsystem.ui.slider.RainbowSlider
-import by.niaprauski.designsystem.ui.text.TextBoldLarge
-import by.niaprauski.designsystem.ui.text.TextMedium
 import by.niaprauski.settings.models.SettingsState
-import by.niaprauski.translations.R
+import by.niaprauski.settings.view.PlayListSettingsView
+import by.niaprauski.settings.view.SyncSettingView
+import by.niaprauski.settings.view.UISettingsView
 
 
 @Composable
@@ -47,6 +38,7 @@ fun SettingsScreen(
         onVisuallyChanged = viewModel::setVisuallyEnabled,
         onMinDurationChanged = viewModel::setMinDuration,
         onMaxDurationChanged = viewModel::setMaxDuration,
+        onLimitTrackChanged = viewModel::setPlayListLimitSize,
         onAccentColorChanged = viewModel::setAccentColorSettings,
         onBackgroundColorChanged = viewModel::setBackgroundColorSettings,
     )
@@ -58,12 +50,12 @@ private fun SettingsScreenContent(
     onVisuallyChanged: (Boolean) -> Unit,
     onMinDurationChanged: (String) -> Unit,
     onMaxDurationChanged: (String) -> Unit,
+    onLimitTrackChanged: (String) -> Unit,
     onAccentColorChanged: (String, Float) -> Unit,
     onBackgroundColorChanged: (String, Float) -> Unit,
 ) {
     Column(
         modifier = Modifier
-            .fillMaxHeight()
             .background(color = AppTheme.appColors.background)
             .navigationBarsPadding()
             .statusBarsPadding()
@@ -72,69 +64,28 @@ private fun SettingsScreenContent(
             .fillMaxSize(),
     ) {
 
-        TextBoldLarge(text = stringResource(R.string.feature_settings_interface))
-
-        TextMedium(
-            modifier = Modifier.padding(top = AppTheme.padding.default),
-            text = stringResource(R.string.feature_settings_text_color)
+        UISettingsView(
+            accentPosition = state.acentPositon,
+            backgroundPosition = state.backgroundPosition,
+            isVisuallyEnabled = state.isVisuallyEnabled,
+            onAccentColorChanged = onAccentColorChanged,
+            onBackgroundColorChanged = onBackgroundColorChanged,
+            onVisuallyChanged = onVisuallyChanged
         )
 
-        RainbowSlider(
-            trackProgress = state.acentPositon,
-            valueRange = 0f..1f,
-            steps = 0,
-            onAccentColorChanged = onAccentColorChanged
+        SyncSettingView(
+            minDuration = state.minDuration,
+            maxDuration = state.maxDuration,
+            isMinDurationError = state.isMinDurationError,
+            isMaxDurationError = state.isMaxDurationError,
+            onMinDurationChanged = onMinDurationChanged,
+            onMaxDurationChanged = onMaxDurationChanged,
         )
 
-        TextMedium(
-            modifier = Modifier.padding(top = AppTheme.padding.default),
-            text = stringResource(R.string.feature_settings_background_color)
-        )
-
-        RainbowSlider(
-            trackProgress = state.backgroundPosition,
-            valueRange = 0f..1f,
-            steps = 0,
-            onAccentColorChanged = onBackgroundColorChanged
-        )
-
-        SwitchRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(AppTheme.padding.mini),
-            isChecked = state.isVisuallyEnabled,
-            label = stringResource(R.string.feature_settings_visually),
-            onCheckedChange = onVisuallyChanged,
-        )
-
-        TextBoldLarge(
-            modifier = Modifier.padding(top = AppTheme.padding.default),
-            text = stringResource(R.string.feature_settings_sync_settings)
-        )
-
-        TextFieldRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(AppTheme.padding.mini),
-            text = state.minDuration,
-            label = stringResource(R.string.feature_settings_min_duration_sec),
-            onValueChange = onMinDurationChanged,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            isError = state.isMinDurationError,
-        )
-
-        TextFieldRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(AppTheme.padding.mini),
-            text = state.maxDuration,
-            label = stringResource(R.string.feature_settings_max_duration_min),
-            onValueChange = onMaxDurationChanged,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            isError = state.isMaxDurationError,
+        PlayListSettingsView(
+            playlistLimitSize = state.playListLimitSize,
+            isPlayListLimitError = state.isPlayListLimitError,
+            onLimitTrackChanged = onLimitTrackChanged
         )
     }
 }

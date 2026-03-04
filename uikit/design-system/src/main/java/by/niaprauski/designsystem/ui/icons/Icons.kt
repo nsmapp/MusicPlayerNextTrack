@@ -1,4 +1,4 @@
-package by.niaprauski.designsystem.icons
+package by.niaprauski.designsystem.ui.icons
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

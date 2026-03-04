@@ -1,4 +1,4 @@
-package by.niaprauski.designsystem.icons
+package by.niaprauski.designsystem.ui.icons
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size

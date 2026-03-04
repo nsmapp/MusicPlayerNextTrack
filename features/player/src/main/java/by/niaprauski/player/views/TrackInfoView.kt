@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -25,6 +22,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import by.niaprauski.designsystem.theme.AppTheme
+import by.niaprauski.designsystem.theme.icons.IIcon
 import by.niaprauski.designsystem.ui.button.PlayerLiteButton
 import by.niaprauski.designsystem.ui.text.TextBoldLarge
 import by.niaprauski.designsystem.ui.text.TextMediumLarge
@@ -60,8 +58,8 @@ fun TrackInfoView(
 
     val favoriteIcon by remember(favorite) {
         derivedStateOf {
-            if (favorite == 0) Icons.Default.FavoriteBorder
-            else Icons.Default.Favorite
+            if (favorite == 0) IIcon.favoriteBorder
+            else IIcon.favorite
         }
     }
 

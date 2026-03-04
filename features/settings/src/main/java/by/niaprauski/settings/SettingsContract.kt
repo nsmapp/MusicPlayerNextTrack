@@ -14,4 +14,6 @@ interface SettingsContract {
 
     fun setBackgroundColorSettings(hexColor: String, position: Float)
 
+    fun setPlayListLimitSize(count: String)
+
 }

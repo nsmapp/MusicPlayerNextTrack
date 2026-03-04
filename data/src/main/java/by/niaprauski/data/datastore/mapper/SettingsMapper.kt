@@ -16,7 +16,8 @@ class SettingsMapper @Inject constructor() {
                 accentColorHex = accentColorHex,
                 backgroundColorHex = backgroundColorHex,
                 accentPosition = accentPosition,
-                backgroundPosition = backgroundPosition
+                backgroundPosition = backgroundPosition,
+                playListLimitSize = playlistLimitSize,
             )
         }
     }

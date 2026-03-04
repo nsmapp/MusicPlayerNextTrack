@@ -14,9 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Cancel
-import androidx.compose.material.icons.rounded.Reply
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -33,6 +30,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import by.niaprauski.designsystem.theme.AppTheme
+import by.niaprauski.designsystem.theme.icons.IIcon
 import by.niaprauski.designsystem.ui.button.TwoActionIconButton
 import by.niaprauski.designsystem.ui.text.TextMedium
 import by.niaprauski.library.models.TrackModel
@@ -84,8 +82,8 @@ fun TrackItem(
             isFirstAction = track.isIgnore,
             onActionFirstClick = onRestoreTrackClick,
             onActionSecondClick = onIgnoreClick,
-            iconFirst = remember { Icons.Rounded.Reply },
-            iconSecond = remember { Icons.Rounded.Cancel },
+            iconFirst = remember { IIcon.reply},
+            iconSecond = remember { IIcon.cancel },
             descriptionFirst = stringResource(R.string.feature_library_restore_track),
             descriptionSecond = stringResource(R.string.feature_library_ignore),
         )

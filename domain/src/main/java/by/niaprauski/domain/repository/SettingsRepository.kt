@@ -25,5 +25,7 @@ interface SettingsRepository {
 
     suspend fun getTrackLimit(): Int
 
+    suspend fun setTrackLimit(count: Int)
+
 
 }

@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -26,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import by.niaprauski.designsystem.theme.AppTheme
+import by.niaprauski.designsystem.theme.icons.IIcon
 import by.niaprauski.designsystem.ui.texxtfield.CTextField
 import by.niaprauski.library.models.LibraryState
 import by.niaprauski.library.models.TrackModel
@@ -92,7 +91,7 @@ fun ContentView(
                             value = state.searchText,
                             onValueChange = onSearchTrack,
                             hint = stringResource(R.string.feature_library_search),
-                            leadingIcon = Icons.Outlined.Search,
+                            leadingIcon = IIcon.search,
                         )
                     }
                 } else Spacer(modifier = Modifier.height(0.dp))

@@ -7,10 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.PlaylistPlay
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -18,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import by.niaprauski.designsystem.theme.AppTheme
+import by.niaprauski.designsystem.theme.icons.IIcon
 import by.niaprauski.designsystem.ui.button.PlayerLiteButton
 import by.niaprauski.translations.R
 
@@ -37,7 +34,7 @@ fun PlayerUpView(
             modifier = Modifier
                 .size(AppTheme.viewSize.normal)
                 .clip(RoundedCornerShape(AppTheme.viewSize.normal)),
-            imageVector = Icons.Outlined.PlaylistPlay,
+            imageVector = IIcon.playList,
             onClick = onOpenPlayListClick,
             description = stringResource(R.string.feature_player_library)
         )
@@ -53,7 +50,7 @@ fun PlayerUpView(
                 .size(AppTheme.viewSize.normal)
                 .clip(RoundedCornerShape(AppTheme.viewSize.normal))
                 .rotate(rotationAngle),
-            imageVector = Icons.Outlined.Sync,
+            imageVector = IIcon.sync,
             onClick = onSyncPlayListClick,
             description = stringResource(R.string.feature_player_sync_playlist)
         )
@@ -62,7 +59,7 @@ fun PlayerUpView(
             modifier = Modifier
                 .size(AppTheme.viewSize.normal)
                 .clip(RoundedCornerShape(AppTheme.viewSize.normal)),
-            imageVector = Icons.Outlined.Settings,
+            imageVector = IIcon.settings,
             onClick = onOpenSettingsClick,
             description = stringResource(R.string.feature_player_library_settings)
         )

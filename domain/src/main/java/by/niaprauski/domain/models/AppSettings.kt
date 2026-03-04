@@ -9,4 +9,5 @@ data class AppSettings(
     val backgroundColorHex: String,
     val accentPosition: Float,
     val backgroundPosition: Float,
+    val playListLimitSize: Int,
 )
