@@ -17,9 +17,8 @@ class TrackModelMapper @Inject constructor(
             tracks.map { track ->
                 with(track) {
                     Track(
-                        id = 0,
+                        id = id,
                         fileName = fileName,
-                        pathOrUrl = pathOrUrl,
                         isIgnore = false,
                         isRadio = isRadio,
                         duration = duration,
@@ -37,7 +36,6 @@ class TrackModelMapper @Inject constructor(
                 MediaHandler.createMediaItem(
                     id = track.id,
                     fileName = track.fileName,
-                    pathOrUrl = track.pathOrUrl,
                     duration = track.duration,
                     favorite = track.favorite
                 )

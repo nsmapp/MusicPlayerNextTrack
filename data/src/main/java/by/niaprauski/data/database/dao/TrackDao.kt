@@ -15,10 +15,10 @@ interface TrackDao {
     fun getAll(): List<TrackEntity>
 
     @Query("SELECT id FROM tracks WHERE is_ignore = 0")
-    fun getAllIdsWithoutIgnored(): List<Long>
+    fun getAllIdsWithoutIgnored(): List<String>
 
     @Query("SELECT * FROM tracks WHERE id IN (:ids) ORDER BY favorite DESC")
-    fun getTracksByIds(ids: List<Long>): List<TrackEntity>
+    fun getTracksByIds(ids: List<String>): List<TrackEntity>
 
     @Query("SELECT * FROM tracks")
     fun getAllAsFlow(): Flow<List<TrackEntity>>
@@ -32,21 +32,21 @@ interface TrackDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAll(tracks: List<TrackEntity>)
 
-    @Query("SELECT id FROM tracks WHERE path NOT IN (:paths)")
-    fun getBrokenTracksIds(paths: List<String>): List<Long>
+    @Query("SELECT id FROM tracks WHERE id NOT IN (:paths)")
+    fun getBrokenTracksIds(paths: List<String>): List<String>
 
     @Query("DELETE FROM tracks WHERE id IN(:ids)")
-    fun deleteByIds(ids: List<Long>)
+    fun deleteByIds(ids: List<String>)
 
     @Query("UPDATE tracks SET is_ignore = 1 WHERE id = :trackId")
-    fun markTrackAsIgnore(trackId: Long)
+    fun markTrackAsIgnore(trackId: String)
 
     @Query("UPDATE tracks SET is_ignore = 0 WHERE id = :trackId")
-    fun unmarkTrackAsIgnore(trackId: Long)
+    fun unmarkTrackAsIgnore(trackId: String)
 
     @Query("SELECT * FROM tracks WHERE id = :trackId")
-    fun getById(trackId: Long): TrackEntity?
+    fun getById(trackId: String): TrackEntity?
 
     @Query("UPDATE tracks SET favorite = :value WHERE id = :trackId")
-    fun upTrackFavorite(trackId: Long, value: Int)
+    fun upTrackFavorite(trackId: String, value: Int)
 }

@@ -17,7 +17,7 @@ fun ColumnScope.TrackListView(
     onPlayClick: (TrackModel) -> Unit,
     onIgnoreClick: (TrackModel) -> Unit,
     onRestoreTrackClick: (TrackModel) -> Unit,
-    currentTrackId: () -> Long
+    currentTrackId: () -> String
 ) {
     val listState = rememberLazyListState()
 

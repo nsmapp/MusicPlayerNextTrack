@@ -254,7 +254,7 @@ class PlayerViewModel @AssistedInject constructor(
         }
     }
 
-    override fun upTrackFavorite(trackId: Long) {
+    override fun upTrackFavorite(trackId: String) {
         if (playerService.value == null) return
 
         viewModelScope.launch {
@@ -263,7 +263,7 @@ class PlayerViewModel @AssistedInject constructor(
         }
     }
 
-    override fun changeTrackFavorite(trackId: Long) {
+    override fun changeTrackFavorite(trackId: String) {
         if (playerService.value == null) return
 
         viewModelScope.launch {

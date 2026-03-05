@@ -29,6 +29,7 @@ import by.niaprauski.playerservice.utils.getMediaItemIndex
 import by.niaprauski.translations.R
 import by.niaprauski.utils.constants.EMPTY_FLOW_ARRAY
 import by.niaprauski.utils.constants.TEXT_EMPTY
+import by.niaprauski.utils.extension.UNKNOWN_TRACK_ID
 import by.niaprauski.utils.extension.ifNullOrEmpty
 import by.niaprauski.utils.extension.orDefault
 import by.niaprauski.utils.extension.toTrackTime
@@ -289,9 +290,9 @@ class PlayerService : MediaSessionService() {
         player?.addMediaItem(item)
     }
 
-    fun upTrackFavorite(trackId: Long) {
+    fun upTrackFavorite(trackId: String) {
         val currentTrack = player?.currentMediaItem ?: return
-        val id = currentTrack.mediaMetadata.extras?.getLong(TRACK_KEY_ID) ?: return
+        val id = currentTrack.mediaMetadata.extras?.getString(TRACK_KEY_ID) ?: return
         val favorite = currentTrack.mediaMetadata.extras?.getInt(TRACK_KEY_FAVORITE) ?: return
 
         if (id == trackId) {
@@ -303,9 +304,9 @@ class PlayerService : MediaSessionService() {
         }
     }
 
-    fun changeTrackFavorite(trackId: Long) {
+    fun changeTrackFavorite(trackId: String) {
         val currentTrack = player?.currentMediaItem ?: return
-        val id = currentTrack.mediaMetadata.extras?.getLong(TRACK_KEY_ID) ?: return
+        val id = currentTrack.mediaMetadata.extras?.getString(TRACK_KEY_ID) ?: return
         val favorite = currentTrack.mediaMetadata.extras?.getInt(TRACK_KEY_FAVORITE) ?: return
 
         if (id == trackId) {
@@ -405,7 +406,7 @@ class PlayerService : MediaSessionService() {
                 )
             }
 
-            val trackId = extras?.getLong(TRACK_KEY_ID, -1) ?: -1
+            val trackId = extras?.getString(TRACK_KEY_ID, UNKNOWN_TRACK_ID) ?: UNKNOWN_TRACK_ID
             val favorite = extras?.getInt(TRACK_KEY_FAVORITE, -1) ?: -1
             val fileName = extras?.getString(TRACK_KEY_FILE_NAME, TEXT_EMPTY) ?: TEXT_EMPTY
 

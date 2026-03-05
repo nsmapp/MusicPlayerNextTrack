@@ -36,7 +36,7 @@ fun ContentView(
     pagingTracks: LazyPagingItems<TrackModel>,
     isControlViewVisible: Boolean,
     state: LibraryState,
-    currentTrackId: () -> Long,
+    currentTrackId: () -> String,
     currentTrackName: () -> String,
     isPlaying: () -> Boolean,
     onPlayNewClick: (TrackModel) -> Unit,

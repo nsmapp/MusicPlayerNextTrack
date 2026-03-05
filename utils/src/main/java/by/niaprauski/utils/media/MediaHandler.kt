@@ -11,7 +11,6 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import android.provider.MediaStore.Files.FileColumns.MIME_TYPE
 import android.provider.MediaStore.Files.FileColumns.DISPLAY_NAME
-import android.provider.MediaStore.Files.FileColumns.DATA
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import androidx.media3.common.MediaItem
@@ -33,14 +32,13 @@ object MediaHandler {
         val projection: Array<String> = arrayOf(
             _ID,
             DISPLAY_NAME,
-            DATA,
             MIME_TYPE,
             MediaStore.Audio.Media.DURATION,
         )
 
         val selection = "($MIME_TYPE = ? OR $MIME_TYPE = ? OR " +
                 "($MIME_TYPE = ? OR $MIME_TYPE = ?) AND ${MediaStore.Audio.Media.DURATION} >= 0)"
-
+        //TODO handle "audio/*"
         val selectionArgs = arrayOf(
             MimeType.PLS.type,
             MimeType.M3U.type,
@@ -59,7 +57,10 @@ object MediaHandler {
         cursor?.use { c ->
             while (c.moveToNext()) {
                 val id = c.getLong(c.getColumnIndexOrThrow(_ID)) ?: continue
-                val path = c.getString(c.getColumnIndexOrThrow(DATA)) ?: continue
+                val uri = ContentUris.withAppendedId(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    id
+                )
                 val displayName = c.getStringOrNull(c.getColumnIndexOrThrow(DISPLAY_NAME)) ?: TEXT_EMPTY
                 val mimeType = c.getStringOrNull(c.getColumnIndexOrThrow(MIME_TYPE)) ?: TEXT_EMPTY
                 val duration = c.getLongOrNull(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
@@ -70,7 +71,7 @@ object MediaHandler {
                     else -> false
                 }
 
-                val urlOrPath: String? = if (!isRadio) path
+                val urlOrPath: String? = if (!isRadio) uri.toString()
                 else {
                     val contentUri = getRadioStreamUrlByIdOrNull(id)
                     parsePlaylistForStreamUrl(contentUri, cr)
@@ -80,7 +81,7 @@ object MediaHandler {
                     val iTrack = object : ITrack {
                         override val fileName = displayName
                         override val artist = TEXT_EMPTY
-                        override val pathOrUrl = urlOrPath ?: TEXT_EMPTY
+                        override val id = urlOrPath ?: TEXT_EMPTY
                         override val isRadio = isRadio
                         override val duration = duration ?: 0L
                     }
@@ -145,22 +146,21 @@ object MediaHandler {
     }
 
     fun createMediaItem(
-        id: Long,
+        id: String,
         fileName: String,
-        pathOrUrl: String,
         duration: Long,
         favorite: Int,
     ): MediaItem{
 
         val extras = Bundle().apply {
-            putLong(TRACK_KEY_ID, id)
+            putString(TRACK_KEY_ID, id)
             putInt(TRACK_KEY_FAVORITE, favorite)
             putString(TRACK_KEY_FILE_NAME, fileName)
         }
 
         return MediaItem.Builder()
-            .setMediaId(pathOrUrl)
-            .setUri(pathOrUrl)
+            .setMediaId(id)
+            .setUri(id)
             .setMediaMetadata(
                 MediaMetadata.Builder()
                     .setDurationMs(duration)

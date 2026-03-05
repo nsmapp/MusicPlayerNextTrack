@@ -11,7 +11,6 @@ class TrackMapper @Inject constructor(){
             TrackEntity(
                 id = id,
                 name = fileName,
-                path = pathOrUrl,
                 isIgnore = isIgnore,
                 isRadio = isRadio,
                 duration = duration,
@@ -24,7 +23,6 @@ class TrackMapper @Inject constructor(){
             Track(
                 id = id,
                 fileName = name,
-                pathOrUrl = path,
                 isIgnore = isIgnore,
                 isRadio = isRadio,
                 duration = duration,

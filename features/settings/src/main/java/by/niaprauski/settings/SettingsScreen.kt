@@ -2,6 +2,7 @@ package by.niaprauski.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -60,8 +61,8 @@ private fun SettingsScreenContent(
             .navigationBarsPadding()
             .statusBarsPadding()
             .padding(AppTheme.padding.default)
-            .verticalScroll(rememberScrollState())
-            .fillMaxSize(),
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
     ) {
 
         UISettingsView(

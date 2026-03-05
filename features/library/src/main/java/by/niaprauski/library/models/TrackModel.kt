@@ -5,9 +5,8 @@ import by.niaprauski.utils.extension.toBoldUnicode
 
 @Immutable
 data class TrackModel(
-    val id: Long,
+    val id: String,
     val fileName: String,
-    val pathOrUrl: String,
     val isIgnore: Boolean,
     val isRadio: Boolean,
     val duration: Long,

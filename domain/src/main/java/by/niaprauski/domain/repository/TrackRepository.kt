@@ -19,11 +19,11 @@ interface TrackRepository {
 
     fun getPagedFlow(filter: SearchTrackFilter): Flow<PagingData<Track>>
 
-    fun markTrackAsIgnored(trackId: Long)
+    fun markTrackAsIgnored(trackId: String)
 
-    fun unmarkTrackAsIgnored(trackId: Long)
+    fun unmarkTrackAsIgnored(trackId: String)
 
-    fun upTrackFavorite(trackId: Long, value: Int)
+    fun upTrackFavorite(trackId: String, value: Int)
 
-    fun getTrackById(trackId: Long): Track?
+    fun getTrackById(trackId: String): Track?
 }

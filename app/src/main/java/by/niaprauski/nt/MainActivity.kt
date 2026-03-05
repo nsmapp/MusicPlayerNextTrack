@@ -45,9 +45,11 @@ class MainActivity : FragmentActivity() {
                 backgroundColor = state.backgroundColor,
             ) {
                 if (state.isLoading) {
-                    Box(modifier = Modifier
-                        .fillMaxSize()
-                        .background(AppTheme.appColors.transparent))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(AppTheme.appColors.transparent)
+                    )
                 } else {
                     AppNavigator(
                         radioTrack = externalTrack.radioTrack,
@@ -59,18 +61,19 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun getOutsideStartTrackUri(): ExternalTrack {
-        val type = intent?.type
         val action = intent?.action
         val data = intent?.data
 
-        if (type == null || action == null || data == null) return ExternalTrack()
+        if (action == null || data == null) return ExternalTrack()
+        val type = contentResolver.getType(data) ?: return ExternalTrack()
 
-        val result = when(type) {
-            MimeType.M3U.type, MimeType.PLS.type -> ExternalTrack(radioTrack = data)
-            MimeType.OGG.type, MimeType.MPEG.type -> ExternalTrack(singleAudioTrack = data)
+        val result = when {
+            type == MimeType.M3U.type || type == MimeType.PLS.type -> ExternalTrack(radioTrack = data)
+            type == MimeType.OGG.type || type == MimeType.MPEG.type || type.startsWith("audio/")
+                -> ExternalTrack(singleAudioTrack = data)
+
             else -> ExternalTrack()
         }
-
         return result
     }
 

@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,18 +30,18 @@ import by.niaprauski.translations.R
 
 @Composable
 fun TrackInfoView(
-    trackId: Long,
+    trackId: String,
     artist: String,
     title: String,
     favorite: Int,
-    onChangeTrackFavorite: (trackId: Long) -> Unit,
+    onChangeTrackFavorite: (trackId: String) -> Unit,
 ) {
 
     val scale = remember { Animatable(1f) }
-    val lastTrackId = remember { mutableLongStateOf(trackId) }
+    val lastTrackId = remember { mutableStateOf(trackId) }
 
     LaunchedEffect(favorite, trackId) {
-        if (favorite > 0 && lastTrackId.longValue == trackId) {
+        if (favorite > 0 && lastTrackId.value == trackId) {
             scale.animateTo(
                 targetValue = 1.4f,
                 animationSpec =tween(durationMillis = 100)
@@ -52,7 +52,7 @@ fun TrackInfoView(
             )
         }
 
-        lastTrackId.longValue = trackId
+        lastTrackId.value = trackId
     }
 
 

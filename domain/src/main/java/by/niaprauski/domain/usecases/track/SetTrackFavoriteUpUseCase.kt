@@ -10,7 +10,7 @@ class SetTrackFavoriteUpUseCase @Inject constructor(
     private val dispatcherProvider: DispatcherProvider
 )  {
 
-    suspend fun invoke(trackId: Long): Result<Unit> = withContext(dispatcherProvider.io){
+    suspend fun invoke(trackId: String): Result<Unit> = withContext(dispatcherProvider.io){
         runCatching {
             val trackId = trackRepository.getTrackById(trackId) ?: return@runCatching
             val newFavoriteValue = trackId.favorite + 1

@@ -35,7 +35,7 @@ interface PlayerContract {
 
     fun hideMediaPermissionInfoDialog()
 
-    fun upTrackFavorite(trackId: Long)
+    fun upTrackFavorite(trackId: String)
 
-    fun changeTrackFavorite(trackId: Long)
+    fun changeTrackFavorite(trackId: String)
 }

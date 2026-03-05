@@ -20,7 +20,7 @@ class TrackRepoImpl @Inject constructor(
 
 
     override fun saveTrackInfo(tracks: List<Track>) {
-        val validPaths = tracks.map { it.pathOrUrl }
+        val validPaths = tracks.map { it.id }
         val brokenTracksIds = trackDao.getBrokenTracksIds(validPaths)
         trackDao.deleteByIds(brokenTracksIds)
 
@@ -60,18 +60,18 @@ class TrackRepoImpl @Inject constructor(
             pagingData.map { trackMapper.toModel(it) }
         }
 
-    override fun markTrackAsIgnored(trackId: Long) {
+    override fun markTrackAsIgnored(trackId: String) {
         trackDao.markTrackAsIgnore(trackId)
     }
 
-    override fun unmarkTrackAsIgnored(trackId: Long) {
+    override fun unmarkTrackAsIgnored(trackId: String) {
         trackDao.unmarkTrackAsIgnore(trackId)
     }
 
-    override fun upTrackFavorite(trackId: Long, value: Int){
+    override fun upTrackFavorite(trackId: String, value: Int){
         trackDao.upTrackFavorite(trackId, value)
     }
-    override fun getTrackById(trackId: Long): Track? {
+    override fun getTrackById(trackId: String): Track? {
         val track = trackDao.getById(trackId) ?: return null
         return trackMapper.toModel(track)
     }

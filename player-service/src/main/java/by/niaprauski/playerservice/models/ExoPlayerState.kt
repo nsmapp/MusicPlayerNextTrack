@@ -5,7 +5,7 @@ import by.niaprauski.utils.constants.TEXT_EMPTY
 import by.niaprauski.utils.extension.UNKNOWN_TRACK_ID
 
 data class ExoPlayerState(
-    val id: Long = 0,
+    val id: String,
     val fileName: String,
     val title: String,
     val artist: String,
