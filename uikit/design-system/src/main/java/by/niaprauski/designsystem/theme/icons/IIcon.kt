@@ -3,6 +3,7 @@ package by.niaprauski.designsystem.theme.icons
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.LibraryMusic
 import androidx.compose.material.icons.outlined.Pause
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.PlaylistPlay
@@ -38,6 +39,8 @@ object IIcon {
 
     val favorite = Icons.Filled.Favorite
     val favoriteBorder = Icons.Outlined.FavoriteBorder
+
+    val library = Icons.Outlined.LibraryMusic
 
     val playList = Icons.Outlined.PlaylistPlay
 

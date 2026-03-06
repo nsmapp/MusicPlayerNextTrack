@@ -11,7 +11,7 @@ object AppSettingsSerializer : Serializer<AppSettingsEntity> {
 
     override val defaultValue: AppSettingsEntity = AppSettingsEntity.getDefaultInstance().toBuilder()
         .setIsWelcomeMessage(true)
-        .setIsVisuallyEnabled(true)
+        .setIsVisuallyEnabled(false)
         .setMinDuration(5000)
         .setMaxDuration(900000)
         .setAccentColorHex("#E5E5E1")

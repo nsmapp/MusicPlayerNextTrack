@@ -26,5 +26,9 @@ sealed class PlayerEvent {
     data class UpFavorite(val trackId: String): PlayerEvent()
     data class ChangeFavorite(val trackId: String): PlayerEvent()
 
+    data class RemoveTrackFromPlayList(val trackId: String): PlayerEvent()
+
+    data class PlayTrackFromPlayList(val trackId: String): PlayerEvent()
+
     object Nothing: PlayerEvent()
 }

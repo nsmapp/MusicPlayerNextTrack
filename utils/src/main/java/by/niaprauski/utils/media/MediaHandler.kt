@@ -6,20 +6,20 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.BaseColumns._ID
 import android.provider.MediaStore
-import by.niaprauski.utils.models.ITrack
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import android.provider.MediaStore.Files.FileColumns.MIME_TYPE
 import android.provider.MediaStore.Files.FileColumns.DISPLAY_NAME
+import android.provider.MediaStore.Files.FileColumns.MIME_TYPE
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import by.niaprauski.utils.constants.TEXT_EMPTY
+import by.niaprauski.utils.models.ITrack
 import by.niaprauski.utils.models.MimeType
 import by.niaprauski.utils.models.TRACK_KEY_FAVORITE
-import by.niaprauski.utils.models.TRACK_KEY_ID
 import by.niaprauski.utils.models.TRACK_KEY_FILE_NAME
+import by.niaprauski.utils.models.TRACK_KEY_ID
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 object MediaHandler {
 
@@ -61,9 +61,11 @@ object MediaHandler {
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     id
                 )
-                val displayName = c.getStringOrNull(c.getColumnIndexOrThrow(DISPLAY_NAME)) ?: TEXT_EMPTY
+                val displayName =
+                    c.getStringOrNull(c.getColumnIndexOrThrow(DISPLAY_NAME)) ?: TEXT_EMPTY
                 val mimeType = c.getStringOrNull(c.getColumnIndexOrThrow(MIME_TYPE)) ?: TEXT_EMPTY
-                val duration = c.getLongOrNull(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
+                val duration =
+                    c.getLongOrNull(c.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
 
 
                 val isRadio = when (mimeType) {
@@ -138,11 +140,38 @@ object MediaHandler {
 
     private fun parseM3uLine(line: String): String? = if (line.startsWith("http")) line else null
 
-    fun uriToMediaItem(uri: Uri): MediaItem = MediaItem.fromUri(uri)
+    fun uriToMediaItemFromIntent(uri: Uri, cr: ContentResolver? = null): MediaItem {
+        var fileName = uri.lastPathSegment ?: TEXT_EMPTY
+        fileName = tryGetFileName(cr, uri, fileName)
+
+        return createMediaItem(uri.toString(), fileName, 0L, 0)
+    }
 
     fun radioUriToMediaItem(uri: Uri, cr: ContentResolver): MediaItem? {
-        val url = parsePlaylistForStreamUrl(uri, cr) ?: return null
-        return MediaItem.fromUri(url)
+        var fileName = uri.lastPathSegment ?: TEXT_EMPTY
+        fileName = tryGetFileName(cr, uri, fileName)
+
+        val streamUrl = parsePlaylistForStreamUrl(uri, cr) ?: return null
+
+        return createMediaItem(streamUrl, fileName, 0L, 0)
+    }
+
+    private fun tryGetFileName(
+        cr: ContentResolver?,
+        uri: Uri,
+        fileName: String
+    ): String {
+        var fileName1 = fileName
+        cr?.query(uri, arrayOf(DISPLAY_NAME), null, null, null)
+            ?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val index = cursor.getColumnIndex(DISPLAY_NAME)
+                    if (index != -1) {
+                        fileName1 = cursor.getString(index)
+                    }
+                }
+            }
+        return fileName1
     }
 
     fun createMediaItem(
@@ -150,7 +179,7 @@ object MediaHandler {
         fileName: String,
         duration: Long,
         favorite: Int,
-    ): MediaItem{
+    ): MediaItem {
 
         val extras = Bundle().apply {
             putString(TRACK_KEY_ID, id)

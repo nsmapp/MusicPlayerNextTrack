@@ -20,9 +20,10 @@ import by.niaprauski.translations.R
 
 @Composable
 fun PlayerUpView(
-    onOpenPlayListClick: () -> Unit,
+    onOpenLibraryListClick: () -> Unit,
     onSyncPlayListClick: () -> Unit,
     onOpenSettingsClick: () -> Unit,
+    onOpenPlayListClick: () -> Unit,
     isSyncing: Boolean,
 ) {
     Row(
@@ -34,15 +35,24 @@ fun PlayerUpView(
             modifier = Modifier
                 .size(AppTheme.viewSize.normal)
                 .clip(RoundedCornerShape(AppTheme.viewSize.normal)),
+            imageVector = IIcon.library,
+            onClick = onOpenLibraryListClick,
+            description = stringResource(R.string.feature_player_library)
+        )
+
+        PlayerLiteButton(
+            modifier = Modifier
+                .size(AppTheme.viewSize.normal)
+                .clip(RoundedCornerShape(AppTheme.viewSize.normal)),
             imageVector = IIcon.playList,
             onClick = onOpenPlayListClick,
-            description = stringResource(R.string.feature_player_library)
+            description = stringResource(R.string.feature_player_playlist)
         )
 
         val rotationAngle by animateFloatAsState(
             targetValue = if (isSyncing) 360f else 0f,
             animationSpec = tween(durationMillis = if (isSyncing) 750 else 0),
-            label = "Syncrotation"
+            label = stringResource(R.string.feature_player_syncrotation)
         )
 
         PlayerLiteButton(

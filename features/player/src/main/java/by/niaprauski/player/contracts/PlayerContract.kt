@@ -38,4 +38,12 @@ interface PlayerContract {
     fun upTrackFavorite(trackId: String)
 
     fun changeTrackFavorite(trackId: String)
+
+    fun showPlayList()
+
+    fun hidePlayList()
+
+    fun removeTrackFromPlayList(trackId: String)
+
+    fun playTrackFromPlayList(trackId: String)
 }

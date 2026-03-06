@@ -11,6 +11,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.Timeline
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
@@ -23,6 +24,7 @@ import by.niaprauski.domain.usecases.settings.GetSettingsFlowUseCase
 import by.niaprauski.playerservice.models.ExoPlayerState
 import by.niaprauski.playerservice.models.PlayerServiceAction
 import by.niaprauski.playerservice.models.TrackProgress
+import by.niaprauski.playerservice.models.TrackShort
 import by.niaprauski.playerservice.utils.NotificationCreator
 import by.niaprauski.playerservice.utils.SoundProcessor
 import by.niaprauski.playerservice.utils.getMediaItemIndex
@@ -30,12 +32,14 @@ import by.niaprauski.translations.R
 import by.niaprauski.utils.constants.EMPTY_FLOW_ARRAY
 import by.niaprauski.utils.constants.TEXT_EMPTY
 import by.niaprauski.utils.extension.UNKNOWN_TRACK_ID
+import by.niaprauski.utils.extension.getFileName
 import by.niaprauski.utils.extension.ifNullOrEmpty
 import by.niaprauski.utils.extension.orDefault
 import by.niaprauski.utils.extension.toTrackTime
+import by.niaprauski.utils.media.ITrackShort
 import by.niaprauski.utils.models.TRACK_KEY_FAVORITE
-import by.niaprauski.utils.models.TRACK_KEY_ID
 import by.niaprauski.utils.models.TRACK_KEY_FILE_NAME
+import by.niaprauski.utils.models.TRACK_KEY_ID
 import dagger.Lazy
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -74,6 +78,9 @@ class PlayerService : MediaSessionService() {
     val trackProgress = _trackProgress.asStateFlow()
     private val _waveform = MutableStateFlow(EMPTY_FLOW_ARRAY)
     val waveform = _waveform.asStateFlow()
+
+    private val _playList = MutableStateFlow<List<ITrackShort>>(emptyList())
+    val playList = _playList.asStateFlow()
 
     private val soundProcessor = SoundProcessor(serviceScope, _waveform)
 
@@ -240,10 +247,6 @@ class PlayerService : MediaSessionService() {
         return player?.duration ?: 0
     }
 
-    fun isPlaying(): Boolean {
-        return player?.isPlaying == true
-    }
-
     fun playWithPosition(item: MediaItem) {
 
         val index = player?.getMediaItemIndex(item) ?: -1
@@ -251,9 +254,8 @@ class PlayerService : MediaSessionService() {
             player?.seekTo(index, 0)
         } else {
             player?.addMediaItem(item)
+            playTrackFromPlayList(item.mediaId)
         }
-
-        if (!isPlaying()) play()
     }
 
     fun changeShuffleMode() {
@@ -281,6 +283,31 @@ class PlayerService : MediaSessionService() {
         val index = player?.getMediaItemIndex(item) ?: -1
         if (index == -1) return
         player?.removeMediaItem(index)
+    }
+
+
+    fun removeTrackFromPlayList(trackId: String) {
+        val player = player ?: return
+
+        for (i in 0 until player.mediaItemCount) {
+            val mediaItem = player.getMediaItemAt(i)
+            if (mediaItem.mediaId == trackId) {
+                player.removeMediaItem(i)
+                break
+            }
+        }
+    }
+
+    fun playTrackFromPlayList(trackId: String) {
+        val player = player ?: return
+
+        for (i in 0 until player.mediaItemCount) {
+            if (player.getMediaItemAt(i).mediaId == trackId) {
+                player.seekTo(i, 0)
+                player.play()
+                break
+            }
+        }
     }
 
 
@@ -388,6 +415,26 @@ class PlayerService : MediaSessionService() {
             _state.update { it.copy(isPlaying = isPlaying) }
             updateNotification()
             if (isPlaying) startProgressTracking() else stopProgressTracking()
+        }
+
+        override fun onTimelineChanged(timeline: Timeline, reason: Int) {
+            super.onTimelineChanged(timeline, reason)
+
+            serviceScope.launch(Dispatchers.IO) {
+                val playList = mutableListOf<ITrackShort>()
+
+                for (i in 0 until timeline.windowCount) {
+                    val mediaItem = timeline.getWindow(i, Timeline.Window()).mediaItem
+                    playList.add(
+                        TrackShort(
+                            id = mediaItem.mediaId,
+                            fileName = mediaItem.mediaMetadata.getFileName("Unknown track") //TODO to resources
+                        )
+                    )
+                }
+
+                _playList.update { playList }
+            }
         }
     }
 

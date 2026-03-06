@@ -209,7 +209,7 @@ class PlayerViewModel @AssistedInject constructor(
 
     override fun playSingleAudioTrack(uri: Uri) {
         viewModelScope.launch {
-            val mediaItem = MediaHandler.uriToMediaItem(uri)
+            val mediaItem = MediaHandler.uriToMediaItemFromIntent(uri, application.contentResolver)
             _event.send(PlayerEvent.PlaySingleTrack(mediaItem))
         }
     }
@@ -269,6 +269,29 @@ class PlayerViewModel @AssistedInject constructor(
         viewModelScope.launch {
             changeTrackFavoriteUpUseCase.invoke(trackId)
             _event.send(PlayerEvent.ChangeFavorite(trackId))
+        }
+    }
+
+    override fun hidePlayList() {
+        viewModelScope.launch {
+            _state.update { it.copy(isShowPlayList = false) }
+        }
+    }
+
+    override fun showPlayList() {
+        viewModelScope.launch {
+            _state.update { it.copy(isShowPlayList = true) }
+        }
+    }
+    override fun removeTrackFromPlayList(trackId: String) {
+        viewModelScope.launch {
+            _event.send(PlayerEvent.RemoveTrackFromPlayList(trackId))
+        }
+    }
+
+    override fun playTrackFromPlayList(trackId: String) {
+        viewModelScope.launch {
+            _event.send(PlayerEvent.PlayTrackFromPlayList(trackId))
         }
     }
 

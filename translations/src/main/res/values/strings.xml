@@ -18,6 +18,8 @@
     <string name="feature_player_open_settings">Open settings</string>
     <string name="feature_player_need_media_permission_message">Media file access permission is missing; you need to grant it in the app settings.</string>
     <string name="feature_player_favorite">favorite</string>
+    <string name="feature_player_playlist">playlist</string>
+    <string name="feature_player_syncrotation">syncrotation</string>
 
 
 <!--    feature library-->

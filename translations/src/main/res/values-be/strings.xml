@@ -18,6 +18,8 @@
     <string name="feature_player_open_settings">Перайці ў налады</string>
     <string name="feature_player_need_media_permission_message">Няма дазволу на доступ да медыяфайлаў; вам трэба даць яго ў наладах праграмы.</string>
     <string name="feature_player_favorite">Абранае</string>
+    <string name="feature_player_playlist">Плэйліст</string>
+    <string name="feature_player_syncrotation">Сінхранізаваць бібліятэку</string>
 
 
 <!--    feature library-->
