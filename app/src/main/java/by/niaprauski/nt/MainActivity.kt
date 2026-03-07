@@ -9,10 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import by.niaprauski.designsystem.theme.AppTheme
-import by.niaprauski.navigation.AppNavigator
+import by.niaprauski.navigation.Root
 import by.niaprauski.nt.models.ExternalTrack
 import by.niaprauski.utils.models.MimeType
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,6 +30,7 @@ class MainActivity : FragmentActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         splashScreen.setKeepOnScreenCondition {
             viewModel.state.value.isLoading
         }
@@ -37,7 +39,6 @@ class MainActivity : FragmentActivity() {
 
         enableEdgeToEdge()
         setContent {
-
             val state by viewModel.state.collectAsStateWithLifecycle()
 
             AppTheme(
@@ -51,9 +52,9 @@ class MainActivity : FragmentActivity() {
                             .background(AppTheme.appColors.transparent)
                     )
                 } else {
-                    AppNavigator(
-                        radioTrack = externalTrack.radioTrack,
-                        singleAudioTrack = externalTrack.singleAudioTrack,
+                    Root(
+                        radioTrack = externalTrack.radioTrack?.toString(),
+                        singleAudioTrack = externalTrack.singleAudioTrack?.toString(),
                     )
                 }
             }
@@ -79,4 +80,3 @@ class MainActivity : FragmentActivity() {
 
 
 }
-

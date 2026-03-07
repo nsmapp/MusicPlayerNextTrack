@@ -31,9 +31,7 @@ fun PlayersScreenContent(
     trackProgress: StateFlow<TrackProgress>?,
     waveformFlow: StateFlow<FloatArray>?,
     isSyncing: Boolean,
-    onOpenSettingsClick: () -> Unit,
     onSyncPlayListClick: () -> Unit,
-    onOpenLibraryListClick: () -> Unit,
     onOpenPlayListClick: () -> Unit,
     onPlayClick: () -> Unit,
     onPauseClick: () -> Unit,
@@ -51,7 +49,6 @@ fun PlayersScreenContent(
         modifier = Modifier
             .fillMaxSize()
             .background(color = AppTheme.appColors.background)
-            .navigationBarsPadding()
             .statusBarsPadding()
             .pointerInput(exoPlayerState.id) {
                 detectTapGestures(onDoubleTap = {
@@ -69,9 +66,7 @@ fun PlayersScreenContent(
         ) {
 
             PlayerUpView(
-                onOpenSettingsClick = onOpenSettingsClick,
                 onSyncPlayListClick = onSyncPlayListClick,
-                onOpenLibraryListClick = onOpenLibraryListClick,
                 onOpenPlayListClick = onOpenPlayListClick,
                 isSyncing = isSyncing,
             )

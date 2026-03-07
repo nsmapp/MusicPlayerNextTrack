@@ -20,9 +20,7 @@ import by.niaprauski.translations.R
 
 @Composable
 fun PlayerUpView(
-    onOpenLibraryListClick: () -> Unit,
     onSyncPlayListClick: () -> Unit,
-    onOpenSettingsClick: () -> Unit,
     onOpenPlayListClick: () -> Unit,
     isSyncing: Boolean,
 ) {
@@ -30,15 +28,6 @@ fun PlayerUpView(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-
-        PlayerLiteButton(
-            modifier = Modifier
-                .size(AppTheme.viewSize.normal)
-                .clip(RoundedCornerShape(AppTheme.viewSize.normal)),
-            imageVector = IIcon.library,
-            onClick = onOpenLibraryListClick,
-            description = stringResource(R.string.feature_player_library)
-        )
 
         PlayerLiteButton(
             modifier = Modifier
@@ -64,15 +53,5 @@ fun PlayerUpView(
             onClick = onSyncPlayListClick,
             description = stringResource(R.string.feature_player_sync_playlist)
         )
-
-        PlayerLiteButton(
-            modifier = Modifier
-                .size(AppTheme.viewSize.normal)
-                .clip(RoundedCornerShape(AppTheme.viewSize.normal)),
-            imageVector = IIcon.settings,
-            onClick = onOpenSettingsClick,
-            description = stringResource(R.string.feature_player_library_settings)
-        )
-
     }
 }

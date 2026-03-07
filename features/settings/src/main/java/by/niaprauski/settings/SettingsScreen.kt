@@ -58,7 +58,6 @@ private fun SettingsScreenContent(
     Column(
         modifier = Modifier
             .background(color = AppTheme.appColors.background)
-            .navigationBarsPadding()
             .statusBarsPadding()
             .padding(AppTheme.padding.default)
             .fillMaxSize()

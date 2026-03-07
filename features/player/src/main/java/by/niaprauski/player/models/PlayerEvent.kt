@@ -4,9 +4,6 @@ import androidx.media3.common.MediaItem
 
 sealed class PlayerEvent {
 
-    object OpenSettings: PlayerEvent()
-    object OpenLibrary: PlayerEvent()
-
     object Play: PlayerEvent()
     object PlayNext: PlayerEvent()
     object PlayPrevious: PlayerEvent()

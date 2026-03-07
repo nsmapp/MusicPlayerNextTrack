@@ -46,6 +46,7 @@ coroutines = "1.8.1"
 room = "2.7.1"
 paging3 = "3.4.0"
 pagingCommonJvm = "3.3.6"
+material3Version = "1.4.0"
 
 [libraries]
 android-lib-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
@@ -117,6 +118,7 @@ android-room-ktx= {group ="androidx.room" , name ="room-ktx" , version.ref = "ro
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 androidx-paging-common-jvm = { group = "androidx.paging", name = "paging-common-jvm", version.ref = "pagingCommonJvm" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3Version" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

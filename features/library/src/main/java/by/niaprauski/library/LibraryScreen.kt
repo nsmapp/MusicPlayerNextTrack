@@ -28,6 +28,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
@@ -53,6 +54,7 @@ fun LibraryScreen(
 
     val exoPlayerState: ExoPlayerState by viewModel.exoPlayerState.collectAsStateWithLifecycle()
     val playerService by viewModel.playerService.collectAsStateWithLifecycle()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
         viewModel.onCreate()
@@ -80,7 +82,10 @@ fun LibraryScreen(
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val delta = available.y
-                if (delta < -50f) isSearchVisible = false
+                if (delta < -50f) {
+                    keyboardController?.hide()
+                    isSearchVisible = false
+                }
                 if (delta > 50f || pagingTracks.itemCount <= 20) isSearchVisible = true
                 return Offset.Zero
             }
@@ -92,8 +97,6 @@ fun LibraryScreen(
         modifier = Modifier
             .background(color = AppTheme.appColors.background)
             .nestedScroll(nestedScrollConnection)
-            .imePadding()
-            .navigationBarsPadding()
             .statusBarsPadding()
             .padding(AppTheme.padding.mini)
             .fillMaxSize(),

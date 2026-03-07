@@ -1,8 +1,12 @@
 package by.niaprauski.designsystem.theme.colors
 
+import androidx.compose.material3.NavigationBarItemColors
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
+import by.niaprauski.designsystem.theme.AppTheme
 
 @Stable
 data class DayColors(
@@ -42,6 +46,10 @@ interface AppColors{
     val transparent: Color
     val warning: Color
 }
+
+val navigationBarItemColors: NavigationBarItemColors
+    @Composable
+    get() = NavigationBarItemDefaults.colors().copy(selectedIndicatorColor = AppTheme.appColors.background)
 
 
 @Stable

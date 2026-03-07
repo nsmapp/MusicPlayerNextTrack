@@ -108,18 +108,6 @@ class PlayerViewModel @AssistedInject constructor(
         getSettings()
     }
 
-    fun openLibrary() {
-        viewModelScope.launch {
-            _event.send(PlayerEvent.OpenLibrary)
-        }
-    }
-
-    fun openSettings() {
-        viewModelScope.launch {
-            _event.send(PlayerEvent.OpenSettings)
-        }
-    }
-
     fun loadTracks() {
         viewModelScope.launch {
             getTracksForPlayUseCase.invoke()
@@ -208,6 +196,7 @@ class PlayerViewModel @AssistedInject constructor(
     }
 
     override fun playSingleAudioTrack(uri: Uri) {
+        if (uri.toString().isEmpty()) return
         viewModelScope.launch {
             val mediaItem = MediaHandler.uriToMediaItemFromIntent(uri, application.contentResolver)
             _event.send(PlayerEvent.PlaySingleTrack(mediaItem))
@@ -215,6 +204,7 @@ class PlayerViewModel @AssistedInject constructor(
     }
 
     override fun playRadioTrack(uri: Uri) {
+        if (uri.toString().isEmpty()) return
         viewModelScope.launch {
             MediaHandler.radioUriToMediaItem(uri, application.contentResolver)?.let { mediaItem ->
                     _event.send(PlayerEvent.PlaySingleTrack(mediaItem))

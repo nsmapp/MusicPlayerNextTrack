@@ -23,7 +23,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import by.niaprauski.designsystem.theme.AppTheme
-import by.niaprauski.player.contracts.PlayerRouter
 import by.niaprauski.player.models.PlayerEvent
 import by.niaprauski.player.models.PlayerState
 import by.niaprauski.player.models.SyncTrackStatus
@@ -40,7 +39,7 @@ import by.niaprauski.utils.permission.MediaPermissions
 fun PlayerScreen(
     radioTrack: Uri? = null,
     singleAudioTrack: Uri? = null,
-    router: PlayerRouter,
+    openAppSettings: (Context) -> Unit,
 ) {
     val viewModel: PlayerViewModel = hiltViewModel { factory: PlayerViewModel.Factory ->
         factory.create(radioTrack, singleAudioTrack)
@@ -65,8 +64,6 @@ fun PlayerScreen(
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
             when (event) {
-                PlayerEvent.OpenSettings -> router.openSettings()
-                PlayerEvent.OpenLibrary -> router.openLibrary()
                 PlayerEvent.Play -> playerService?.play()
                 PlayerEvent.PlayNext -> playerService?.seekToNext()
                 PlayerEvent.PlayPrevious -> playerService?.seekToPrevious()
@@ -106,7 +103,7 @@ fun PlayerScreen(
     )
 
     if (state.isShowPermissionInformationDialog) NeedMediaPermissionDialog(
-        onOpenSettingsClick = { router.openAppSettings(context) },
+        onOpenSettingsClick = { openAppSettings(context) },
         onDismissClick = { viewModel.hideMediaPermissionInfoDialog() }
     )
 
@@ -116,9 +113,7 @@ fun PlayerScreen(
         trackProgress = playerService?.trackProgress,
         waveformFlow = playerService?.waveform,
         isSyncing = state.isSyncing,
-        onOpenSettingsClick = viewModel::openSettings,
         onSyncPlayListClick = viewModel::requestSync,
-        onOpenLibraryListClick = viewModel::openLibrary,
         onOpenPlayListClick = viewModel::showPlayList,
         onPlayClick = viewModel::play,
         onPauseClick = viewModel::pause,

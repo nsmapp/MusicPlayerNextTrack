@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":features:player"))
     implementation(project(":features:library"))
     implementation(project(":features:settings"))
+    implementation(project(":uikit:design-system"))
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.navigation3.runtime)
@@ -21,4 +22,5 @@ dependencies {
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.androidx.material3.adaptive.navigation3)
     implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.compose.material3)
 }
