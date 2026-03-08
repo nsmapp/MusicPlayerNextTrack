@@ -46,4 +46,6 @@ interface PlayerContract {
     fun removeTrackFromPlayList(trackId: String)
 
     fun playTrackFromPlayList(trackId: String)
+
+    fun reloadPlayList()
 }

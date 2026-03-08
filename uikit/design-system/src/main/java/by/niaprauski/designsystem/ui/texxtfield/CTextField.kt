@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import by.niaprauski.designsystem.ui.icons.SmallIcon
 import by.niaprauski.designsystem.theme.AppTheme
+import by.niaprauski.designsystem.theme.dimens.defaultRoundedShape
 import by.niaprauski.designsystem.ui.text.TextMedium
 
 @Composable
@@ -39,7 +40,7 @@ fun CTextField(
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     singleLine: Boolean = true,
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
-    shape: Shape = RoundedCornerShape(AppTheme.radius.default),
+    shape: Shape = defaultRoundedShape,
     colors: TextFieldColors = CTextFieldDefaults.colors()
 ) {
 

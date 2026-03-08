@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import by.niaprauski.designsystem.theme.AppTheme
+import by.niaprauski.designsystem.theme.dimens.defaultRoundedShape
 import by.niaprauski.designsystem.theme.icons.IIcon
 import by.niaprauski.designsystem.ui.button.TwoActionIconButton
 import by.niaprauski.designsystem.ui.text.TextMedium
@@ -26,7 +27,7 @@ fun SimplePlayer(
 ) {
     Row(
         modifier = Modifier
-            .background(AppTheme.appColors.background_hard)
+            .background(AppTheme.appColors.background_hard, defaultRoundedShape)
             .padding(horizontal = AppTheme.padding.default)
             .fillMaxWidth()
             .height(AppTheme.viewSize.big),

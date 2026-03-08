@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.style.TextAlign
 import by.niaprauski.designsystem.theme.AppTheme
+import by.niaprauski.designsystem.theme.dimens.defaultRoundedShape
 import by.niaprauski.designsystem.ui.text.TextMedium
 
 @Composable
@@ -50,7 +50,7 @@ fun TextFieldRow(
                             width = AppTheme.viewSize.border_normal,
                             color = if (isError) AppTheme.appColors.warning else AppTheme.appColors.accent
                         ),
-                        shape = RoundedCornerShape(AppTheme.radius.default)
+                        shape = defaultRoundedShape,
                     )
                     .padding(
                         horizontal = AppTheme.padding.default,

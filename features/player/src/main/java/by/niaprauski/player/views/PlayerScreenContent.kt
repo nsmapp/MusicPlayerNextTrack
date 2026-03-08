@@ -40,6 +40,7 @@ fun PlayersScreenContent(
     onPreviousClick: () -> Unit,
     onShuffleModeClick: () -> Unit,
     onRepeatModeClick: () -> Unit,
+    onReloadPlayListClick: () -> Unit,
     onFavoriteUp: (trackId: String) -> Unit,
     onChangeTrackFavorite: (trackId: String) -> Unit,
     onSeek: (Float) -> Unit,
@@ -68,6 +69,7 @@ fun PlayersScreenContent(
             PlayerUpView(
                 onSyncPlayListClick = onSyncPlayListClick,
                 onOpenPlayListClick = onOpenPlayListClick,
+                onReloadPlayListClick = onReloadPlayListClick,
                 isSyncing = isSyncing,
             )
 

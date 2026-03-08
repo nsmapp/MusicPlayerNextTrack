@@ -8,15 +8,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import by.niaprauski.designsystem.theme.AppTheme
+import by.niaprauski.designsystem.theme.dimens.defaultRoundedShape
 import by.niaprauski.designsystem.ui.text.TextBold
 import by.niaprauski.designsystem.ui.text.TextMedium
 import by.niaprauski.translations.R
@@ -31,7 +30,7 @@ fun FirstLaunchDialog(
     Dialog(onDismissRequest = { onDismissClick() }) {
         Column(
             modifier = Modifier
-                .clip(RoundedCornerShape(AppTheme.radius.default))
+                .clip(defaultRoundedShape)
                 .background(AppTheme.appColors.background)
                 .padding(AppTheme.padding.normal),
             horizontalAlignment = Alignment.End

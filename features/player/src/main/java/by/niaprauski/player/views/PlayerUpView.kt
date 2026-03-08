@@ -22,6 +22,7 @@ import by.niaprauski.translations.R
 fun PlayerUpView(
     onSyncPlayListClick: () -> Unit,
     onOpenPlayListClick: () -> Unit,
+    onReloadPlayListClick: () -> Unit,
     isSyncing: Boolean,
 ) {
     Row(
@@ -38,8 +39,17 @@ fun PlayerUpView(
             description = stringResource(R.string.feature_player_playlist)
         )
 
+        PlayerLiteButton(
+            modifier = Modifier
+                .size(AppTheme.viewSize.normal)
+                .clip(RoundedCornerShape(AppTheme.viewSize.normal)),
+            imageVector = IIcon.playListUpdate,
+            onClick = onReloadPlayListClick,
+            description = stringResource(R.string.feature_player_reload_playlist)
+        )
+
         val rotationAngle by animateFloatAsState(
-            targetValue = if (isSyncing) 360f else 0f,
+            targetValue = if (isSyncing) 0f else 360f,
             animationSpec = tween(durationMillis = if (isSyncing) 750 else 0),
             label = stringResource(R.string.feature_player_syncrotation)
         )

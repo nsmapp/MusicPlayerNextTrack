@@ -20,6 +20,7 @@
     <string name="feature_player_favorite">Абранае</string>
     <string name="feature_player_playlist">Плэйліст</string>
     <string name="feature_player_syncrotation">Сінхранізаваць бібліятэку</string>
+    <string name="feature_player_reload_playlist">Змяніць плэйліст</string>
 
 
 <!--    feature library-->

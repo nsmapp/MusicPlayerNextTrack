@@ -285,6 +285,10 @@ class PlayerViewModel @AssistedInject constructor(
         }
     }
 
+    override fun reloadPlayList() {
+        loadTracks()
+    }
+
     private fun getSettings() {
         viewModelScope.launch {
             getSettingsFlowUseCase.invoke().collect { settings ->

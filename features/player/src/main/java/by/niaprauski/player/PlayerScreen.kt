@@ -122,6 +122,7 @@ fun PlayerScreen(
         onPreviousClick = viewModel::playPrevious,
         onShuffleModeClick = viewModel::changeShuffleMode,
         onRepeatModeClick = viewModel::changeRepeatMode,
+        onReloadPlayListClick = viewModel::reloadPlayList,
         onFavoriteUp = viewModel::upTrackFavorite,
         onChangeTrackFavorite = viewModel::changeTrackFavorite,
         onSeek = viewModel::seekTo,
@@ -132,14 +133,12 @@ fun PlayerScreen(
         ModalBottomSheet(
             onDismissRequest = viewModel::hidePlayList,
             sheetState = rememberModalBottomSheetState(
-                skipPartiallyExpanded = true
+                skipPartiallyExpanded = false
             ),
             containerColor = AppTheme.appColors.background,
         ) {
 
-            LazyColumn(
-                modifier = Modifier.fillMaxHeight(0.9f)
-            ) {
+            LazyColumn {
                 items(
                     count = playList.size,
                     key = { index -> playList[index].id },
