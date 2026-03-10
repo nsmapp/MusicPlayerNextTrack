@@ -11,11 +11,11 @@ import androidx.media3.common.util.UnstableApi
 import by.niaprauski.domain.usecases.settings.GetSettingsFlowUseCase
 import by.niaprauski.domain.usecases.settings.SetWelcomeMessageStatusUseCase
 import by.niaprauski.domain.usecases.track.ChangeTrackFavoriteUpUseCase
-import by.niaprauski.domain.usecases.track.GetTracksForPlayUseCase
 import by.niaprauski.domain.usecases.track.FilterAndSaveTracksUseCase
+import by.niaprauski.domain.usecases.track.GetTracksForPlayUseCase
 import by.niaprauski.domain.usecases.track.SetTrackFavoriteUpUseCase
-import by.niaprauski.player.contracts.PlayerContract
 import by.niaprauski.player.mapper.TrackModelMapper
+import by.niaprauski.player.models.PAction
 import by.niaprauski.player.models.PlayerEvent
 import by.niaprauski.player.models.PlayerState
 import by.niaprauski.player.models.SyncTrackStatus
@@ -57,7 +57,7 @@ class PlayerViewModel @AssistedInject constructor(
     private val setTrackFavoriteUpUseCase: SetTrackFavoriteUpUseCase,
     private val changeTrackFavoriteUpUseCase: ChangeTrackFavoriteUpUseCase,
     private val trackModelMapper: TrackModelMapper,
-) : ViewModel(), PlayerContract {
+) : ViewModel() {
 
     @dagger.assisted.AssistedFactory
     interface Factory {
@@ -69,10 +69,10 @@ class PlayerViewModel @AssistedInject constructor(
 
     private val serviceConnection = PlayerServiceConnection(application)
     val playerService: StateFlow<PlayerService?> = serviceConnection.service.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = null
-        )
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = null
+    )
 
     private val _state = MutableStateFlow<PlayerState>(PlayerState.DEFAULT)
     val state = _state.asStateFlow()
@@ -108,7 +108,32 @@ class PlayerViewModel @AssistedInject constructor(
         getSettings()
     }
 
-    fun loadTracks() {
+    fun onAction(action: PAction) {
+        when (action) {
+            is PAction.Play -> play()
+            is PAction.Pause -> pause()
+            is PAction.Stop -> stop()
+            is PAction.PlayNext -> playNext()
+            is PAction.PlayPrevious -> playPrevious()
+            is PAction.ChangeShuffleMode -> changeShuffleMode()
+            is PAction.ChangeRepeatMode -> changeRepeatMode()
+            is PAction.RequestSync -> requestSync()
+            is PAction.ShowPermissionInformationDialog -> showPermissionInformationDialog()
+            is PAction.HideWelcomeDialogs -> hideWelcomeDialogs()
+            is PAction.HideMediaPermissionInfoDialog -> hideMediaPermissionInfoDialog()
+            is PAction.ShowPlayList -> showPlayList()
+            is PAction.HidePlayList -> hidePlayList()
+            is PAction.ReloadPlayList -> reloadPlayList()
+            is PAction.SeekTo -> seekTo(action.position)
+            is PAction.UpTrackFavorite -> upTrackFavorite(action.trackId)
+            is PAction.ChangeTrackFavorite -> changeTrackFavorite(action.trackId)
+            is PAction.RemoveTrackFromPlayList -> removeTrackFromPlayList(action.trackId)
+            is PAction.PlayTrackFromPlayList -> playTrackFromPlayList(action.trackId)
+            is PAction.SyncTracks -> syncTracks(action.status)
+        }
+    }
+
+    private fun loadTracks() {
         viewModelScope.launch {
             getTracksForPlayUseCase.invoke()
                 .onSuccess { items -> setPlayList(trackModelMapper.toMediaItems(items)) }
@@ -118,7 +143,7 @@ class PlayerViewModel @AssistedInject constructor(
         }
     }
 
-    fun syncTracks(syncTracks: SyncTrackStatus) {
+    private fun syncTracks(syncTracks: SyncTrackStatus) {
         if (syncTracks !is SyncTrackStatus.Finished) {
             _state.update { it.copy(isSyncing = true) }
             return
@@ -146,56 +171,56 @@ class PlayerViewModel @AssistedInject constructor(
         if (_state.value.trackCount == 0) loadTracks()
     }
 
-    override fun play() {
+    private fun play() {
         viewModelScope.launch {
             _event.send(PlayerEvent.Play)
         }
     }
 
-    override fun pause() {
+    private fun pause() {
         viewModelScope.launch {
             _event.send(PlayerEvent.Pause)
         }
     }
 
-    override fun stop() {
+    private fun stop() {
         viewModelScope.launch {
             _event.send(PlayerEvent.Stop)
         }
     }
 
-    override fun playNext() {
+    private fun playNext() {
         viewModelScope.launch {
             _event.send(PlayerEvent.PlayNext)
         }
     }
 
-    override fun playPrevious() {
+    private fun playPrevious() {
         viewModelScope.launch {
             _event.send(PlayerEvent.PlayPrevious)
         }
     }
 
-    override fun setPlayList(tracks: List<MediaItem>) {
+    private fun setPlayList(tracks: List<MediaItem>) {
         viewModelScope.launch {
             _state.update { it.copy(trackCount = tracks.size) }
             _event.send(PlayerEvent.SetPlayList(tracks))
         }
     }
 
-    override fun changeShuffleMode() {
+    private fun changeShuffleMode() {
         viewModelScope.launch {
             _event.send(PlayerEvent.ChangeShuffleMode)
         }
     }
 
-    override fun changeRepeatMode() {
+    private fun changeRepeatMode() {
         viewModelScope.launch {
             _event.send(PlayerEvent.ChangeRepeatMode)
         }
     }
 
-    override fun playSingleAudioTrack(uri: Uri) {
+    private fun playSingleAudioTrack(uri: Uri) {
         if (uri.toString().isEmpty()) return
         viewModelScope.launch {
             val mediaItem = MediaHandler.uriToMediaItemFromIntent(uri, application.contentResolver)
@@ -203,48 +228,48 @@ class PlayerViewModel @AssistedInject constructor(
         }
     }
 
-    override fun playRadioTrack(uri: Uri) {
+    private fun playRadioTrack(uri: Uri) {
         if (uri.toString().isEmpty()) return
         viewModelScope.launch {
             MediaHandler.radioUriToMediaItem(uri, application.contentResolver)?.let { mediaItem ->
-                    _event.send(PlayerEvent.PlaySingleTrack(mediaItem))
-                }
+                _event.send(PlayerEvent.PlaySingleTrack(mediaItem))
+            }
         }
     }
 
-    override fun requestSync() {
+    private fun requestSync() {
         viewModelScope.launch {
             setWelcomeMessageStatusUseCase.setFirstLaunchStatus(false)
             _event.send(PlayerEvent.SyncPlayList)
         }
     }
 
-    override fun seekTo(position: Float) {
+    private fun seekTo(position: Float) {
         viewModelScope.launch {
             _event.send(PlayerEvent.SeekTo(position))
         }
     }
 
-    override fun showPermissionInformationDialog() {
+    private fun showPermissionInformationDialog() {
         viewModelScope.launch {
             _state.update { it.copy(isShowPermissionInformationDialog = true) }
         }
     }
 
-    override fun hideWelcomeDialogs() {
+    private fun hideWelcomeDialogs() {
         viewModelScope.launch {
             setWelcomeMessageStatusUseCase.setFirstLaunchStatus(false)
             _state.update { it.copy(isShowWelcomeDialog = false) }
         }
     }
 
-    override fun hideMediaPermissionInfoDialog() {
+    private fun hideMediaPermissionInfoDialog() {
         viewModelScope.launch {
             _state.update { it.copy(isShowPermissionInformationDialog = false) }
         }
     }
 
-    override fun upTrackFavorite(trackId: String) {
+    private fun upTrackFavorite(trackId: String) {
         if (playerService.value == null) return
 
         viewModelScope.launch {
@@ -253,7 +278,7 @@ class PlayerViewModel @AssistedInject constructor(
         }
     }
 
-    override fun changeTrackFavorite(trackId: String) {
+    private fun changeTrackFavorite(trackId: String) {
         if (playerService.value == null) return
 
         viewModelScope.launch {
@@ -262,43 +287,44 @@ class PlayerViewModel @AssistedInject constructor(
         }
     }
 
-    override fun hidePlayList() {
+    private fun hidePlayList() {
         viewModelScope.launch {
             _state.update { it.copy(isShowPlayList = false) }
         }
     }
 
-    override fun showPlayList() {
+    private fun showPlayList() {
         viewModelScope.launch {
             _state.update { it.copy(isShowPlayList = true) }
         }
     }
-    override fun removeTrackFromPlayList(trackId: String) {
+
+    private fun removeTrackFromPlayList(trackId: String) {
         viewModelScope.launch {
             _event.send(PlayerEvent.RemoveTrackFromPlayList(trackId))
         }
     }
 
-    override fun playTrackFromPlayList(trackId: String) {
+    private fun playTrackFromPlayList(trackId: String) {
         viewModelScope.launch {
             _event.send(PlayerEvent.PlayTrackFromPlayList(trackId))
         }
     }
 
-    override fun reloadPlayList() {
+    private fun reloadPlayList() {
         loadTracks()
     }
 
     private fun getSettings() {
         viewModelScope.launch {
             getSettingsFlowUseCase.invoke().collect { settings ->
-                    _state.update {
-                        it.copy(
-                            isShowWelcomeDialog = settings.isShowWelcomeMessage,
-                            isVisuallyEnabled = settings.isVisuallyEnabled
-                        )
-                    }
+                _state.update {
+                    it.copy(
+                        isShowWelcomeDialog = settings.isShowWelcomeMessage,
+                        isVisuallyEnabled = settings.isVisuallyEnabled
+                    )
                 }
+            }
         }
     }
 

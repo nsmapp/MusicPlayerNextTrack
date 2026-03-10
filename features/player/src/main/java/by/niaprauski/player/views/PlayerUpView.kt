@@ -16,15 +16,18 @@ import androidx.compose.ui.res.stringResource
 import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.designsystem.theme.icons.IIcon
 import by.niaprauski.designsystem.ui.button.PlayerLiteButton
+import by.niaprauski.player.models.PAction
 import by.niaprauski.translations.R
+import by.niaprauski.utils.permission.MediaPermissions
 
 @Composable
 fun PlayerUpView(
-    onSyncPlayListClick: () -> Unit,
-    onOpenPlayListClick: () -> Unit,
-    onReloadPlayListClick: () -> Unit,
+    onAction: (PAction) -> Unit,
     isSyncing: Boolean,
 ) {
+
+    val hasMediaPermission by MediaPermissions.rememberMediaPermissions()
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
@@ -35,7 +38,7 @@ fun PlayerUpView(
                 .size(AppTheme.viewSize.normal)
                 .clip(RoundedCornerShape(AppTheme.viewSize.normal)),
             imageVector = IIcon.playList,
-            onClick = onOpenPlayListClick,
+            onClick = { onAction(PAction.ShowPlayList) },
             description = stringResource(R.string.feature_player_playlist)
         )
 
@@ -44,7 +47,9 @@ fun PlayerUpView(
                 .size(AppTheme.viewSize.normal)
                 .clip(RoundedCornerShape(AppTheme.viewSize.normal)),
             imageVector = IIcon.playListUpdate,
-            onClick = onReloadPlayListClick,
+            onClick = {
+                if (hasMediaPermission) onAction(PAction.ReloadPlayList)
+            },
             description = stringResource(R.string.feature_player_reload_playlist)
         )
 
@@ -60,7 +65,7 @@ fun PlayerUpView(
                 .clip(RoundedCornerShape(AppTheme.viewSize.normal))
                 .rotate(rotationAngle),
             imageVector = IIcon.sync,
-            onClick = onSyncPlayListClick,
+            onClick = { onAction(PAction.RequestSync) },
             description = stringResource(R.string.feature_player_sync_playlist)
         )
     }

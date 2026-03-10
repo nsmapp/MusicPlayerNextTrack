@@ -22,10 +22,12 @@ fun CSlider(
     valueRange: ClosedFloatingPointRange<Float>,
     steps: Int,
     onValueChange: (Float) -> Unit,
+    onValueChangeFinished: (() -> Unit)? = null,
 ) {
     Slider(
         value = trackProgress,
         onValueChange = { newPosition -> onValueChange(newPosition) },
+        onValueChangeFinished = { onValueChangeFinished?.invoke() },
         modifier = modifier,
         valueRange = valueRange,
         steps = steps,

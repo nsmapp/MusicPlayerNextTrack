@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -14,19 +17,14 @@ import androidx.compose.ui.res.stringResource
 import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.designsystem.theme.icons.IIcon
 import by.niaprauski.designsystem.ui.button.PlayerLiteButton
+import by.niaprauski.player.models.PAction
 import by.niaprauski.playerservice.models.RepeatMode
 import by.niaprauski.translations.R
 
 @Composable
 fun PlayerControlView(
     modifier: Modifier = Modifier,
-    onPlayClick: () -> Unit,
-    onPauseClick: () -> Unit,
-    onStopClick: () -> Unit,
-    onNextClick: () -> Unit,
-    onPreviousClick: () -> Unit,
-    onShuffleModeClick: () -> Unit,
-    onRepeatModeClick: () -> Unit,
+    onAction: (PAction) -> Unit,
     isPlaying: Boolean,
     shuffle: Boolean,
     repeatMode: Int,
@@ -45,11 +43,11 @@ fun PlayerControlView(
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
 
-            ShuffleButton(shuffle, onShuffleModeClick)
+            ShuffleButton(shuffle, onAction)
 
-            PlayPauseButton(isPlaying, onPauseClick, onPlayClick)
+            PlayPauseButton(isPlaying, onAction)
 
-            RepeatModeButton(repeatMode, onRepeatModeClick)
+            RepeatModeButton(repeatMode, onAction)
         }
 
         Row(
@@ -63,7 +61,7 @@ fun PlayerControlView(
                     .size(AppTheme.viewSize.big)
                     .clip(RoundedCornerShape(AppTheme.viewSize.big)),
                 imageVector = IIcon.skipPrevious,
-                onClick = onPreviousClick,
+                onClick = { onAction(PAction.PlayPrevious) },
                 description = stringResource(R.string.feature_player_play_previous)
             )
 
@@ -73,7 +71,7 @@ fun PlayerControlView(
                     .size(AppTheme.viewSize.large)
                     .clip(RoundedCornerShape(AppTheme.viewSize.large)),
                 imageVector = IIcon.stop,
-                onClick = onStopClick,
+                onClick = { onAction(PAction.Stop) },
                 description = stringResource(R.string.feature_player_stop)
             )
 
@@ -82,7 +80,7 @@ fun PlayerControlView(
                     .size(AppTheme.viewSize.big)
                     .clip(RoundedCornerShape(AppTheme.viewSize.big)),
                 imageVector = IIcon.skipNext,
-                onClick = onNextClick,
+                onClick = { onAction(PAction.PlayNext) },
                 description = stringResource(R.string.feature_player_play_next)
             )
         }
@@ -95,7 +93,7 @@ fun PlayerControlView(
 @Composable
 private fun RepeatModeButton(
     repeatMode: Int,
-    onRepeatModeClick: () -> Unit
+    onAction: (PAction) -> Unit,
 ) {
     val repeatModeIcon = when (repeatMode) {
         RepeatMode.REPEAT_MODE_OFF.value -> IIcon.repeat
@@ -109,7 +107,7 @@ private fun RepeatModeButton(
             .size(AppTheme.viewSize.small)
             .clip(RoundedCornerShape(AppTheme.viewSize.small)),
         imageVector = repeatModeIcon,
-        onClick = onRepeatModeClick,
+        onClick = { onAction(PAction.ChangeRepeatMode) },
         description = stringResource(R.string.feature_player_repeat_mode)
     )
 }
@@ -118,7 +116,7 @@ private fun RepeatModeButton(
 @Composable
 fun ShuffleButton(
     shuffle: Boolean,
-    onShuffleModeClick: () -> Unit
+    onAction: (PAction) -> Unit,
 ) {
     val shuffleIcon = if (shuffle) IIcon.shuffleOn
     else IIcon.shuffle
@@ -128,7 +126,7 @@ fun ShuffleButton(
             .size(AppTheme.viewSize.small)
             .clip(RoundedCornerShape(AppTheme.viewSize.small)),
         imageVector = shuffleIcon,
-        onClick = onShuffleModeClick,
+        onClick = { onAction(PAction.ChangeShuffleMode) },
         description = stringResource(R.string.feature_player_shuffle)
     )
 }
@@ -136,19 +134,21 @@ fun ShuffleButton(
 @Composable
 private fun PlayPauseButton(
     isPlaying: Boolean,
-    onPauseClick: () -> Unit,
-    onPlayClick: () -> Unit
+    onAction: (PAction) -> Unit,
 ) {
 
-    val playIcon = if (isPlaying) IIcon.pause else IIcon.play
-    val playClickAction = if (isPlaying) onPauseClick else onPlayClick
+    val playIcon by remember(isPlaying) {
+        derivedStateOf { if (isPlaying) IIcon.pause else IIcon.play }
+    }
 
     PlayerLiteButton(
         modifier = Modifier
             .size(AppTheme.viewSize.extra_large)
             .clip(RoundedCornerShape(AppTheme.viewSize.extra_large)),
         imageVector = playIcon,
-        onClick = playClickAction,
+        onClick = {
+            if (isPlaying) onAction(PAction.Pause) else onAction(PAction.Play)
+        },
         description = stringResource(R.string.feature_player_play)
     )
 }

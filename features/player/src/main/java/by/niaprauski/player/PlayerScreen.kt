@@ -7,7 +7,6 @@ import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.annotation.OptIn
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
@@ -17,12 +16,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import by.niaprauski.designsystem.theme.AppTheme
+import by.niaprauski.player.models.PAction
 import by.niaprauski.player.models.PlayerEvent
 import by.niaprauski.player.models.PlayerState
 import by.niaprauski.player.models.SyncTrackStatus
@@ -54,11 +53,13 @@ fun PlayerScreen(
 
     val hasMediaPermission by MediaPermissions.rememberMediaPermissions()
 
-    LaunchedEffect(Unit) { viewModel.onCreate() }
+    LaunchedEffect(hasMediaPermission) {
+        if (hasMediaPermission || radioTrack != null || singleAudioTrack != null) viewModel.onCreate()
+    }
 
     val mediaPermissionLauncher = MediaPermissions.rememberMediaPermissionsLauncher(
-        onGranted = { syncPlaylist(context) { tracks -> viewModel.syncTracks(tracks) } },
-        onDisablePermissions = { viewModel.showPermissionInformationDialog() }
+        onGranted = { syncPlaylist(context) { status -> viewModel.onAction(PAction.SyncTracks(status)) } },
+        onDisablePermissions = { viewModel.onAction(PAction.ShowPermissionInformationDialog) }
     )
 
     LaunchedEffect(Unit) {
@@ -81,14 +82,17 @@ fun PlayerScreen(
                     hasMediaPermission = hasMediaPermission,
                     mediaPermissionLauncher = mediaPermissionLauncher,
                     context = context,
-                    onSyncTrack = { syncStatus -> viewModel.syncTracks(syncStatus) })
+                    onSyncTrack = { syncStatus -> viewModel.onAction(PAction.SyncTracks(syncStatus)) }
+                )
 
                 is PlayerEvent.UpFavorite -> playerService?.upTrackFavorite(event.trackId)
                 is PlayerEvent.ChangeFavorite -> playerService?.changeTrackFavorite(event.trackId)
                 is PlayerEvent.RemoveTrackFromPlayList ->
                     playerService?.removeTrackFromPlayList(event.trackId)
+
                 is PlayerEvent.PlayTrackFromPlayList ->
                     playerService?.playTrackFromPlayList(event.trackId)
+
                 PlayerEvent.Nothing -> {
                     /**do nothing **/
                 }
@@ -98,13 +102,13 @@ fun PlayerScreen(
 
 
     if (state.isShowWelcomeDialog) FirstLaunchDialog(
-        onSyncClick = { viewModel.requestSync() },
-        onDismissClick = { viewModel.hideWelcomeDialogs() },
+        onSyncClick = { viewModel.onAction(PAction.RequestSync) },
+        onDismissClick = { viewModel.onAction(PAction.HideWelcomeDialogs) },
     )
 
     if (state.isShowPermissionInformationDialog) NeedMediaPermissionDialog(
         onOpenSettingsClick = { openAppSettings(context) },
-        onDismissClick = { viewModel.hideMediaPermissionInfoDialog() }
+        onDismissClick = { viewModel.onAction(PAction.HideMediaPermissionInfoDialog) }
     )
 
     PlayersScreenContent(
@@ -113,25 +117,13 @@ fun PlayerScreen(
         trackProgress = playerService?.trackProgress,
         waveformFlow = playerService?.waveform,
         isSyncing = state.isSyncing,
-        onSyncPlayListClick = viewModel::requestSync,
-        onOpenPlayListClick = viewModel::showPlayList,
-        onPlayClick = viewModel::play,
-        onPauseClick = viewModel::pause,
-        onStopClick = viewModel::stop,
-        onNextClick = viewModel::playNext,
-        onPreviousClick = viewModel::playPrevious,
-        onShuffleModeClick = viewModel::changeShuffleMode,
-        onRepeatModeClick = viewModel::changeRepeatMode,
-        onReloadPlayListClick = viewModel::reloadPlayList,
-        onFavoriteUp = viewModel::upTrackFavorite,
-        onChangeTrackFavorite = viewModel::changeTrackFavorite,
-        onSeek = viewModel::seekTo,
+        onAction = viewModel::onAction,
     )
 
 
     if (state.isShowPlayList) {
         ModalBottomSheet(
-            onDismissRequest = viewModel::hidePlayList,
+            onDismissRequest = { viewModel.onAction(PAction.HidePlayList) },
             sheetState = rememberModalBottomSheetState(
                 skipPartiallyExpanded = false
             ),
@@ -145,8 +137,7 @@ fun PlayerScreen(
                 ) {
                     TrackItem(
                         track = playList[it],
-                        onRemoveTrackClick = viewModel::removeTrackFromPlayList,
-                        onPlayTrackClick = viewModel::playTrackFromPlayList,
+                        onAction = viewModel::onAction,
                         currentTrackId = { exoPlayerState.id }
 
                     )

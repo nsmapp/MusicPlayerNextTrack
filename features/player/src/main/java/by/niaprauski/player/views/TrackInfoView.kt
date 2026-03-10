@@ -26,6 +26,7 @@ import by.niaprauski.designsystem.theme.icons.IIcon
 import by.niaprauski.designsystem.ui.button.PlayerLiteButton
 import by.niaprauski.designsystem.ui.text.TextBoldLarge
 import by.niaprauski.designsystem.ui.text.TextMediumLarge
+import by.niaprauski.player.models.PAction
 import by.niaprauski.translations.R
 
 @Composable
@@ -34,7 +35,7 @@ fun TrackInfoView(
     artist: String,
     title: String,
     favorite: Int,
-    onChangeTrackFavorite: (trackId: String) -> Unit,
+    onAction: (PAction) -> Unit,
 ) {
 
     val scale = remember { Animatable(1f) }
@@ -96,7 +97,7 @@ fun TrackInfoView(
                 .clip(RoundedCornerShape(AppTheme.viewSize.normal)),
             imageVector = favoriteIcon,
             onClick = {
-                onChangeTrackFavorite(trackId)
+                onAction(PAction.ChangeTrackFavorite(trackId))
             },
             description = stringResource(R.string.feature_player_favorite),
             colorFilter = ColorFilter.tint(favoriteIconColor)

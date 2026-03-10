@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -19,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.media3.common.util.UnstableApi
 import by.niaprauski.designsystem.theme.AppTheme
+import by.niaprauski.player.models.PAction
 import by.niaprauski.playerservice.models.ExoPlayerState
 import by.niaprauski.playerservice.models.TrackProgress
 import kotlinx.coroutines.flow.StateFlow
@@ -31,19 +31,7 @@ fun PlayersScreenContent(
     trackProgress: StateFlow<TrackProgress>?,
     waveformFlow: StateFlow<FloatArray>?,
     isSyncing: Boolean,
-    onSyncPlayListClick: () -> Unit,
-    onOpenPlayListClick: () -> Unit,
-    onPlayClick: () -> Unit,
-    onPauseClick: () -> Unit,
-    onStopClick: () -> Unit,
-    onNextClick: () -> Unit,
-    onPreviousClick: () -> Unit,
-    onShuffleModeClick: () -> Unit,
-    onRepeatModeClick: () -> Unit,
-    onReloadPlayListClick: () -> Unit,
-    onFavoriteUp: (trackId: String) -> Unit,
-    onChangeTrackFavorite: (trackId: String) -> Unit,
-    onSeek: (Float) -> Unit,
+    onAction: (PAction) -> Unit,
 ) {
 
     Box(
@@ -53,7 +41,7 @@ fun PlayersScreenContent(
             .statusBarsPadding()
             .pointerInput(exoPlayerState.id) {
                 detectTapGestures(onDoubleTap = {
-                    onFavoriteUp(exoPlayerState.id)
+                    onAction(PAction.UpTrackFavorite(exoPlayerState.id))
                 })
             },
         contentAlignment = Alignment.BottomCenter
@@ -67,38 +55,30 @@ fun PlayersScreenContent(
         ) {
 
             PlayerUpView(
-                onSyncPlayListClick = onSyncPlayListClick,
-                onOpenPlayListClick = onOpenPlayListClick,
-                onReloadPlayListClick = onReloadPlayListClick,
+                onAction = onAction,
                 isSyncing = isSyncing,
             )
 
             TrackInfoView(
                 trackId = exoPlayerState.id,
-                exoPlayerState.artist,
-                exoPlayerState.title,
-                exoPlayerState.favorite,
-                onChangeTrackFavorite = onChangeTrackFavorite,
+                artist = exoPlayerState.artist,
+                title = exoPlayerState.title,
+                favorite = exoPlayerState.favorite,
+                onAction = onAction,
             )
 
             PlayerControlView(
                 modifier = Modifier
                     .wrapContentHeight()
                     .padding(vertical = AppTheme.padding.large),
-                onPlayClick = onPlayClick,
-                onPauseClick = onPauseClick,
-                onStopClick = onStopClick,
-                onNextClick = onNextClick,
-                onPreviousClick = onPreviousClick,
-                onShuffleModeClick = onShuffleModeClick,
-                onRepeatModeClick = onRepeatModeClick,
+                onAction = onAction,
                 isPlaying = exoPlayerState.isPlaying,
                 shuffle = exoPlayerState.shuffle,
                 repeatMode = exoPlayerState.repeatMode,
             ) {
                 TrackProgressSlider(
                     trackProgress = trackProgress,
-                    onSeek = onSeek
+                    onAction = onAction
                 )
             }
 

@@ -33,14 +33,14 @@ import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.designsystem.theme.icons.IIcon
 import by.niaprauski.designsystem.ui.button.PlayerLiteButton
 import by.niaprauski.designsystem.ui.text.TextMedium
+import by.niaprauski.player.models.PAction
 import by.niaprauski.utils.media.ITrackShort
 
 
 @Composable
 fun TrackItem(
     track: ITrackShort,
-    onRemoveTrackClick: (String) -> Unit,
-    onPlayTrackClick: (String) -> Unit,
+    onAction: (PAction) -> Unit,
     currentTrackId: () -> String
 ) {
 
@@ -50,12 +50,12 @@ fun TrackItem(
         derivedStateOf { currentTrackId() == track.id }
     }.value
 
-    val onRemoveTrackClick by rememberUpdatedState(onRemoveTrackClick)
-    val onPlayTrackClick by rememberUpdatedState(onPlayTrackClick)
+    val onRemoveTrackClick by rememberUpdatedState(onAction)
+    val onPlayTrackClick by rememberUpdatedState(onAction)
     val currentModel by rememberUpdatedState(track)
 
-    val handleRemoveClick = remember { { onRemoveTrackClick(currentModel.id) } }
-    val handlePlayClick = remember { { onPlayTrackClick(currentModel.id) } }
+    val handleRemoveClick = remember { { onRemoveTrackClick(PAction.RemoveTrackFromPlayList(currentModel.id))} }
+    val handlePlayClick = remember { { onPlayTrackClick(PAction.PlayTrackFromPlayList(currentModel.id)) } }
 
 
 
