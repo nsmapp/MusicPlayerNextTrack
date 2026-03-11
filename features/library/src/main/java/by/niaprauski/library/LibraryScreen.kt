@@ -123,12 +123,8 @@ fun LibraryScreen(
                     currentTrackId = { exoPlayerState.id },
                     currentTrackName = { exoPlayerState.fileName },
                     isPlaying = {exoPlayerState.isPlaying},
-                    onPlayNewClick = viewModel::playTrack,
-                    onPlayClick = viewModel::play,
-                    onPauseClick = viewModel::pause,
-                    onIgnoreClick = viewModel::ignoreTrack,
-                    onRestoreTrackClick = viewModel::onRestoreTrackClick,
-                    onSearchTrack = viewModel::searchTrack
+                    onAction = viewModel::onAction
+
                 )
             }
         }

@@ -10,6 +10,7 @@ import by.niaprauski.domain.usecases.settings.SetMaxTrackDurationUseCase
 import by.niaprauski.domain.usecases.settings.SetMinTrackDurationUseCase
 import by.niaprauski.domain.usecases.settings.SetPlayListLimitSizeUseCase
 import by.niaprauski.domain.usecases.settings.SetVisualizerStatusUseCase
+import by.niaprauski.settings.models.SAction
 import by.niaprauski.settings.models.SettingsState
 import by.niaprauski.utils.extension.convertToInt
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,7 +31,7 @@ class SettingsViewModel @Inject constructor(
     private val setPlayListLimitSizeUseCase: SetPlayListLimitSizeUseCase,
     private val setAccentColorUseCase: SetAccentColorUseCase,
     private val setBackgroundColorUseCase: SetBackgroundColorUseCase,
-) : ViewModel(), SettingsContract {
+) : ViewModel() {
 
     companion object {
         private const val INPUT_DEBOUNCE_TEXT = 500L
@@ -55,7 +56,18 @@ class SettingsViewModel @Inject constructor(
         getSettings()
     }
 
-    override fun getSettings() {
+    fun onAction(action: SAction) {
+        when (action) {
+            is SAction.SetVisuallyEnabled -> setVisuallyEnabled(action.enabled)
+            is SAction.SetMinDuration -> setMinDuration(action.duration)
+            is SAction.SetMaxDuration -> setMaxDuration(action.duration)
+            is SAction.SetAccentColor -> setAccentColorSettings(action.hexColor, action.position)
+            is SAction.SetBackgroundColor -> setBackgroundColorSettings(action.hexColor, action.position)
+            is SAction.SetPlayListLimitSize -> setPlayListLimitSize(action.count)
+        }
+    }
+
+    private fun getSettings() {
         viewModelScope.launch {
             getSettingsUseCase.invoke()
                 .onSuccess { settings ->
@@ -129,7 +141,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    override fun setVisuallyEnabled(enabled: Boolean) {
+    private fun setVisuallyEnabled(enabled: Boolean) {
         viewModelScope.launch {
             setVisualizerStatusUseCase.set(enabled)
                 .onSuccess { _state.update { it.copy(isVisuallyEnabled = enabled) } }
@@ -137,7 +149,7 @@ class SettingsViewModel @Inject constructor(
 
     }
 
-    override fun setMinDuration(duration: String) {
+    private fun setMinDuration(duration: String) {
         val duration = duration.filter { it.isDigit() }
 
         if (duration.length > 2) return
@@ -150,7 +162,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    override fun setMaxDuration(duration: String) {
+    private fun setMaxDuration(duration: String) {
         val duration = duration.filter { it.isDigit() }
 
         if (duration.length > 2) return
@@ -163,7 +175,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    override fun setAccentColorSettings(hexColor: String, position: Float) {
+    private fun setAccentColorSettings(hexColor: String, position: Float) {
         _state.update { it.copy(acentPositon = position) }
         viewModelScope.launch {
             _accentPosition.emit(hexColor to position)
@@ -171,14 +183,14 @@ class SettingsViewModel @Inject constructor(
 
     }
 
-    override fun setBackgroundColorSettings(hexColor: String, position: Float) {
+    private fun setBackgroundColorSettings(hexColor: String, position: Float) {
         _state.update { it.copy(backgroundPosition = position) }
         viewModelScope.launch {
             _backgroundPosition.emit(hexColor to position)
         }
     }
 
-    override fun setPlayListLimitSize(count: String) {
+    private fun setPlayListLimitSize(count: String) {
         var count = count.filter { it.isDigit() }
 
         if (count.length >= 4) return

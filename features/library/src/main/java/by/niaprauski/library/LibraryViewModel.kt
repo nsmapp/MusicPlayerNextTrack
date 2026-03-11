@@ -12,6 +12,7 @@ import by.niaprauski.domain.usecases.track.GetTracksPagedUseCase
 import by.niaprauski.domain.usecases.track.MarkTrackAsIgnoredUseCase
 import by.niaprauski.domain.usecases.track.UnmarkTrackAsIgnoredUseCase
 import by.niaprauski.library.mapper.TrackModelMapper
+import by.niaprauski.library.models.LAction
 import by.niaprauski.library.models.LibraryEvent
 import by.niaprauski.library.models.LibraryState
 import by.niaprauski.library.models.TrackModel
@@ -43,7 +44,7 @@ class LibraryViewModel @Inject constructor(
     private val markTrackAsIgnoredUseCase: MarkTrackAsIgnoredUseCase,
     private val unmarkTrackAsIgnoredUseCase: UnmarkTrackAsIgnoredUseCase,
     private val trackModelMapper: TrackModelMapper,
-) : ViewModel(), LibraryContract {
+) : ViewModel() {
 
     private val serviceConnection = PlayerServiceConnection(application)
     val playerService: StateFlow<PlayerService?> = serviceConnection.service.stateIn(
@@ -85,8 +86,25 @@ class LibraryViewModel @Inject constructor(
         serviceConnection.bind()
     }
 
+    fun onAction(action: LAction){
+        when(action){
+            is LAction.Play -> play(Unit)
+            is LAction.Pause -> pause(Unit)
+            is LAction.SearchTrack -> searchTrack(action.text)
+            is LAction.PlayTrack -> playTrack(action.track)
+            is LAction.IgnoreTrack -> ignoreTrack(action.track)
+            is LAction.RestoreTrack -> onRestoreTrackClick(action.track)
+        }
+    }
+
+    private fun sendEvent(event: LibraryEvent) {
+        viewModelScope.launch {
+            _event.send(event)
+        }
+    }
+
     //TODO refactor to trackId
-    override fun ignoreTrack(track: TrackModel) {
+    private fun ignoreTrack(track: TrackModel) {
 
         viewModelScope.launch {
             markTrackAsIgnoredUseCase.invoke(track.id)
@@ -99,7 +117,7 @@ class LibraryViewModel @Inject constructor(
     }
 
     //TODO refactor to trackId
-    override fun onRestoreTrackClick(track: TrackModel) {
+    private fun onRestoreTrackClick(track: TrackModel) {
         viewModelScope.launch {
             unmarkTrackAsIgnoredUseCase.invoke(track.id)
                 .onSuccess {
@@ -109,12 +127,12 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
-    override fun playTrack(track: TrackModel) {
+    private fun playTrack(track: TrackModel) {
         val mediaItem = trackModelMapper.toMediaItem(track)
         sendEvent(LibraryEvent.PlayMediaItem(mediaItem))
     }
 
-    override fun searchTrack(text: String) {
+    private fun searchTrack(text: String) {
         _state.update { it.copy(searchText = text) }
 
         viewModelScope.launch {
@@ -123,21 +141,15 @@ class LibraryViewModel @Inject constructor(
 
     }
 
-    override fun play(value: Unit) {
+    private fun play(value: Unit) {
         viewModelScope.launch {
             sendEvent(LibraryEvent.Play)
         }
     }
 
-    override fun pause(value: Unit) {
+    private fun pause(value: Unit) {
         viewModelScope.launch {
             sendEvent(LibraryEvent.Pause)
-        }
-    }
-
-    private fun sendEvent(event: LibraryEvent) {
-        viewModelScope.launch {
-            _event.send(event)
         }
     }
 

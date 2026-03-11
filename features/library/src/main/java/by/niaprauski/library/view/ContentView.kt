@@ -26,6 +26,7 @@ import androidx.paging.compose.LazyPagingItems
 import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.designsystem.theme.icons.IIcon
 import by.niaprauski.designsystem.ui.texxtfield.CTextField
+import by.niaprauski.library.models.LAction
 import by.niaprauski.library.models.LibraryState
 import by.niaprauski.library.models.TrackModel
 import by.niaprauski.translations.R
@@ -39,12 +40,7 @@ fun ContentView(
     currentTrackId: () -> String,
     currentTrackName: () -> String,
     isPlaying: () -> Boolean,
-    onPlayNewClick: (TrackModel) -> Unit,
-    onPlayClick: (Unit) -> Unit,
-    onPauseClick: (Unit) -> Unit,
-    onIgnoreClick: (TrackModel) -> Unit,
-    onRestoreTrackClick: (TrackModel) -> Unit,
-    onSearchTrack: (String) -> Unit,
+    onAction: (LAction) -> Unit,
 ) {
 
     val hasValidTrack by remember(currentTrackId()) {
@@ -54,9 +50,7 @@ fun ContentView(
     Column(modifier = Modifier.fillMaxSize()) {
         TrackListView(
             pagingTracks = pagingTracks,
-            onPlayClick = onPlayNewClick,
-            onIgnoreClick = onIgnoreClick,
-            onRestoreTrackClick = onRestoreTrackClick,
+            onAction = onAction,
             currentTrackId = currentTrackId
         )
 
@@ -81,15 +75,14 @@ fun ContentView(
                             SimplePlayer(
                                 currentTrackName = currentTrackName,
                                 isPlaying = isPlaying,
-                                onPauseClick = onPauseClick,
-                                onPlayClick = onPlayClick
+                                onAction = onAction,
                             )
                         }
 
                         CTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = state.searchText,
-                            onValueChange = onSearchTrack,
+                            onValueChange = { onAction(LAction.SearchTrack(it)) },
                             hint = stringResource(R.string.feature_library_search),
                             leadingIcon = IIcon.search,
                         )

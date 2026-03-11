@@ -33,6 +33,7 @@ import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.designsystem.theme.icons.IIcon
 import by.niaprauski.designsystem.ui.button.TwoActionIconButton
 import by.niaprauski.designsystem.ui.text.TextMedium
+import by.niaprauski.library.models.LAction
 import by.niaprauski.library.models.TrackModel
 import by.niaprauski.translations.R
 
@@ -40,9 +41,7 @@ import by.niaprauski.translations.R
 @Composable
 fun TrackItem(
     track: TrackModel,
-    onPlayClick: (TrackModel) -> Unit,
-    onIgnoreClick: (TrackModel) -> Unit,
-    onRestoreTrackClick: (TrackModel) -> Unit,
+    onAction: (LAction) -> Unit,
     currentTrackId: () -> String
 ) {
 
@@ -62,7 +61,7 @@ fun TrackItem(
             .fillMaxWidth()
             .selectedBackground(isSelected, textColor)
             .wrapContentHeight()
-            .clickable { onPlayClick(track) }
+            .clickable { onAction(LAction.PlayTrack(track)) }
             .padding(horizontal = AppTheme.padding.default, vertical = AppTheme.padding.default),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -80,8 +79,8 @@ fun TrackItem(
             modifier = Modifier.size(AppTheme.viewSize.small),
             model = track,
             isFirstAction = track.isIgnore,
-            onActionFirstClick = onRestoreTrackClick,
-            onActionSecondClick = onIgnoreClick,
+            onActionFirstClick = {onAction(LAction.RestoreTrack(track))},
+            onActionSecondClick = {onAction(LAction.IgnoreTrack(track))},
             iconFirst = remember { IIcon.reply},
             iconSecond = remember { IIcon.cancel },
             descriptionFirst = stringResource(R.string.feature_library_restore_track),

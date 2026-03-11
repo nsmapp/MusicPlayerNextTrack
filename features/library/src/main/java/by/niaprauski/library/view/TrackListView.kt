@@ -8,15 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
+import by.niaprauski.library.models.LAction
 import by.niaprauski.library.models.TrackModel
 
 
 @Composable
 fun ColumnScope.TrackListView(
     pagingTracks: LazyPagingItems<TrackModel>,
-    onPlayClick: (TrackModel) -> Unit,
-    onIgnoreClick: (TrackModel) -> Unit,
-    onRestoreTrackClick: (TrackModel) -> Unit,
+    onAction: (LAction) -> Unit,
     currentTrackId: () -> String
 ) {
     val listState = rememberLazyListState()
@@ -38,9 +37,7 @@ fun ColumnScope.TrackListView(
             if (item != null) {
                 TrackItem(
                     track = item,
-                    onPlayClick = onPlayClick,
-                    onIgnoreClick = onIgnoreClick,
-                    onRestoreTrackClick = onRestoreTrackClick,
+                    onAction = onAction,
                     currentTrackId = currentTrackId,
                 )
             }

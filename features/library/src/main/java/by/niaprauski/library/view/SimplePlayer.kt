@@ -16,14 +16,14 @@ import by.niaprauski.designsystem.theme.dimens.defaultRoundedShape
 import by.niaprauski.designsystem.theme.icons.IIcon
 import by.niaprauski.designsystem.ui.button.TwoActionIconButton
 import by.niaprauski.designsystem.ui.text.TextMedium
+import by.niaprauski.library.models.LAction
 import by.niaprauski.translations.R
 
 @Composable
 fun SimplePlayer(
     currentTrackName: () -> String,
     isPlaying: () -> Boolean,
-    onPauseClick: (Unit) -> Unit,
-    onPlayClick: (Unit) -> Unit
+    onAction: (LAction) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -45,8 +45,8 @@ fun SimplePlayer(
             modifier = Modifier.size(AppTheme.viewSize.normal),
             model = Unit,
             isFirstAction = isPlaying(),
-            onActionFirstClick = onPauseClick,
-            onActionSecondClick = onPlayClick,
+            onActionFirstClick = {onAction(LAction.Pause)},
+            onActionSecondClick = {onAction(LAction.Play)},
             iconFirst = remember { IIcon.pause},
             iconSecond = remember { IIcon.play },
             descriptionFirst = stringResource(R.string.feature_library_pause),
