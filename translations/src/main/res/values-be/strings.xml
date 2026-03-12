@@ -21,6 +21,8 @@
     <string name="feature_player_playlist">Плэйліст</string>
     <string name="feature_player_syncrotation">Сінхранізаваць бібліятэку</string>
     <string name="feature_player_reload_playlist">Змяніць плэйліст</string>
+    <string name="feature_player_not_music_access">Адсутнічае доступ да музыкі</string>
+    <string name="feature_player_get">Атрымаць</string>
 
 
 <!--    feature library-->

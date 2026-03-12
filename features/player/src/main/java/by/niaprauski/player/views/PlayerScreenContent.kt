@@ -1,11 +1,12 @@
 package by.niaprauski.player.views
 
 import androidx.annotation.OptIn
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,6 +33,7 @@ fun PlayersScreenContent(
     waveformFlow: StateFlow<FloatArray>?,
     isSyncing: Boolean,
     onAction: (PAction) -> Unit,
+    hasMediaPermission: Boolean,
 ) {
 
     Box(
@@ -43,21 +45,23 @@ fun PlayersScreenContent(
                 detectTapGestures(onDoubleTap = {
                     onAction(PAction.UpTrackFavorite(exoPlayerState.id))
                 })
-            },
-        contentAlignment = Alignment.BottomCenter
+            }
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = AppTheme.padding.default),
-            verticalArrangement = Arrangement.SpaceBetween
+                .padding(horizontal = AppTheme.padding.default)
         ) {
 
+            AnimatedVisibility(!hasMediaPermission) {
+                PermissionWarningInfoView(onAction)
+            }
             PlayerUpView(
                 onAction = onAction,
                 isSyncing = isSyncing,
             )
+
+            Spacer(modifier = Modifier.weight(1f))
 
             TrackInfoView(
                 trackId = exoPlayerState.id,
@@ -67,10 +71,11 @@ fun PlayersScreenContent(
                 onAction = onAction,
             )
 
+            Spacer(modifier = Modifier.weight(1f))
+
             PlayerControlView(
                 modifier = Modifier
-                    .wrapContentHeight()
-                    .padding(vertical = AppTheme.padding.large),
+                    .wrapContentHeight(),
                 onAction = onAction,
                 isPlaying = exoPlayerState.isPlaying,
                 shuffle = exoPlayerState.shuffle,
@@ -82,11 +87,15 @@ fun PlayersScreenContent(
                 )
             }
 
+            if (isVisuallyEnabled) {
+                Spacer(modifier = Modifier.height(AppTheme.padding.large))
+            }
         }
 
         if (isVisuallyEnabled) {
             WaveBarView(
                 modifier = Modifier
+                    .align(Alignment.BottomCenter)
                     .padding(horizontal = AppTheme.padding.default)
                     .fillMaxWidth()
                     .height(AppTheme.padding.large),

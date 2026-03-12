@@ -99,13 +99,16 @@ class PlayerViewModel @AssistedInject constructor(
         }
     }
 
+    init {
+        getSettings()
+    }
+
     fun onCreate() {
         if (playerService.value != null) return
 
         serviceConnection.bind()
         startPlayerService(application)
         playInitialTrack()
-        getSettings()
     }
 
     fun onAction(action: PAction) {

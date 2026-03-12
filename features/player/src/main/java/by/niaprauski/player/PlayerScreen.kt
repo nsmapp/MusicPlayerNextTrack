@@ -100,7 +100,6 @@ fun PlayerScreen(
         }
     }
 
-
     if (state.isShowWelcomeDialog) FirstLaunchDialog(
         onSyncClick = { viewModel.onAction(PAction.RequestSync) },
         onDismissClick = { viewModel.onAction(PAction.HideWelcomeDialogs) },
@@ -118,6 +117,7 @@ fun PlayerScreen(
         waveformFlow = playerService?.waveform,
         isSyncing = state.isSyncing,
         onAction = viewModel::onAction,
+        hasMediaPermission = hasMediaPermission,
     )
 
 

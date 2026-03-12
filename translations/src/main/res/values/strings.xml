@@ -21,6 +21,8 @@
     <string name="feature_player_playlist">playlist</string>
     <string name="feature_player_syncrotation">syncrotation</string>
     <string name="feature_player_reload_playlist">reload playlist</string>
+    <string name="feature_player_not_music_access">No access to music</string>
+    <string name="feature_player_get">Get</string>
 
 
 <!--    feature library-->
