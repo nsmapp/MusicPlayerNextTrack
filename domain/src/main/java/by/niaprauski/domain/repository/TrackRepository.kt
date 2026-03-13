@@ -1,8 +1,10 @@
 package by.niaprauski.domain.repository
 
 import androidx.paging.PagingData
+import by.niaprauski.domain.models.PlayListConfig
 import by.niaprauski.domain.models.SearchTrackFilter
 import by.niaprauski.domain.models.Track
+import by.niaprauski.domain.models.TrackIds
 import kotlinx.coroutines.flow.Flow
 
 interface TrackRepository {
@@ -11,8 +13,9 @@ interface TrackRepository {
 
     fun getAll(): List<Track>
 
-    fun getRandom(limit: Int): List<Track>
+    fun getTrackIds(config: PlayListConfig): TrackIds
 
+    fun getByIds(playListIds: List<String>): List<Track>
     fun getAllAsFlow(): Flow<List<Track>>
 
     fun getAllAsFlow(filter: SearchTrackFilter): Flow<List<Track>>

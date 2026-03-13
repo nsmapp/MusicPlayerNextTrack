@@ -1,5 +1,6 @@
 package by.niaprauski.domain.usecases.track
 
+import by.niaprauski.domain.models.PlayListConfig
 import by.niaprauski.domain.models.Track
 import by.niaprauski.domain.repository.SettingsRepository
 import by.niaprauski.domain.repository.TrackRepository
@@ -16,9 +17,24 @@ class GetTracksForPlayUseCase @Inject constructor(
     suspend fun invoke(): Result<List<Track>> =
         withContext(dispatcherProvider.io) {
             runCatching {
-                val limit = settingsRepository.getTrackLimit()
-                trackRepository.getRandom(limit)
+                val settings = settingsRepository.get()
 
+                val limit = settings.playListLimitSize
+                val playlistConfig = PlayListConfig(
+                    minDuration = settings.minDuration,
+                    maxDuration = settings.maxDuration
+                )
+                val isLikeTrackPriority = settings.isLikeTrackPriority
+
+                val trackIds = trackRepository.getTrackIds(playlistConfig)
+
+                val playListIds = when {
+                    limit >= trackIds.all.size -> trackIds.all.shuffled()
+                    isLikeTrackPriority -> trackIds.all.take(limit).shuffled()
+                    else -> trackIds.all.shuffled().take(limit)
+                }
+
+                trackRepository.getByIds(playListIds)
             }
         }
 }

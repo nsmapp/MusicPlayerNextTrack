@@ -19,6 +19,7 @@ object AppSettingsSerializer : Serializer<AppSettingsEntity> {
         .setAccentPosition(0f)
         .setBackgroundPosition(0.7f)
         .setPlaylistLimitSize(100)
+        .setIsLikeTrackPriority(true)
         .build()
 
     override suspend fun readFrom(input: InputStream): AppSettingsEntity {

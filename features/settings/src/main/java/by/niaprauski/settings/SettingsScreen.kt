@@ -74,7 +74,9 @@ private fun SettingsScreenContent(
         PlayListSettingsView(
             playlistLimitSize = state.playListLimitSize,
             isPlayListLimitError = state.isPlayListLimitError,
-            onLimitTrackChanged = { count -> onAction(SAction.SetPlayListLimitSize(count)) }
+            isLikeTrackPriority = state.isLikeTrackPriority,
+            onLimitTrackChanged = { count -> onAction(SAction.SetPlayListLimitSize(count)) },
+            onAddLikeTrackInPlayList = { isLikeTrackPriority -> onAction(SAction.SetLikeTrackPriority(isLikeTrackPriority)) },
         )
     }
 }

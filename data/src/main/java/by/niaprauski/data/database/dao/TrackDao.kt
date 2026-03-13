@@ -14,8 +14,24 @@ interface TrackDao {
     @Query("SELECT * FROM tracks WHERE is_ignore == 0 ORDER BY favorite DESC")
     fun getAll(): List<TrackEntity>
 
-    @Query("SELECT id FROM tracks WHERE is_ignore = 0")
-    fun getAllIdsWithoutIgnored(): List<String>
+    @Query(
+        "SELECT id FROM tracks " +
+                "WHERE is_ignore = 0 AND favorite = 0 " +
+                "AND (duration >= :minDuration AND duration <= :maxDuration OR is_radio = 1) "
+    )
+    fun getUnlikeIdsWithoutIgnored(
+        minDuration: Int, maxDuration: Int,
+    ): List<String>
+
+    @Query(
+        "SELECT id FROM tracks " +
+                "WHERE is_ignore = 0 AND favorite > 0 " +
+                "AND (duration >= :minDuration AND duration <= :maxDuration OR is_radio = 1) " +
+                "ORDER BY favorite ASC"
+    )
+    fun getLikeIdsWithoutIgnored(
+        minDuration: Int, maxDuration: Int,
+    ): List<String>
 
     @Query("SELECT * FROM tracks WHERE id IN (:ids) ORDER BY favorite DESC")
     fun getTracksByIds(ids: List<String>): List<TrackEntity>

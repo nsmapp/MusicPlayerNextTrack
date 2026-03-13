@@ -10,4 +10,5 @@ data class AppSettings(
     val accentPosition: Float,
     val backgroundPosition: Float,
     val playListLimitSize: Int,
+    val isLikeTrackPriority: Boolean,
 )

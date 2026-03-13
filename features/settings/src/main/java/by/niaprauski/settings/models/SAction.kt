@@ -7,4 +7,6 @@ sealed class SAction {
     data class SetAccentColor(val hexColor: String, val position: Float) : SAction()
     data class SetBackgroundColor(val hexColor: String, val position: Float) : SAction()
     data class SetPlayListLimitSize(val count: String) : SAction()
+
+    data class SetLikeTrackPriority(val isLikeTrackPriority: Boolean) : SAction()
 }

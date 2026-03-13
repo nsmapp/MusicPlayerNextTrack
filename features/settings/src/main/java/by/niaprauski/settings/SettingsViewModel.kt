@@ -6,6 +6,7 @@ import by.niaprauski.domain.models.AppSettings
 import by.niaprauski.domain.usecases.settings.GetSettingsUseCase
 import by.niaprauski.domain.usecases.settings.SetAccentColorUseCase
 import by.niaprauski.domain.usecases.settings.SetBackgroundColorUseCase
+import by.niaprauski.domain.usecases.settings.SetLikeTrackPriorityUseCase
 import by.niaprauski.domain.usecases.settings.SetMaxTrackDurationUseCase
 import by.niaprauski.domain.usecases.settings.SetMinTrackDurationUseCase
 import by.niaprauski.domain.usecases.settings.SetPlayListLimitSizeUseCase
@@ -31,6 +32,7 @@ class SettingsViewModel @Inject constructor(
     private val setPlayListLimitSizeUseCase: SetPlayListLimitSizeUseCase,
     private val setAccentColorUseCase: SetAccentColorUseCase,
     private val setBackgroundColorUseCase: SetBackgroundColorUseCase,
+    private val setLikeTrackPriorityUseCase: SetLikeTrackPriorityUseCase,
 ) : ViewModel() {
 
     companion object {
@@ -64,6 +66,7 @@ class SettingsViewModel @Inject constructor(
             is SAction.SetAccentColor -> setAccentColorSettings(action.hexColor, action.position)
             is SAction.SetBackgroundColor -> setBackgroundColorSettings(action.hexColor, action.position)
             is SAction.SetPlayListLimitSize -> setPlayListLimitSize(action.count)
+            is SAction.SetLikeTrackPriority -> setLikeTrackPriority(action.isLikeTrackPriority)
         }
     }
 
@@ -231,6 +234,14 @@ class SettingsViewModel @Inject constructor(
                 .collect { (hexColor, position) ->
                     saveBackgroundColorSettings(hexColor, position)
                 }
+        }
+    }
+
+    private fun setLikeTrackPriority(likeTrackPriority: Boolean) {
+        viewModelScope.launch {
+            setLikeTrackPriorityUseCase.invoke(likeTrackPriority)
+                .onSuccess { _state.update { it.copy(isLikeTrackPriority = likeTrackPriority) } }
+                .onFailure { _state.update { it.copy(isLikeTrackPriority = !likeTrackPriority) } }
         }
     }
 

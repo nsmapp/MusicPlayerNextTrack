@@ -14,10 +14,11 @@ data class SettingsState(
     val backgroundPosition: Float,
     val isPlayListLimitError: Boolean,
     val playListLimitSize: String,
+    val isLikeTrackPriority: Boolean,
 ){
     companion object{
         val INITIAL = SettingsState(
-            isVisuallyEnabled = true,
+            isVisuallyEnabled = false,
             minDuration = TEXT_EMPTY,
             isMinDurationError = false,
             maxDuration = TEXT_EMPTY,
@@ -25,7 +26,8 @@ data class SettingsState(
             acentPositon = 0f,
             backgroundPosition = 0f,
             isPlayListLimitError = false,
-            playListLimitSize = "100"
+            playListLimitSize = "100",
+            isLikeTrackPriority = true,
         )
     }
 }

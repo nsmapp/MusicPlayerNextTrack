@@ -87,4 +87,12 @@ class SettingsRepoImpl @Inject constructor(
         }
     }
 
+    override suspend fun setLikeTrackPriority(isLikeTrackPriority: Boolean) {
+        store.updateData { currentSettings ->
+            currentSettings.toBuilder()
+                .setIsLikeTrackPriority(isLikeTrackPriority)
+                .build()
+        }
+    }
+
 }

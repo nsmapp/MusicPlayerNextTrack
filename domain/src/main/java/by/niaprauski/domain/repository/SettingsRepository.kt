@@ -27,5 +27,7 @@ interface SettingsRepository {
 
     suspend fun setTrackLimit(count: Int)
 
+    suspend fun setLikeTrackPriority(isLikeTrackPriority: Boolean)
+
 
 }

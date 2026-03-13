@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import by.niaprauski.designsystem.theme.AppTheme
+import by.niaprauski.designsystem.ui.row.SwitchRow
 import by.niaprauski.designsystem.ui.row.TextFieldRow
 import by.niaprauski.designsystem.ui.text.TextBoldLarge
 import by.niaprauski.translations.R
@@ -17,7 +18,9 @@ import by.niaprauski.translations.R
 fun PlayListSettingsView(
     playlistLimitSize: String,
     isPlayListLimitError: Boolean,
-    onLimitTrackChanged: (String) -> Unit
+    isLikeTrackPriority: Boolean,
+    onLimitTrackChanged: (String) -> Unit,
+    onAddLikeTrackInPlayList: (Boolean) -> Unit,
 ) {
     TextBoldLarge(
         modifier = Modifier.padding(top = AppTheme.padding.default),
@@ -34,5 +37,15 @@ fun PlayListSettingsView(
         onValueChange = onLimitTrackChanged,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         isError = isPlayListLimitError,
+    )
+
+    SwitchRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(AppTheme.padding.mini),
+        isChecked = isLikeTrackPriority,
+        label = stringResource(R.string.feature_settings_liked_priority),
+        onCheckedChange = onAddLikeTrackInPlayList,
     )
 }

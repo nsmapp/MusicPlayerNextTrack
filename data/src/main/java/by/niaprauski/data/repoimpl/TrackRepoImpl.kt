@@ -6,8 +6,10 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import by.niaprauski.data.database.dao.TrackDao
 import by.niaprauski.data.mappers.TrackMapper
+import by.niaprauski.domain.models.PlayListConfig
 import by.niaprauski.domain.models.SearchTrackFilter
 import by.niaprauski.domain.models.Track
+import by.niaprauski.domain.models.TrackIds
 import by.niaprauski.domain.repository.TrackRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -31,14 +33,24 @@ class TrackRepoImpl @Inject constructor(
     override fun getAll(): List<Track> = trackDao.getAll()
         .map {track -> trackMapper.toModel(track) }
 
-    override fun getRandom(limit: Int): List<Track> {
-        val allIds = trackDao.getAllIdsWithoutIgnored()
-        val randomIds = allIds.shuffled().take(limit)
-        val result = trackDao.getTracksByIds(randomIds)
-            .map {track -> trackMapper.toModel(track) }
 
-        return result
+    override fun getTrackIds(config: PlayListConfig): TrackIds {
+        val unlikeIds = trackDao.getUnlikeIdsWithoutIgnored(
+            minDuration = config.minDuration,
+            maxDuration = config.maxDuration,
+        )
+        val likedIds = trackDao.getLikeIdsWithoutIgnored(
+            minDuration = config.minDuration,
+            maxDuration = config.maxDuration,
+        )
+
+        return TrackIds(unliked = unlikeIds, liked = likedIds)
+
     }
+
+    override fun getByIds(playListIds: List<String>): List<Track> =
+        trackDao.getTracksByIds(playListIds)
+            .map { trackMapper.toModel(it) }
 
     override fun getAllAsFlow(): Flow<List<Track>> = trackDao
         .getAllAsFlow()

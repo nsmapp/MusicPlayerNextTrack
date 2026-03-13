@@ -13,4 +13,5 @@ message AppSettingsEntity {
     float accent_position = 8;
     float background_position = 9;
     int32 playlist_limit_size = 10;
+    bool is_like_track_priority = 11;
 }
