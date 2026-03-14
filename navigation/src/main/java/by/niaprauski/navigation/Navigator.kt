@@ -22,6 +22,22 @@ class Navigator(
         }
     }
 
+    fun navigateTop(screen: NavKey){
+        if(screen == currentScreen) return
+        backStack.apply {
+            remove(screen)
+            add(screen)
+        }
+    }
+
+    fun navigateWithDropLast(screen: NavKey){
+        if(screen == currentScreen) return
+        backStack.apply {
+            backStack.removeLastOrNull()
+            add(screen)
+        }
+    }
+
     fun navigateBack(){
         backStack.removeLastOrNull()
     }

@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.LibraryMusic
+import androidx.compose.material.icons.rounded.Mail
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Repeat
@@ -43,4 +44,7 @@ object IIcon {
     val playListUpdate = Icons.PlaulustUpdate
     val sync = Icons.Rounded.Sync
     val settings = Icons.Rounded.Settings
+    val mail = Icons.Rounded.Mail
+    val github = Github
+
 }

@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import by.niaprauski.designsystem.theme.AppTheme
@@ -21,7 +22,8 @@ fun TextBase(
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
-    style: TextStyle
+    style: TextStyle,
+    textAlign: TextAlign? = null,
 ) {
 
     Text(
@@ -33,6 +35,7 @@ fun TextBase(
         softWrap = softWrap,
         maxLines = maxLines,
         minLines = minLines,
+        textAlign = textAlign,
         style = style
     )
 

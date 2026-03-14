@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Next track</string>
+    <string name="app_version"> v0.9</string>
+<!--    //TODO move version to properties-->
 
 <!--    feature player-->
     <string name="feature_player_welcome_message">To sync the playlist, you need to grant access to your media files.\n\nIf you do not want to grant the app access to your media files, you can play your track by selecting it in the file manager.</string>
@@ -45,4 +48,8 @@
     <string name="feature_settings_max_tracks">Max tracks</string>
     <string name="feature_settings_playback">Playback</string>
     <string name="feature_settings_liked_priority">Favorite tracks priority</string>
+    <string name="feature_settings_about_app">About app</string>
+
+    <!--    feature about-->
+    <string name="feature_about_application_description">A simple music and online radio player — just hit “Play”.\n\nIf you have any suggestions or found a bug, feel free to reach out.</string>
 </resources>

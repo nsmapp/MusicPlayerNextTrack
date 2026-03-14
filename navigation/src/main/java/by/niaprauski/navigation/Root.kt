@@ -25,12 +25,13 @@ import by.niaprauski.designsystem.theme.AppTheme
 import by.niaprauski.designsystem.theme.colors.navigationBarItemColors
 import by.niaprauski.designsystem.theme.icons.IIcon
 import by.niaprauski.designsystem.ui.icons.SmallIcon
+import by.niaprauski.navigation.screens.settings.settings
 import by.niaprauski.navigation.screens.library.LibraryDest
 import by.niaprauski.navigation.screens.library.library
 import by.niaprauski.navigation.screens.player.PlayerDest
 import by.niaprauski.navigation.screens.player.player
+import by.niaprauski.navigation.screens.about.about
 import by.niaprauski.navigation.screens.settings.SettingsDest
-import by.niaprauski.navigation.screens.settings.settings
 
 
 @Composable
@@ -58,7 +59,7 @@ fun Root(
             ) {
                 NavigationBarItem(
                     selected = navigator.currentScreen is LibraryDest,
-                    onClick = { navigator.navigateSingleTop(LibraryDest.root()) },
+                    onClick = { navigator.navigateTop(LibraryDest.root()) },
                     icon = { SmallIcon(imageVector = IIcon.library) },
                     colors = navigationBarItemColors,
                 )
@@ -72,7 +73,7 @@ fun Root(
 
                 NavigationBarItem(
                     selected = navigator.currentScreen is SettingsDest,
-                    onClick = { navigator.navigateSingleTop(SettingsDest.root())},
+                    onClick = { navigator.navigateTop(SettingsDest.root())},
                     icon = { SmallIcon(imageVector = IIcon.settings) },
                     colors = navigationBarItemColors,
                 )
@@ -121,5 +122,6 @@ fun getEntries(navigator: Navigator) = entryProvider<NavKey> {
     library(navigator)
     player(navigator)
     settings(navigator)
+    about(navigator)
 
 }

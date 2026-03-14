@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":features:player"))
     implementation(project(":features:library"))
     implementation(project(":features:settings"))
+    implementation(project(":features:about"))
     implementation(project(":uikit:design-system"))
 
     implementation(libs.kotlinx.serialization.json)
